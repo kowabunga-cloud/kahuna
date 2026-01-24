@@ -2,12 +2,12 @@
 # Apache License, Version 2.0 (see LICENSE or https://www.apache.org/licenses/LICENSE-2.0.txt)
 # SPDX-License-Identifier: Apache-2.0
 
-PKG_NAME=github.com/kowabunga-cloud/kowabunga/kowabunga/kahuna
+PKG_NAME=github.com/kowabunga-cloud/kahuna/internal/kahuna
 VERSION=0.64.1
 DIST=noble
 CODENAME=NoFuture
 
-SRC_DIR = kowabunga
+SRC_DIR = internal
 SDK_GENERATOR = go-server
 SDK_PACKAGE_NAME = sdk
 SDK_VERSION = "tags/v0.53.2"
@@ -36,7 +36,7 @@ GOSEC = $(BINDIR)/gosec
 GOSEC_VERSION = v2.22.10
 
 PKGS = $(shell go list ./... | grep -v /$(SDK_PACKAGE_NAME))
-PKGS_SHORT = $(shell go list ./... | grep -v /$(SDK_PACKAGE_NAME) | sed 's%github.com/kowabunga-cloud/kowabunga/%%')
+PKGS_SHORT = $(shell go list ./... | grep -v /$(SDK_PACKAGE_NAME) | sed 's%github.com/kowabunga-cloud/kahuna/%%')
 
 V = 0
 Q = $(if $(filter 1,$V),,@)
@@ -102,15 +102,12 @@ update: ; $(info $(M) updating modules…) @
 bin: ; $(info $(M) create local bin directory) @
 	$Q mkdir -p $(BINDIR)
 
-.PHONY: kahuna
-kahuna: bin ; $(info $(M) building Kahuna orchestrator…) @
+.PHONY: build
+build: bin ; $(info $(M) building Kahuna orchestrator…) @
 	$Q go build \
-		-gcflags="kowabunga/...=-e" \
+		-gcflags="internal/...=-e" \
 		-ldflags='$(DEBUG) -X $(PKG_NAME).version=$(VERSION) -X $(PKG_NAME).codename=$(CODENAME)' \
 		-o $(BINDIR) ./cmd/kahuna
-
-.PHONY: build
-build: kahuna
 
 .PHONY: tests
 tests: ; $(info $(M) testing Kowabunga suite…) @
@@ -169,17 +166,11 @@ help:
 
 # This target count all the lines of .go files (no matter if empty lines or comments)
 .PHONY: lc
-lc: ; @ ## Count lines
+lc: ; @
 	@find . -name "*.go" -exec cat {} \; | wc -l | awk '{print $$1}'
 
 # This target count the lines of go code only (ignore empty lines, comments, etc.)
 # it requires gosloc
 .PHONY: sloc
-sloc: ; @ ## Count GO lines
+sloc: ; @
 	@find . -name "*.go" -exec cat {} \; | gosloc
-
-# This target print the version to be used as version if build is launched
-# this file does not exists in our VCS but Jenkins create the file before building the project
-.PHONY: version
-version:
-	@echo $(VERSION)

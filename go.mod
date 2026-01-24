@@ -1,4 +1,4 @@
-module github.com/kowabunga-cloud/kowabunga
+module github.com/kowabunga-cloud/kahuna
 
 go 1.25.0
 

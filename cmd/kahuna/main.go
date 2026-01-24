@@ -11,7 +11,7 @@ import (
 	"os"
 
 	"github.com/kowabunga-cloud/common/klog"
-	"github.com/kowabunga-cloud/kowabunga/kowabunga/kahuna"
+	"github.com/kowabunga-cloud/kahuna/internal/kahuna"
 )
 
 func main() {
