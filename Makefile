@@ -109,15 +109,8 @@ kahuna: bin ; $(info $(M) building Kahuna orchestrator…) @
 		-ldflags='$(DEBUG) -X $(PKG_NAME).version=$(VERSION) -X $(PKG_NAME).codename=$(CODENAME)' \
 		-o $(BINDIR) ./cmd/kahuna
 
-.PHONY: konvey
-konvey: ; $(info $(M) building Konvey agent…) @
-	$Q go build \
-		-gcflags="kowabunga/...=-e" \
-		-ldflags='$(DEBUG)' \
-		-o $(BINDIR) ./cmd/konvey
-
 .PHONY: build
-build: kahuna konvey
+build: kahuna
 
 .PHONY: tests
 tests: ; $(info $(M) testing Kowabunga suite…) @

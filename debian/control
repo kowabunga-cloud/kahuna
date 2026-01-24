@@ -12,10 +12,3 @@ Depends: ${misc:Depends}
 Description: Kowabunga Kahuna Orchestrator
  Kowabunga stands for 'Kvm Orchestrator With A BUNch of Goods Added'.
  Kahuna is the core service engine, providing REST API frontend and orchestration capabilities.
-
-Package: kowabunga-konvey-agent
-Architecture: any
-Depends: ${misc:Depends}
-Description: Kowabunga Konvey Agent
- Kowabunga stands for 'Kvm Orchestrator With A BUNch of Goods Added'
- This is Konvey agent, meant to provide as-a-service network load-balancer capabilities.
