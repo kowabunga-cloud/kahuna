@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Install package dependencies
-        run: sudo apt-get install -y debhelper librados-dev librbd-dev gcc
+        run: sudo apt-get install -y debhelper
       - uses: actions/checkout@v4
       - name: Setup Go
         uses: actions/setup-go@v5
