@@ -1,3 +1,38 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [0.64.2](https://github.com/kowabunga-cloud/kahuna/compare/v0.64.1...v0.64.2) (2026-04-03)
+
+### Chores
+
+* add editor config ([b1b22aa](https://github.com/kowabunga-cloud/kahuna/commit/b1b22aa9395224db48cd883c4323a6aef8bdc4ee))
+* add pre-commit hook ([4401dad](https://github.com/kowabunga-cloud/kahuna/commit/4401dad37fe37930d145d16ef32b5bf37a93e06e))
+* add semantic-release support ([488e768](https://github.com/kowabunga-cloud/kahuna/commit/488e768cbee9fb36efe5e08afe67b7a523d36b67))
+* always use latest version of build tools ([ed9643a](https://github.com/kowabunga-cloud/kahuna/commit/ed9643ab01c5893332b234f6c3fea9753b248b54))
+* don't complain on gosec G101 error ([05b5a6f](https://github.com/kowabunga-cloud/kahuna/commit/05b5a6f7d5d6302fd96b0b0e9bcceefd0f304fd5))
+* don't exclude any gosec codes by default ([b1e299c](https://github.com/kowabunga-cloud/kahuna/commit/b1e299c18cd3d27d59b3f56ac9d0e4d546429c6f))
+* explicit gosec errors ignore as all are integer conversions between signed/unsigned types that are safe in context — memory/storage sizes (always positive), CPU/instance counts (always small), VRRP IDs (bounded 1–255), and libvirt XML field types that require uint ([3f84afe](https://github.com/kowabunga-cloud/kahuna/commit/3f84afead29d7d9a0f543ebd0a9c07fd75ea466f))
+* fix Makefile directive name ([fc6abe4](https://github.com/kowabunga-cloud/kahuna/commit/fc6abe44a83db8075ab1b2cd4a42a3eff58cc836))
+* fix pre-commit issues ([a021ba3](https://github.com/kowabunga-cloud/kahuna/commit/a021ba3de76d4636ecea32a546af8165cbc520bf))
+* ignore more files ([088672b](https://github.com/kowabunga-cloud/kahuna/commit/088672bc56a73bb65de072ce46283b3782a3347a))
+* implement more unit tests ([d02200a](https://github.com/kowabunga-cloud/kahuna/commit/d02200aaf49dc657bf03404cb95fad2a538317ac))
+* intentionally don't run gosec on sdk auto-generated code (won't be fixed) ([dba7737](https://github.com/kowabunga-cloud/kahuna/commit/dba773759e4813df55b1abe3b5d70eb9774e7db9))
+* re-use shared GH action workflows ([51ee64c](https://github.com/kowabunga-cloud/kahuna/commit/51ee64c57b41322cbbdadb6cca597be6402e1ef3))
+* remove apk build ([eab03aa](https://github.com/kowabunga-cloud/kahuna/commit/eab03aae27dfe65a1d276e9af98d0eda7faa6240))
+* remove useless version and codename flag ([c917ae6](https://github.com/kowabunga-cloud/kahuna/commit/c917ae6081d618d8eadd55b051d16753eae8b3f5))
+* require go 1.26 ([f3b6d13](https://github.com/kowabunga-cloud/kahuna/commit/f3b6d137e0851e277c9b7bca390e0e10f02b4ba9))
+* simplified debian packaging ([a1652a2](https://github.com/kowabunga-cloud/kahuna/commit/a1652a284858edb1b2b8969a725ef42756fff972))
+* update dependencies ([bec9759](https://github.com/kowabunga-cloud/kahuna/commit/bec97593f86c6ef885a88c312fb9a23fbd514db4))
+
+### Documentation
+
+* add Claude doc ([801afef](https://github.com/kowabunga-cloud/kahuna/commit/801afef826506ec28fc97fd00c6a77107ae1d325))
+* add code owners ([a736537](https://github.com/kowabunga-cloud/kahuna/commit/a736537ad5a014ed42604a149c530834890f445c))
+* remove empty white line ([714ba9a](https://github.com/kowabunga-cloud/kahuna/commit/714ba9a356e7d559e83ffa600e208fb19b642d11))
+* updated logo ([aa5d479](https://github.com/kowabunga-cloud/kahuna/commit/aa5d479cdfd04456e5f84954356a4043169c12ed))
+* updated README ([8352668](https://github.com/kowabunga-cloud/kahuna/commit/835266829e072627b3fc7f07303d1313956a6a6c))
+
 ## unreleased (yyyy-mm-dd)
 
 ## 0.64.1 (2025-12-30)
