@@ -102,7 +102,7 @@ build: bin ; $(info $(M) building Kahuna orchestrator…) @
 		-o $(BINDIR) ./cmd/kahuna
 
 .PHONY: tests
-tests: ; $(info $(M) testing Kowabunga suite…) @
+tests: ; $(info $(M) run tests…) @
 	$Q go test ./... -count=1 -coverprofile=coverage.txt
 
 .PHONY: deb
