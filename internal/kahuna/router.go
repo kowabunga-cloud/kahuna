@@ -79,14 +79,6 @@ var projectAdminAllowedRoutes = []ApiOperation{
 	},
 }
 
-func versionHandler(w http.ResponseWriter, r *http.Request) {
-	v := fmt.Sprintf("%s (%s)\n", version, codename)
-	_, err := w.Write([]byte(v))
-	if err != nil {
-		klog.Error(err)
-	}
-}
-
 func htmlResponse(param string) string {
 	return fmt.Sprintf(
 		`<html>
@@ -528,7 +520,6 @@ func NewRouter(ke *KahunaEngine) *mux.Router {
 	// extra endpoint routes
 	router.HandleFunc("/confirm", userRegistrationHandler)
 	router.HandleFunc("/confirmForgotPassword", userPasswordRenewalHandler)
-	router.HandleFunc("/version", versionHandler)
 	router.HandleFunc("/latest/meta-data", metadataHandler)
 	router.Handle("/metrics", ke.Exporter.HttpHandler())
 	router.HandleFunc(ws.WsRouterEndpoint, wsHandler)

@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 PKG_NAME=github.com/kowabunga-cloud/kahuna/internal/kahuna
-VERSION=0.64.1
-CODENAME=NoFuture
 
 SRC_DIR = internal
 SDK_GENERATOR = go-server
@@ -100,7 +98,7 @@ bin: ; $(info $(M) create local bin directory) @
 build: bin ; $(info $(M) building Kahuna orchestrator…) @
 	$Q go build \
 		-gcflags="internal/...=-e" \
-		-ldflags='$(DEBUG) -X $(PKG_NAME).version=$(VERSION) -X $(PKG_NAME).codename=$(CODENAME)' \
+		-ldflags='$(DEBUG)' \
 		-o $(BINDIR) ./cmd/kahuna
 
 .PHONY: tests
