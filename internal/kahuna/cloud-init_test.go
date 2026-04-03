@@ -18,6 +18,59 @@ const (
 	TestCloudInitConfigDir = "/tmp/kowabunga/cloud-init"
 )
 
+func TestFormatAdapterDeviceNameLinux(t *testing.T) {
+	ci := &CloudInit{}
+	cases := []struct {
+		index    int
+		expected string
+	}{
+		{0, "ens3"},
+		{1, "ens4"},
+		{2, "ens5"},
+	}
+	for _, c := range cases {
+		if got := ci.formatAdapterDeviceName(c.index, false); got != c.expected {
+			t.Errorf("index=%d: expected %q, got %q", c.index, c.expected, got)
+		}
+	}
+}
+
+func TestFormatAdapterDeviceNameWindows(t *testing.T) {
+	ci := &CloudInit{}
+	cases := []struct {
+		index    int
+		expected string
+	}{
+		{0, "interface0"},
+		{1, "interface1"},
+		{2, "interface2"},
+	}
+	for _, c := range cases {
+		if got := ci.formatAdapterDeviceName(c.index, true); got != c.expected {
+			t.Errorf("index=%d: expected %q, got %q", c.index, c.expected, got)
+		}
+	}
+}
+
+func TestNewCloudInitVolumeSuffix(t *testing.T) {
+	ci, err := NewCloudInit("myvm", CloudinitProfileLinux)
+	if err != nil {
+		t.Fatalf("NewCloudInit: %v", err)
+	}
+	defer func() { _ = os.RemoveAll(ci.TmpDir) }()
+
+	expected := "myvm" + CloudInitVolumeSuffix
+	if ci.Name != expected {
+		t.Errorf("expected Name=%q, got %q", expected, ci.Name)
+	}
+	if ci.OS != CloudinitProfileLinux {
+		t.Errorf("expected OS=%q, got %q", CloudinitProfileLinux, ci.OS)
+	}
+	if ci.TmpDir == "" {
+		t.Error("expected non-empty TmpDir")
+	}
+}
+
 func TestWindowsUserDataTemplate(t *testing.T) {
 	testResultDir := TestCloudInitConfigDir
 	err := os.MkdirAll(testResultDir, 0777)
