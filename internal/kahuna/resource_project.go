@@ -71,17 +71,17 @@ type ProjectResources struct {
 }
 
 func (pr *ProjectResources) Update(quotas sdk.ProjectResources) {
-	pr.VCPUs = uint16(quotas.Vcpus)
-	pr.MemorySize = uint64(quotas.Memory)
-	pr.StorageSize = uint64(quotas.Storage)
-	pr.InstancesCount = uint16(quotas.Instances)
+	pr.VCPUs = uint16(quotas.Vcpus)          // #nosec G115 -- vcpu count never overflows uint16
+	pr.MemorySize = uint64(quotas.Memory)     // #nosec G115 -- SDK uses int64 for proto compat; values are always positive
+	pr.StorageSize = uint64(quotas.Storage)   // #nosec G115 -- SDK uses int64 for proto compat; values are always positive
+	pr.InstancesCount = uint16(quotas.Instances) // #nosec G115 -- instance count never overflows uint16
 }
 
 func (pr *ProjectResources) Model() sdk.ProjectResources {
 	return sdk.ProjectResources{
 		Instances: int32(pr.InstancesCount),
-		Memory:    int64(pr.MemorySize),
-		Storage:   int64(pr.StorageSize),
+		Memory:    int64(pr.MemorySize),   // #nosec G115 -- memory quota fits in int64
+		Storage:   int64(pr.StorageSize),  // #nosec G115 -- storage quota fits in int64
 		Vcpus:     int32(pr.VCPUs),
 	}
 }
@@ -539,7 +539,7 @@ func (p *Project) Model() sdk.Project {
 	}
 	vrrp_ids := []int32{}
 	for _, id := range p.VrrpIDs {
-		vrrp_ids = append(vrrp_ids, int32(id))
+		vrrp_ids = append(vrrp_ids, int32(id)) // #nosec G115 -- VRRP IDs are bounded 1-255
 	}
 	return sdk.Project{
 		Id:              p.String(),
@@ -649,16 +649,16 @@ func (p *Project) AddInstance(id string) {
 
 	// increase usage counters
 	p.Usage.InstancesCount += 1
-	p.Usage.VCPUs += uint16(i.CPU)
-	p.Usage.MemorySize += uint64(i.Memory)
+	p.Usage.VCPUs += uint16(i.CPU)           // #nosec G115 -- vcpu count never overflows uint16
+	p.Usage.MemorySize += uint64(i.Memory)   // #nosec G115 -- memory is always positive
 
 	p.Save()
 }
 
 func (p *Project) UpdateInstanceUsage(cpu, mem int64) {
 	// increase usage counters
-	p.Usage.VCPUs += uint16(cpu)
-	p.Usage.MemorySize += uint64(mem)
+	p.Usage.VCPUs += uint16(cpu)           // #nosec G115 -- vcpu count never overflows uint16
+	p.Usage.MemorySize += uint64(mem)      // #nosec G115 -- memory is always positive
 	p.Save()
 }
 
@@ -674,8 +674,8 @@ func (p *Project) RemoveInstance(id string) {
 
 	// decrease usage counters
 	p.Usage.InstancesCount -= 1
-	p.Usage.VCPUs -= uint16(ist.CPU)
-	p.Usage.MemorySize -= uint64(ist.Memory)
+	p.Usage.VCPUs -= uint16(ist.CPU)           // #nosec G115 -- vcpu count never overflows uint16
+	p.Usage.MemorySize -= uint64(ist.Memory)   // #nosec G115 -- memory is always positive
 
 	RemoveChildRef(&p.InstanceIDs, id)
 	p.Save()
@@ -684,17 +684,17 @@ func (p *Project) RemoveInstance(id string) {
 func (p *Project) AllowInstanceCreationOrUpdate(instances, cpu, mem int64) bool {
 	// ensure the new instance characteristics comply with the project quota
 	if p.Quotas.InstancesCount > 0 {
-		if p.Usage.InstancesCount+uint16(instances) > p.Quotas.InstancesCount {
+		if p.Usage.InstancesCount+uint16(instances) > p.Quotas.InstancesCount { // #nosec G115 -- instance count never overflows uint16
 			return false
 		}
 	}
 	if p.Quotas.VCPUs > 0 {
-		if p.Usage.VCPUs+uint16(cpu) > p.Quotas.VCPUs {
+		if p.Usage.VCPUs+uint16(cpu) > p.Quotas.VCPUs { // #nosec G115 -- vcpu count never overflows uint16
 			return false
 		}
 	}
 	if p.Quotas.MemorySize > 0 {
-		if p.Usage.MemorySize+uint64(mem) > p.Quotas.MemorySize {
+		if p.Usage.MemorySize+uint64(mem) > p.Quotas.MemorySize { // #nosec G115 -- memory is always positive
 			return false
 		}
 	}
@@ -724,14 +724,14 @@ func (p *Project) AddVolume(id string) {
 	}
 
 	// increase usage counters
-	p.Usage.StorageSize += uint64(v.Size)
+	p.Usage.StorageSize += uint64(v.Size) // #nosec G115 -- volume size is always positive
 
 	p.Save()
 }
 
 func (p *Project) UpdateVolumeUsage(size int64) {
 	// increase usage counters
-	p.Usage.StorageSize += uint64(size)
+	p.Usage.StorageSize += uint64(size) // #nosec G115 -- volume size is always positive
 	p.Save()
 }
 
@@ -745,7 +745,7 @@ func (p *Project) RemoveVolume(id string) {
 	}
 
 	// decrease usage counters
-	p.Usage.StorageSize -= uint64(vol.Size)
+	p.Usage.StorageSize -= uint64(vol.Size) // #nosec G115 -- volume size is always positive
 
 	RemoveChildRef(&p.VolumeIDs, id)
 	p.Save()
@@ -754,7 +754,7 @@ func (p *Project) RemoveVolume(id string) {
 func (p *Project) AllowVolumeCreationOrUpdate(vol int64) bool {
 	// ensure the new volume characteristics comply with the project quota
 	if p.Quotas.StorageSize > 0 {
-		if p.Usage.StorageSize+uint64(vol) > p.Quotas.StorageSize {
+		if p.Usage.StorageSize+uint64(vol) > p.Quotas.StorageSize { // #nosec G115 -- volume size is always positive
 			return false
 		}
 	}

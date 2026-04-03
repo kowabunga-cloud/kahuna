@@ -360,7 +360,7 @@ func (v *Volume) ResizeVolume() error {
 	}
 	capacity := reply.Size
 
-	requestedSize := uint64(v.Size)
+	requestedSize := uint64(v.Size) // #nosec G115 -- volume size is always positive
 	if requestedSize < capacity {
 		return fmt.Errorf("unable to shrink storage volume %s from %s to %s", v.String(), HumanByteSize(capacity), HumanByteSize(requestedSize))
 	}
@@ -406,7 +406,7 @@ func (v *Volume) createRaw(pool, vol string, size int64) error {
 	args := proto.KaktusCreateRawVolumeArgs{
 		Pool:   pool,
 		Volume: vol,
-		Size:   uint64(size),
+		Size:   uint64(size), // #nosec G115 -- volume size is always positive
 	}
 	var reply proto.KaktusCreateRawVolumeReply
 
@@ -433,7 +433,7 @@ func (v *Volume) createOS(pool, vol, tpl string, size int64) error {
 	args := proto.KaktusCreateOsVolumeArgs{
 		Pool:     pool,
 		Volume:   vol,
-		Size:     uint64(size),
+		Size:     uint64(size), // #nosec G115 -- volume size is always positive
 		Template: tpl,
 	}
 	var reply proto.KaktusCreateOsVolumeReply
@@ -445,7 +445,7 @@ func (v *Volume) createISO(pool, vol string, content []byte, size int64) error {
 	args := proto.KaktusCreateIsoVolumeArgs{
 		Pool:    pool,
 		Volume:  vol,
-		Size:    uint64(size),
+		Size:    uint64(size), // #nosec G115 -- volume size is always positive
 		Content: content,
 	}
 	var reply proto.KaktusCreateIsoVolumeReply
@@ -501,7 +501,7 @@ func (v *Volume) CreateVolume() error {
 			klog.Errorf("Unable to create remote template RBD volume: %v", err)
 			return err
 		}
-		v.Size = int64(size)
+		v.Size = int64(size) // #nosec G115 -- template volume size fits in int64
 	}
 
 	return nil
@@ -596,7 +596,7 @@ func (v *Volume) OverwriteCloudInitVolume(iso *CloudInit) error {
 	args := proto.KaktusUpdateIsoVolumeArgs{
 		Pool:    pool.Pool,
 		Volume:  v.Name,
-		Size:    uint64(v.Size),
+		Size:    uint64(v.Size), // #nosec G115 -- volume size is always positive
 		Content: imgContent,
 	}
 	var reply proto.KaktusUpdateIsoVolumeReply

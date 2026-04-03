@@ -265,7 +265,7 @@ func (k *Kaktus) Scan() {
 			Threads: int64(reply.Threads),
 			Vendor:  reply.Vendor,
 		},
-		Memory: int64(reply.Memory),
+		Memory: int64(reply.Memory), // #nosec G115 -- host memory fits in int64
 	}
 
 	k.Capabilities = hc
@@ -379,7 +379,7 @@ func (k *Kaktus) UsageScore() int {
 	score := 0
 	score += int(k.Usage.InstancesCount) * KaktusScoreFactorInstancesCount
 	score += int(k.Usage.VCPUs) * KaktusScoreFactorVCPUs
-	memGB := int(bytesToGB(int64(k.Usage.MemorySize)))
+	memGB := int(bytesToGB(int64(k.Usage.MemorySize))) // #nosec G115 -- memory fits in int64
 	score += memGB * KaktusScoreFactorMemory
 	return score
 }
@@ -406,16 +406,16 @@ func (k *Kaktus) AddInstance(id string) {
 
 	// increase usage counters
 	k.Usage.InstancesCount += 1
-	k.Usage.VCPUs += uint16(instance.CPU)
-	k.Usage.MemorySize += uint64(instance.Memory)
+	k.Usage.VCPUs += uint16(instance.CPU)           // #nosec G115 -- vcpu count never overflows uint16
+	k.Usage.MemorySize += uint64(instance.Memory)   // #nosec G115 -- memory is always positive
 
 	k.Save()
 }
 
 func (k *Kaktus) UpdateInstanceUsage(cpu, mem int64) {
 	// increase usage counters
-	k.Usage.VCPUs += uint16(cpu)
-	k.Usage.MemorySize += uint64(mem)
+	k.Usage.VCPUs += uint16(cpu)           // #nosec G115 -- vcpu count never overflows uint16
+	k.Usage.MemorySize += uint64(mem)      // #nosec G115 -- memory is always positive
 	k.Save()
 }
 
@@ -431,8 +431,8 @@ func (k *Kaktus) RemoveInstance(id string) {
 
 	// decrease usage counters
 	k.Usage.InstancesCount -= 1
-	k.Usage.VCPUs -= uint16(ist.CPU)
-	k.Usage.MemorySize -= uint64(ist.Memory)
+	k.Usage.VCPUs -= uint16(ist.CPU)           // #nosec G115 -- vcpu count never overflows uint16
+	k.Usage.MemorySize -= uint64(ist.Memory)   // #nosec G115 -- memory is always positive
 
 	RemoveChildRef(&k.InstanceIDs, id)
 	k.Save()

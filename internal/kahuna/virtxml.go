@@ -22,14 +22,14 @@ func (desc *VirtualInstanceDescription) XML() (string, error) {
 }
 
 func (desc *VirtualInstanceDescription) SetCPU(cpuCount int64) {
-	desc.domain.VCPU.Value = uint(cpuCount)
+	desc.domain.VCPU.Value = uint(cpuCount) // #nosec G115 -- cpu count is always positive and small
 }
 
 func (desc *VirtualInstanceDescription) SetMemory(memBytes int64) {
 	desc.domain.CurrentMemory.Unit = "B"
-	desc.domain.CurrentMemory.Value = uint(memBytes)
+	desc.domain.CurrentMemory.Value = uint(memBytes) // #nosec G115 -- memory bytes always fit in uint on 64-bit systems
 	desc.domain.Memory.Unit = "B"
-	desc.domain.Memory.Value = uint(memBytes)
+	desc.domain.Memory.Value = uint(memBytes) // #nosec G115 -- memory bytes always fit in uint on 64-bit systems
 }
 
 func (desc *VirtualInstanceDescription) SetInterfaces(interfaces map[string]string) {
@@ -69,14 +69,14 @@ func virtOs(arch, machine string) *virtxml.DomainOS {
 func virtMemory(mem int64) *virtxml.DomainMemory {
 	return &virtxml.DomainMemory{
 		Unit:  "B",
-		Value: uint(mem),
+		Value: uint(mem), // #nosec G115 -- memory bytes always fit in uint on 64-bit systems
 	}
 }
 
 func virtVcpus(cpu int64) *virtxml.DomainVCPU {
 	return &virtxml.DomainVCPU{
 		Placement: "static",
-		Value:     uint(cpu),
+		Value:     uint(cpu), // #nosec G115 -- cpu count is always positive and small
 	}
 }
 

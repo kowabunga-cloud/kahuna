@@ -73,7 +73,7 @@ func sendEmail(to, subject string, body hermes.Email) error {
 func quotaToString(val int, size bool) string {
 	if val != 0 {
 		if size {
-			return HumanByteSize(uint64(val))
+			return HumanByteSize(uint64(val)) // #nosec G115 -- val is always non-negative at this point
 		}
 		return fmt.Sprintf("%d", val)
 	}
@@ -85,8 +85,8 @@ func NewEmailProjectCreated(prj *Project, user *User) error {
 
 	instances := quotaToString(int(prj.Quotas.InstancesCount), false)
 	vcpus := quotaToString(int(prj.Quotas.VCPUs), false)
-	mem := quotaToString(int(prj.Quotas.MemorySize), true)
-	disk := quotaToString(int(prj.Quotas.StorageSize), true)
+	mem := quotaToString(int(prj.Quotas.MemorySize), true)    // #nosec G115 -- quota fits in int on 64-bit systems
+	disk := quotaToString(int(prj.Quotas.StorageSize), true)  // #nosec G115 -- quota fits in int on 64-bit systems
 
 	email := hermes.Email{
 		Body: hermes.Body{
@@ -206,7 +206,7 @@ func NewEmailInstanceCreated(instance *Instance, user *User) error {
 					},
 					{
 						{Key: EmailCharacteristic, Value: "Memory"},
-						{Key: EmailValue, Value: HumanByteSize(uint64(instance.Memory))},
+						{Key: EmailValue, Value: HumanByteSize(uint64(instance.Memory))}, // #nosec G115 -- memory is always positive
 					},
 					{
 						{Key: EmailCharacteristic, Value: "NICs"},

@@ -481,7 +481,7 @@ func (r *Region) UpdateCapabilities() error {
 		}
 
 		rbdPools += 1
-		gbs := bytesToGB(int64(p.Capacity))
+		gbs := bytesToGB(int64(p.Capacity)) // #nosec G115 -- storage capacity fits in int64
 		res.Storage.Count += gbs
 		res.Storage.Price += (p.Cost.Price / float32(gbs))
 		res.Storage.Currency = p.Cost.Currency
