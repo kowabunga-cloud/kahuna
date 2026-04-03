@@ -112,10 +112,6 @@ tests: ; $(info $(M) testing Kowabunga suite…) @
 deb: ; $(info $(M) building Debian package…) @
 	$Q VERSION=$(VERSION) DIST=$(DIST) ./debian.sh
 
-.PHONY: apk
-apk: ; $(info $(M) building Alpine package…) @
-	$Q VERSION=$(VERSION) DIST=$(DIST) ./alpine.sh
-
 .PHONY: get-lint
 get-lint: ; $(info $(M) downloading go-lint…) @
 	$Q test -x $(GOLINT) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s
