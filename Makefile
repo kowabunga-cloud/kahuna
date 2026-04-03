@@ -4,7 +4,6 @@
 
 PKG_NAME=github.com/kowabunga-cloud/kahuna/internal/kahuna
 VERSION=0.64.1
-DIST=noble
 CODENAME=NoFuture
 
 SRC_DIR = internal
@@ -110,7 +109,7 @@ tests: ; $(info $(M) testing Kowabunga suite…) @
 
 .PHONY: deb
 deb: ; $(info $(M) building Debian package…) @
-	$Q VERSION=$(VERSION) DIST=$(DIST) ./debian.sh
+	$Q VERSION=$(VERSION) ./debian.sh
 
 .PHONY: get-lint
 get-lint: ; $(info $(M) downloading go-lint…) @
