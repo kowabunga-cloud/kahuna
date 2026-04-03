@@ -1,3 +1,4 @@
+.claude/
 bin/
 dist/
 publish/
@@ -20,3 +21,4 @@ package.json
 yarn.lock
 openapitools.json
 coverage.txt
+coverage.out
