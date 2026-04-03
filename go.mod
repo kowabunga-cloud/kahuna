@@ -1,6 +1,6 @@
 module github.com/kowabunga-cloud/kahuna
 
-go 1.25.0
+go 1.26.1
 
 require (
 	github.com/AfterShip/email-verifier v1.4.1
