@@ -28,7 +28,7 @@ func NewKyloAPIService() *KyloAPIService {
 	return &KyloAPIService{}
 }
 
-// ListKylos - 
+// ListKylos -
 func (s *KyloAPIService) ListKylos(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListKylos with the required logic for this service method.
 	// Add api_kylo_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *KyloAPIService) ListKylos(ctx context.Context) (ImplResponse, error) {
 	return Response(http.StatusNotImplemented, nil), errors.New("ListKylos method not implemented")
 }
 
-// ReadKylo - 
+// ReadKylo -
 func (s *KyloAPIService) ReadKylo(ctx context.Context, kyloId string) (ImplResponse, error) {
 	// TODO - update ReadKylo with the required logic for this service method.
 	// Add api_kylo_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *KyloAPIService) ReadKylo(ctx context.Context, kyloId string) (ImplRespo
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadKylo method not implemented")
 }
 
-// UpdateKylo - 
+// UpdateKylo -
 func (s *KyloAPIService) UpdateKylo(ctx context.Context, kyloId string, kylo Kylo) (ImplResponse, error) {
 	// TODO - update UpdateKylo with the required logic for this service method.
 	// Add api_kylo_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *KyloAPIService) UpdateKylo(ctx context.Context, kyloId string, kylo Kyl
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateKylo method not implemented")
 }
 
-// DeleteKylo - 
+// DeleteKylo -
 func (s *KyloAPIService) DeleteKylo(ctx context.Context, kyloId string) (ImplResponse, error) {
 	// TODO - update DeleteKylo with the required logic for this service method.
 	// Add api_kylo_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

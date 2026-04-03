@@ -28,7 +28,7 @@ func NewPoolAPIService() *PoolAPIService {
 	return &PoolAPIService{}
 }
 
-// ListStoragePools - 
+// ListStoragePools -
 func (s *PoolAPIService) ListStoragePools(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListStoragePools with the required logic for this service method.
 	// Add api_pool_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *PoolAPIService) ListStoragePools(ctx context.Context) (ImplResponse, er
 	return Response(http.StatusNotImplemented, nil), errors.New("ListStoragePools method not implemented")
 }
 
-// ReadStoragePool - 
+// ReadStoragePool -
 func (s *PoolAPIService) ReadStoragePool(ctx context.Context, poolId string) (ImplResponse, error) {
 	// TODO - update ReadStoragePool with the required logic for this service method.
 	// Add api_pool_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *PoolAPIService) ReadStoragePool(ctx context.Context, poolId string) (Im
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadStoragePool method not implemented")
 }
 
-// UpdateStoragePool - 
+// UpdateStoragePool -
 func (s *PoolAPIService) UpdateStoragePool(ctx context.Context, poolId string, storagePool StoragePool) (ImplResponse, error) {
 	// TODO - update UpdateStoragePool with the required logic for this service method.
 	// Add api_pool_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *PoolAPIService) UpdateStoragePool(ctx context.Context, poolId string, s
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateStoragePool method not implemented")
 }
 
-// DeleteStoragePool - 
+// DeleteStoragePool -
 func (s *PoolAPIService) DeleteStoragePool(ctx context.Context, poolId string) (ImplResponse, error) {
 	// TODO - update DeleteStoragePool with the required logic for this service method.
 	// Add api_pool_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -120,7 +120,7 @@ func (s *PoolAPIService) DeleteStoragePool(ctx context.Context, poolId string) (
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteStoragePool method not implemented")
 }
 
-// ListStoragePoolVolumes - 
+// ListStoragePoolVolumes -
 func (s *PoolAPIService) ListStoragePoolVolumes(ctx context.Context, poolId string) (ImplResponse, error) {
 	// TODO - update ListStoragePoolVolumes with the required logic for this service method.
 	// Add api_pool_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -140,7 +140,7 @@ func (s *PoolAPIService) ListStoragePoolVolumes(ctx context.Context, poolId stri
 	return Response(http.StatusNotImplemented, nil), errors.New("ListStoragePoolVolumes method not implemented")
 }
 
-// CreateTemplate - 
+// CreateTemplate -
 func (s *PoolAPIService) CreateTemplate(ctx context.Context, poolId string, template Template) (ImplResponse, error) {
 	// TODO - update CreateTemplate with the required logic for this service method.
 	// Add api_pool_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -172,7 +172,7 @@ func (s *PoolAPIService) CreateTemplate(ctx context.Context, poolId string, temp
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateTemplate method not implemented")
 }
 
-// SetStoragePoolDefaultTemplate - 
+// SetStoragePoolDefaultTemplate -
 func (s *PoolAPIService) SetStoragePoolDefaultTemplate(ctx context.Context, poolId string, templateId string) (ImplResponse, error) {
 	// TODO - update SetStoragePoolDefaultTemplate with the required logic for this service method.
 	// Add api_pool_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -195,7 +195,7 @@ func (s *PoolAPIService) SetStoragePoolDefaultTemplate(ctx context.Context, pool
 	return Response(http.StatusNotImplemented, nil), errors.New("SetStoragePoolDefaultTemplate method not implemented")
 }
 
-// ListStoragePoolTemplates - 
+// ListStoragePoolTemplates -
 func (s *PoolAPIService) ListStoragePoolTemplates(ctx context.Context, poolId string) (ImplResponse, error) {
 	// TODO - update ListStoragePoolTemplates with the required logic for this service method.
 	// Add api_pool_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

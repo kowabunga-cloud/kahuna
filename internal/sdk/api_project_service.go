@@ -28,7 +28,7 @@ func NewProjectAPIService() *ProjectAPIService {
 	return &ProjectAPIService{}
 }
 
-// ListProjects - 
+// ListProjects -
 func (s *ProjectAPIService) ListProjects(ctx context.Context, subnetSize int32) (ImplResponse, error) {
 	// TODO - update ListProjects with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *ProjectAPIService) ListProjects(ctx context.Context, subnetSize int32) 
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjects method not implemented")
 }
 
-// CreateProject - 
+// CreateProject -
 func (s *ProjectAPIService) CreateProject(ctx context.Context, project Project, subnetSize int32) (ImplResponse, error) {
 	// TODO - update CreateProject with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -77,7 +77,7 @@ func (s *ProjectAPIService) CreateProject(ctx context.Context, project Project, 
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateProject method not implemented")
 }
 
-// ReadProject - 
+// ReadProject -
 func (s *ProjectAPIService) ReadProject(ctx context.Context, projectId string) (ImplResponse, error) {
 	// TODO - update ReadProject with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -97,7 +97,7 @@ func (s *ProjectAPIService) ReadProject(ctx context.Context, projectId string) (
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadProject method not implemented")
 }
 
-// UpdateProject - 
+// UpdateProject -
 func (s *ProjectAPIService) UpdateProject(ctx context.Context, projectId string, project Project) (ImplResponse, error) {
 	// TODO - update UpdateProject with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -126,7 +126,7 @@ func (s *ProjectAPIService) UpdateProject(ctx context.Context, projectId string,
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateProject method not implemented")
 }
 
-// DeleteProject - 
+// DeleteProject -
 func (s *ProjectAPIService) DeleteProject(ctx context.Context, projectId string) (ImplResponse, error) {
 	// TODO - update DeleteProject with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -152,7 +152,7 @@ func (s *ProjectAPIService) DeleteProject(ctx context.Context, projectId string)
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteProject method not implemented")
 }
 
-// ReadProjectCost - 
+// ReadProjectCost -
 func (s *ProjectAPIService) ReadProjectCost(ctx context.Context, projectId string) (ImplResponse, error) {
 	// TODO - update ReadProjectCost with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -172,7 +172,7 @@ func (s *ProjectAPIService) ReadProjectCost(ctx context.Context, projectId strin
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadProjectCost method not implemented")
 }
 
-// ReadProjectUsage - 
+// ReadProjectUsage -
 func (s *ProjectAPIService) ReadProjectUsage(ctx context.Context, projectId string) (ImplResponse, error) {
 	// TODO - update ReadProjectUsage with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -192,7 +192,7 @@ func (s *ProjectAPIService) ReadProjectUsage(ctx context.Context, projectId stri
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadProjectUsage method not implemented")
 }
 
-// CreateProjectDnsRecord - 
+// CreateProjectDnsRecord -
 func (s *ProjectAPIService) CreateProjectDnsRecord(ctx context.Context, projectId string, dnsRecord DnsRecord) (ImplResponse, error) {
 	// TODO - update CreateProjectDnsRecord with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -224,7 +224,7 @@ func (s *ProjectAPIService) CreateProjectDnsRecord(ctx context.Context, projectI
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectDnsRecord method not implemented")
 }
 
-// ListProjectDnsRecords - 
+// ListProjectDnsRecords -
 func (s *ProjectAPIService) ListProjectDnsRecords(ctx context.Context, projectId string) (ImplResponse, error) {
 	// TODO - update ListProjectDnsRecords with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -244,7 +244,7 @@ func (s *ProjectAPIService) ListProjectDnsRecords(ctx context.Context, projectId
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectDnsRecords method not implemented")
 }
 
-// CreateProjectRegionVolume - 
+// CreateProjectRegionVolume -
 func (s *ProjectAPIService) CreateProjectRegionVolume(ctx context.Context, projectId string, regionId string, volume Volume, poolId string, templateId string) (ImplResponse, error) {
 	// TODO - update CreateProjectRegionVolume with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -276,7 +276,7 @@ func (s *ProjectAPIService) CreateProjectRegionVolume(ctx context.Context, proje
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectRegionVolume method not implemented")
 }
 
-// ListProjectRegionVolumes - 
+// ListProjectRegionVolumes -
 func (s *ProjectAPIService) ListProjectRegionVolumes(ctx context.Context, projectId string, regionId string) (ImplResponse, error) {
 	// TODO - update ListProjectRegionVolumes with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -296,7 +296,7 @@ func (s *ProjectAPIService) ListProjectRegionVolumes(ctx context.Context, projec
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectRegionVolumes method not implemented")
 }
 
-// CreateProjectZoneInstance - 
+// CreateProjectZoneInstance -
 func (s *ProjectAPIService) CreateProjectZoneInstance(ctx context.Context, projectId string, zoneId string, instance Instance) (ImplResponse, error) {
 	// TODO - update CreateProjectZoneInstance with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -328,7 +328,7 @@ func (s *ProjectAPIService) CreateProjectZoneInstance(ctx context.Context, proje
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectZoneInstance method not implemented")
 }
 
-// ListProjectZoneInstances - 
+// ListProjectZoneInstances -
 func (s *ProjectAPIService) ListProjectZoneInstances(ctx context.Context, projectId string, zoneId string) (ImplResponse, error) {
 	// TODO - update ListProjectZoneInstances with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -348,7 +348,7 @@ func (s *ProjectAPIService) ListProjectZoneInstances(ctx context.Context, projec
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectZoneInstances method not implemented")
 }
 
-// CreateProjectZoneKompute - 
+// CreateProjectZoneKompute -
 func (s *ProjectAPIService) CreateProjectZoneKompute(ctx context.Context, projectId string, zoneId string, kompute Kompute, poolId string, templateId string, public bool) (ImplResponse, error) {
 	// TODO - update CreateProjectZoneKompute with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -380,7 +380,7 @@ func (s *ProjectAPIService) CreateProjectZoneKompute(ctx context.Context, projec
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectZoneKompute method not implemented")
 }
 
-// ListProjectZoneKomputes - 
+// ListProjectZoneKomputes -
 func (s *ProjectAPIService) ListProjectZoneKomputes(ctx context.Context, projectId string, zoneId string) (ImplResponse, error) {
 	// TODO - update ListProjectZoneKomputes with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -400,7 +400,7 @@ func (s *ProjectAPIService) ListProjectZoneKomputes(ctx context.Context, project
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectZoneKomputes method not implemented")
 }
 
-// ListProjectRegionKylos - 
+// ListProjectRegionKylos -
 func (s *ProjectAPIService) ListProjectRegionKylos(ctx context.Context, projectId string, regionId string, nfsId string) (ImplResponse, error) {
 	// TODO - update ListProjectRegionKylos with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -420,7 +420,7 @@ func (s *ProjectAPIService) ListProjectRegionKylos(ctx context.Context, projectI
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectRegionKylos method not implemented")
 }
 
-// CreateProjectRegionKylo - 
+// CreateProjectRegionKylo -
 func (s *ProjectAPIService) CreateProjectRegionKylo(ctx context.Context, projectId string, regionId string, kylo Kylo, nfsId string) (ImplResponse, error) {
 	// TODO - update CreateProjectRegionKylo with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -452,7 +452,7 @@ func (s *ProjectAPIService) CreateProjectRegionKylo(ctx context.Context, project
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectRegionKylo method not implemented")
 }
 
-// CreateProjectRegionKawaii - 
+// CreateProjectRegionKawaii -
 func (s *ProjectAPIService) CreateProjectRegionKawaii(ctx context.Context, projectId string, regionId string, kawaii Kawaii) (ImplResponse, error) {
 	// TODO - update CreateProjectRegionKawaii with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -484,7 +484,7 @@ func (s *ProjectAPIService) CreateProjectRegionKawaii(ctx context.Context, proje
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectRegionKawaii method not implemented")
 }
 
-// ListProjectRegionKawaiis - 
+// ListProjectRegionKawaiis -
 func (s *ProjectAPIService) ListProjectRegionKawaiis(ctx context.Context, projectId string, regionId string) (ImplResponse, error) {
 	// TODO - update ListProjectRegionKawaiis with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -504,7 +504,7 @@ func (s *ProjectAPIService) ListProjectRegionKawaiis(ctx context.Context, projec
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectRegionKawaiis method not implemented")
 }
 
-// CreateProjectZoneKonvey - 
+// CreateProjectZoneKonvey -
 func (s *ProjectAPIService) CreateProjectZoneKonvey(ctx context.Context, projectId string, zoneId string, konvey Konvey) (ImplResponse, error) {
 	// TODO - update CreateProjectZoneKonvey with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -536,7 +536,7 @@ func (s *ProjectAPIService) CreateProjectZoneKonvey(ctx context.Context, project
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectZoneKonvey method not implemented")
 }
 
-// ListProjectZoneKonveys - 
+// ListProjectZoneKonveys -
 func (s *ProjectAPIService) ListProjectZoneKonveys(ctx context.Context, projectId string, zoneId string) (ImplResponse, error) {
 	// TODO - update ListProjectZoneKonveys with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -556,7 +556,7 @@ func (s *ProjectAPIService) ListProjectZoneKonveys(ctx context.Context, projectI
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectZoneKonveys method not implemented")
 }
 
-// CreateProjectRegionKonvey - 
+// CreateProjectRegionKonvey -
 func (s *ProjectAPIService) CreateProjectRegionKonvey(ctx context.Context, projectId string, regionId string, konvey Konvey) (ImplResponse, error) {
 	// TODO - update CreateProjectRegionKonvey with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -588,7 +588,7 @@ func (s *ProjectAPIService) CreateProjectRegionKonvey(ctx context.Context, proje
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectRegionKonvey method not implemented")
 }
 
-// ListProjectRegionKonveys - 
+// ListProjectRegionKonveys -
 func (s *ProjectAPIService) ListProjectRegionKonveys(ctx context.Context, projectId string, regionId string) (ImplResponse, error) {
 	// TODO - update ListProjectRegionKonveys with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

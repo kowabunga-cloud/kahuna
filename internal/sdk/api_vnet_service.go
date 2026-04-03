@@ -28,7 +28,7 @@ func NewVnetAPIService() *VnetAPIService {
 	return &VnetAPIService{}
 }
 
-// ListVNets - 
+// ListVNets -
 func (s *VnetAPIService) ListVNets(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListVNets with the required logic for this service method.
 	// Add api_vnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *VnetAPIService) ListVNets(ctx context.Context) (ImplResponse, error) {
 	return Response(http.StatusNotImplemented, nil), errors.New("ListVNets method not implemented")
 }
 
-// ReadVNet - 
+// ReadVNet -
 func (s *VnetAPIService) ReadVNet(ctx context.Context, vnetId string) (ImplResponse, error) {
 	// TODO - update ReadVNet with the required logic for this service method.
 	// Add api_vnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *VnetAPIService) ReadVNet(ctx context.Context, vnetId string) (ImplRespo
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadVNet method not implemented")
 }
 
-// UpdateVNet - 
+// UpdateVNet -
 func (s *VnetAPIService) UpdateVNet(ctx context.Context, vnetId string, vNet VNet) (ImplResponse, error) {
 	// TODO - update UpdateVNet with the required logic for this service method.
 	// Add api_vnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *VnetAPIService) UpdateVNet(ctx context.Context, vnetId string, vNet VNe
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateVNet method not implemented")
 }
 
-// DeleteVNet - 
+// DeleteVNet -
 func (s *VnetAPIService) DeleteVNet(ctx context.Context, vnetId string) (ImplResponse, error) {
 	// TODO - update DeleteVNet with the required logic for this service method.
 	// Add api_vnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -120,7 +120,7 @@ func (s *VnetAPIService) DeleteVNet(ctx context.Context, vnetId string) (ImplRes
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteVNet method not implemented")
 }
 
-// CreateSubnet - 
+// CreateSubnet -
 func (s *VnetAPIService) CreateSubnet(ctx context.Context, vnetId string, subnet Subnet) (ImplResponse, error) {
 	// TODO - update CreateSubnet with the required logic for this service method.
 	// Add api_vnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -152,7 +152,7 @@ func (s *VnetAPIService) CreateSubnet(ctx context.Context, vnetId string, subnet
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateSubnet method not implemented")
 }
 
-// SetVNetDefaultSubnet - 
+// SetVNetDefaultSubnet -
 func (s *VnetAPIService) SetVNetDefaultSubnet(ctx context.Context, vnetId string, subnetId string) (ImplResponse, error) {
 	// TODO - update SetVNetDefaultSubnet with the required logic for this service method.
 	// Add api_vnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -175,7 +175,7 @@ func (s *VnetAPIService) SetVNetDefaultSubnet(ctx context.Context, vnetId string
 	return Response(http.StatusNotImplemented, nil), errors.New("SetVNetDefaultSubnet method not implemented")
 }
 
-// ListVNetSubnets - 
+// ListVNetSubnets -
 func (s *VnetAPIService) ListVNetSubnets(ctx context.Context, vnetId string) (ImplResponse, error) {
 	// TODO - update ListVNetSubnets with the required logic for this service method.
 	// Add api_vnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

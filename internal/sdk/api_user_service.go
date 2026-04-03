@@ -28,7 +28,7 @@ func NewUserAPIService() *UserAPIService {
 	return &UserAPIService{}
 }
 
-// Login - 
+// Login -
 func (s *UserAPIService) Login(ctx context.Context, userCredentials UserCredentials) (ImplResponse, error) {
 	// TODO - update Login with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -60,7 +60,7 @@ func (s *UserAPIService) Login(ctx context.Context, userCredentials UserCredenti
 	return Response(http.StatusNotImplemented, nil), errors.New("Login method not implemented")
 }
 
-// Logout - 
+// Logout -
 func (s *UserAPIService) Logout(ctx context.Context) (ImplResponse, error) {
 	// TODO - update Logout with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -92,7 +92,7 @@ func (s *UserAPIService) Logout(ctx context.Context) (ImplResponse, error) {
 	return Response(http.StatusNotImplemented, nil), errors.New("Logout method not implemented")
 }
 
-// ResetPassword - 
+// ResetPassword -
 func (s *UserAPIService) ResetPassword(ctx context.Context, userEmail UserEmail) (ImplResponse, error) {
 	// TODO - update ResetPassword with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -121,7 +121,7 @@ func (s *UserAPIService) ResetPassword(ctx context.Context, userEmail UserEmail)
 	return Response(http.StatusNotImplemented, nil), errors.New("ResetPassword method not implemented")
 }
 
-// ListUsers - 
+// ListUsers -
 func (s *UserAPIService) ListUsers(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListUsers with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -138,7 +138,7 @@ func (s *UserAPIService) ListUsers(ctx context.Context) (ImplResponse, error) {
 	return Response(http.StatusNotImplemented, nil), errors.New("ListUsers method not implemented")
 }
 
-// CreateUser - 
+// CreateUser -
 func (s *UserAPIService) CreateUser(ctx context.Context, user User) (ImplResponse, error) {
 	// TODO - update CreateUser with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -170,7 +170,7 @@ func (s *UserAPIService) CreateUser(ctx context.Context, user User) (ImplRespons
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateUser method not implemented")
 }
 
-// ReadUser - 
+// ReadUser -
 func (s *UserAPIService) ReadUser(ctx context.Context, userId string) (ImplResponse, error) {
 	// TODO - update ReadUser with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -190,7 +190,7 @@ func (s *UserAPIService) ReadUser(ctx context.Context, userId string) (ImplRespo
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadUser method not implemented")
 }
 
-// UpdateUser - 
+// UpdateUser -
 func (s *UserAPIService) UpdateUser(ctx context.Context, userId string, user User) (ImplResponse, error) {
 	// TODO - update UpdateUser with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -219,7 +219,7 @@ func (s *UserAPIService) UpdateUser(ctx context.Context, userId string, user Use
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateUser method not implemented")
 }
 
-// DeleteUser - 
+// DeleteUser -
 func (s *UserAPIService) DeleteUser(ctx context.Context, userId string) (ImplResponse, error) {
 	// TODO - update DeleteUser with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -245,7 +245,7 @@ func (s *UserAPIService) DeleteUser(ctx context.Context, userId string) (ImplRes
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteUser method not implemented")
 }
 
-// SetUserPassword - 
+// SetUserPassword -
 func (s *UserAPIService) SetUserPassword(ctx context.Context, userId string, password Password) (ImplResponse, error) {
 	// TODO - update SetUserPassword with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -274,7 +274,7 @@ func (s *UserAPIService) SetUserPassword(ctx context.Context, userId string, pas
 	return Response(http.StatusNotImplemented, nil), errors.New("SetUserPassword method not implemented")
 }
 
-// ResetUserPassword - 
+// ResetUserPassword -
 func (s *UserAPIService) ResetUserPassword(ctx context.Context, userId string) (ImplResponse, error) {
 	// TODO - update ResetUserPassword with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -297,7 +297,7 @@ func (s *UserAPIService) ResetUserPassword(ctx context.Context, userId string) (
 	return Response(http.StatusNotImplemented, nil), errors.New("ResetUserPassword method not implemented")
 }
 
-// SetUserApiToken - 
+// SetUserApiToken -
 func (s *UserAPIService) SetUserApiToken(ctx context.Context, userId string, expire bool, expirationDate string) (ImplResponse, error) {
 	// TODO - update SetUserApiToken with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

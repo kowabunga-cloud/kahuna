@@ -159,7 +159,7 @@ func (c *PoolAPIController) OrderedRoutes() []Route {
 
 
 
-// ListStoragePools - 
+// ListStoragePools -
 func (c *PoolAPIController) ListStoragePools(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListStoragePools(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -171,7 +171,7 @@ func (c *PoolAPIController) ListStoragePools(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadStoragePool - 
+// ReadStoragePool -
 func (c *PoolAPIController) ReadStoragePool(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	poolIdParam := params["poolId"]
@@ -189,7 +189,7 @@ func (c *PoolAPIController) ReadStoragePool(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateStoragePool - 
+// UpdateStoragePool -
 func (c *PoolAPIController) UpdateStoragePool(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	poolIdParam := params["poolId"]
@@ -222,7 +222,7 @@ func (c *PoolAPIController) UpdateStoragePool(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteStoragePool - 
+// DeleteStoragePool -
 func (c *PoolAPIController) DeleteStoragePool(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	poolIdParam := params["poolId"]
@@ -240,7 +240,7 @@ func (c *PoolAPIController) DeleteStoragePool(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListStoragePoolVolumes - 
+// ListStoragePoolVolumes -
 func (c *PoolAPIController) ListStoragePoolVolumes(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	poolIdParam := params["poolId"]
@@ -258,7 +258,7 @@ func (c *PoolAPIController) ListStoragePoolVolumes(w http.ResponseWriter, r *htt
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateTemplate - 
+// CreateTemplate -
 func (c *PoolAPIController) CreateTemplate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	poolIdParam := params["poolId"]
@@ -291,7 +291,7 @@ func (c *PoolAPIController) CreateTemplate(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// SetStoragePoolDefaultTemplate - 
+// SetStoragePoolDefaultTemplate -
 func (c *PoolAPIController) SetStoragePoolDefaultTemplate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	poolIdParam := params["poolId"]
@@ -314,7 +314,7 @@ func (c *PoolAPIController) SetStoragePoolDefaultTemplate(w http.ResponseWriter,
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListStoragePoolTemplates - 
+// ListStoragePoolTemplates -
 func (c *PoolAPIController) ListStoragePoolTemplates(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	poolIdParam := params["poolId"]

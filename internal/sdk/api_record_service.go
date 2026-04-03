@@ -28,7 +28,7 @@ func NewRecordAPIService() *RecordAPIService {
 	return &RecordAPIService{}
 }
 
-// ReadDnsRecord - 
+// ReadDnsRecord -
 func (s *RecordAPIService) ReadDnsRecord(ctx context.Context, recordId string) (ImplResponse, error) {
 	// TODO - update ReadDnsRecord with the required logic for this service method.
 	// Add api_record_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -48,7 +48,7 @@ func (s *RecordAPIService) ReadDnsRecord(ctx context.Context, recordId string) (
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadDnsRecord method not implemented")
 }
 
-// UpdateDnsRecord - 
+// UpdateDnsRecord -
 func (s *RecordAPIService) UpdateDnsRecord(ctx context.Context, recordId string, dnsRecord DnsRecord) (ImplResponse, error) {
 	// TODO - update UpdateDnsRecord with the required logic for this service method.
 	// Add api_record_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -77,7 +77,7 @@ func (s *RecordAPIService) UpdateDnsRecord(ctx context.Context, recordId string,
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateDnsRecord method not implemented")
 }
 
-// DeleteDnsRecord - 
+// DeleteDnsRecord -
 func (s *RecordAPIService) DeleteDnsRecord(ctx context.Context, recordId string) (ImplResponse, error) {
 	// TODO - update DeleteDnsRecord with the required logic for this service method.
 	// Add api_record_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

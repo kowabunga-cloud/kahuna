@@ -28,7 +28,7 @@ func NewTemplateAPIService() *TemplateAPIService {
 	return &TemplateAPIService{}
 }
 
-// ListTemplates - 
+// ListTemplates -
 func (s *TemplateAPIService) ListTemplates(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListTemplates with the required logic for this service method.
 	// Add api_template_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *TemplateAPIService) ListTemplates(ctx context.Context) (ImplResponse, e
 	return Response(http.StatusNotImplemented, nil), errors.New("ListTemplates method not implemented")
 }
 
-// ReadTemplate - 
+// ReadTemplate -
 func (s *TemplateAPIService) ReadTemplate(ctx context.Context, templateId string) (ImplResponse, error) {
 	// TODO - update ReadTemplate with the required logic for this service method.
 	// Add api_template_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *TemplateAPIService) ReadTemplate(ctx context.Context, templateId string
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadTemplate method not implemented")
 }
 
-// UpdateTemplate - 
+// UpdateTemplate -
 func (s *TemplateAPIService) UpdateTemplate(ctx context.Context, templateId string, template Template) (ImplResponse, error) {
 	// TODO - update UpdateTemplate with the required logic for this service method.
 	// Add api_template_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *TemplateAPIService) UpdateTemplate(ctx context.Context, templateId stri
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateTemplate method not implemented")
 }
 
-// DeleteTemplate - 
+// DeleteTemplate -
 func (s *TemplateAPIService) DeleteTemplate(ctx context.Context, templateId string) (ImplResponse, error) {
 	// TODO - update DeleteTemplate with the required logic for this service method.
 	// Add api_template_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

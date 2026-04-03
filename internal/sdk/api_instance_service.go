@@ -28,7 +28,7 @@ func NewInstanceAPIService() *InstanceAPIService {
 	return &InstanceAPIService{}
 }
 
-// ListInstances - 
+// ListInstances -
 func (s *InstanceAPIService) ListInstances(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListInstances with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *InstanceAPIService) ListInstances(ctx context.Context) (ImplResponse, e
 	return Response(http.StatusNotImplemented, nil), errors.New("ListInstances method not implemented")
 }
 
-// ReadInstance - 
+// ReadInstance -
 func (s *InstanceAPIService) ReadInstance(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update ReadInstance with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *InstanceAPIService) ReadInstance(ctx context.Context, instanceId string
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadInstance method not implemented")
 }
 
-// UpdateInstance - 
+// UpdateInstance -
 func (s *InstanceAPIService) UpdateInstance(ctx context.Context, instanceId string, instance Instance) (ImplResponse, error) {
 	// TODO - update UpdateInstance with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *InstanceAPIService) UpdateInstance(ctx context.Context, instanceId stri
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateInstance method not implemented")
 }
 
-// DeleteInstance - 
+// DeleteInstance -
 func (s *InstanceAPIService) DeleteInstance(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update DeleteInstance with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -120,7 +120,7 @@ func (s *InstanceAPIService) DeleteInstance(ctx context.Context, instanceId stri
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteInstance method not implemented")
 }
 
-// ReadInstanceState - 
+// ReadInstanceState -
 func (s *InstanceAPIService) ReadInstanceState(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update ReadInstanceState with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -140,7 +140,7 @@ func (s *InstanceAPIService) ReadInstanceState(ctx context.Context, instanceId s
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadInstanceState method not implemented")
 }
 
-// RebootInstance - 
+// RebootInstance -
 func (s *InstanceAPIService) RebootInstance(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update RebootInstance with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -163,7 +163,7 @@ func (s *InstanceAPIService) RebootInstance(ctx context.Context, instanceId stri
 	return Response(http.StatusNotImplemented, nil), errors.New("RebootInstance method not implemented")
 }
 
-// ResetInstance - 
+// ResetInstance -
 func (s *InstanceAPIService) ResetInstance(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update ResetInstance with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -186,7 +186,7 @@ func (s *InstanceAPIService) ResetInstance(ctx context.Context, instanceId strin
 	return Response(http.StatusNotImplemented, nil), errors.New("ResetInstance method not implemented")
 }
 
-// SuspendInstance - 
+// SuspendInstance -
 func (s *InstanceAPIService) SuspendInstance(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update SuspendInstance with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -209,7 +209,7 @@ func (s *InstanceAPIService) SuspendInstance(ctx context.Context, instanceId str
 	return Response(http.StatusNotImplemented, nil), errors.New("SuspendInstance method not implemented")
 }
 
-// ResumeInstance - 
+// ResumeInstance -
 func (s *InstanceAPIService) ResumeInstance(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update ResumeInstance with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -232,7 +232,7 @@ func (s *InstanceAPIService) ResumeInstance(ctx context.Context, instanceId stri
 	return Response(http.StatusNotImplemented, nil), errors.New("ResumeInstance method not implemented")
 }
 
-// StartInstance - 
+// StartInstance -
 func (s *InstanceAPIService) StartInstance(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update StartInstance with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -255,7 +255,7 @@ func (s *InstanceAPIService) StartInstance(ctx context.Context, instanceId strin
 	return Response(http.StatusNotImplemented, nil), errors.New("StartInstance method not implemented")
 }
 
-// StopInstance - 
+// StopInstance -
 func (s *InstanceAPIService) StopInstance(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update StopInstance with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -278,7 +278,7 @@ func (s *InstanceAPIService) StopInstance(ctx context.Context, instanceId string
 	return Response(http.StatusNotImplemented, nil), errors.New("StopInstance method not implemented")
 }
 
-// ShutdownInstance - 
+// ShutdownInstance -
 func (s *InstanceAPIService) ShutdownInstance(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update ShutdownInstance with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -301,7 +301,7 @@ func (s *InstanceAPIService) ShutdownInstance(ctx context.Context, instanceId st
 	return Response(http.StatusNotImplemented, nil), errors.New("ShutdownInstance method not implemented")
 }
 
-// ReadInstanceRemoteConnection - 
+// ReadInstanceRemoteConnection -
 func (s *InstanceAPIService) ReadInstanceRemoteConnection(ctx context.Context, instanceId string) (ImplResponse, error) {
 	// TODO - update ReadInstanceRemoteConnection with the required logic for this service method.
 	// Add api_instance_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

@@ -291,7 +291,7 @@ func (c *RegionAPIController) OrderedRoutes() []Route {
 
 
 
-// ListRegions - 
+// ListRegions -
 func (c *RegionAPIController) ListRegions(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListRegions(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -303,7 +303,7 @@ func (c *RegionAPIController) ListRegions(w http.ResponseWriter, r *http.Request
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateRegion - 
+// CreateRegion -
 func (c *RegionAPIController) CreateRegion(w http.ResponseWriter, r *http.Request) {
 	var regionParam Region
 	d := json.NewDecoder(r.Body)
@@ -330,7 +330,7 @@ func (c *RegionAPIController) CreateRegion(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadRegion - 
+// ReadRegion -
 func (c *RegionAPIController) ReadRegion(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -348,7 +348,7 @@ func (c *RegionAPIController) ReadRegion(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateRegion - 
+// UpdateRegion -
 func (c *RegionAPIController) UpdateRegion(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -381,7 +381,7 @@ func (c *RegionAPIController) UpdateRegion(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteRegion - 
+// DeleteRegion -
 func (c *RegionAPIController) DeleteRegion(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -399,7 +399,7 @@ func (c *RegionAPIController) DeleteRegion(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateZone - 
+// CreateZone -
 func (c *RegionAPIController) CreateZone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -432,7 +432,7 @@ func (c *RegionAPIController) CreateZone(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListRegionZones - 
+// ListRegionZones -
 func (c *RegionAPIController) ListRegionZones(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -450,7 +450,7 @@ func (c *RegionAPIController) ListRegionZones(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateStoragePool - 
+// CreateStoragePool -
 func (c *RegionAPIController) CreateStoragePool(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -483,7 +483,7 @@ func (c *RegionAPIController) CreateStoragePool(w http.ResponseWriter, r *http.R
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateKiwi - 
+// CreateKiwi -
 func (c *RegionAPIController) CreateKiwi(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -516,7 +516,7 @@ func (c *RegionAPIController) CreateKiwi(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListRegionKiwis - 
+// ListRegionKiwis -
 func (c *RegionAPIController) ListRegionKiwis(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -534,7 +534,7 @@ func (c *RegionAPIController) ListRegionKiwis(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateVNet - 
+// CreateVNet -
 func (c *RegionAPIController) CreateVNet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -567,7 +567,7 @@ func (c *RegionAPIController) CreateVNet(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListRegionVNets - 
+// ListRegionVNets -
 func (c *RegionAPIController) ListRegionVNets(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -585,7 +585,7 @@ func (c *RegionAPIController) ListRegionVNets(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// SetRegionDefaultStoragePool - 
+// SetRegionDefaultStoragePool -
 func (c *RegionAPIController) SetRegionDefaultStoragePool(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -608,7 +608,7 @@ func (c *RegionAPIController) SetRegionDefaultStoragePool(w http.ResponseWriter,
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListRegionStoragePools - 
+// ListRegionStoragePools -
 func (c *RegionAPIController) ListRegionStoragePools(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -626,7 +626,7 @@ func (c *RegionAPIController) ListRegionStoragePools(w http.ResponseWriter, r *h
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListRegionStorageNFSs - 
+// ListRegionStorageNFSs -
 func (c *RegionAPIController) ListRegionStorageNFSs(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)
@@ -656,7 +656,7 @@ func (c *RegionAPIController) ListRegionStorageNFSs(w http.ResponseWriter, r *ht
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateStorageNFS - 
+// CreateStorageNFS -
 func (c *RegionAPIController) CreateStorageNFS(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)
@@ -701,7 +701,7 @@ func (c *RegionAPIController) CreateStorageNFS(w http.ResponseWriter, r *http.Re
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// SetRegionDefaultStorageNFS - 
+// SetRegionDefaultStorageNFS -
 func (c *RegionAPIController) SetRegionDefaultStorageNFS(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -724,7 +724,7 @@ func (c *RegionAPIController) SetRegionDefaultStorageNFS(w http.ResponseWriter, 
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateRegionDnsRecord - 
+// CreateRegionDnsRecord -
 func (c *RegionAPIController) CreateRegionDnsRecord(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
@@ -757,7 +757,7 @@ func (c *RegionAPIController) CreateRegionDnsRecord(w http.ResponseWriter, r *ht
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListRegionDnsRecords - 
+// ListRegionDnsRecords -
 func (c *RegionAPIController) ListRegionDnsRecords(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]

@@ -135,7 +135,7 @@ func (c *ZoneAPIController) OrderedRoutes() []Route {
 
 
 
-// ListZones - 
+// ListZones -
 func (c *ZoneAPIController) ListZones(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListZones(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -147,7 +147,7 @@ func (c *ZoneAPIController) ListZones(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadZone - 
+// ReadZone -
 func (c *ZoneAPIController) ReadZone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	zoneIdParam := params["zoneId"]
@@ -165,7 +165,7 @@ func (c *ZoneAPIController) ReadZone(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateZone - 
+// UpdateZone -
 func (c *ZoneAPIController) UpdateZone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	zoneIdParam := params["zoneId"]
@@ -198,7 +198,7 @@ func (c *ZoneAPIController) UpdateZone(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteZone - 
+// DeleteZone -
 func (c *ZoneAPIController) DeleteZone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	zoneIdParam := params["zoneId"]
@@ -216,7 +216,7 @@ func (c *ZoneAPIController) DeleteZone(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateKaktus - 
+// CreateKaktus -
 func (c *ZoneAPIController) CreateKaktus(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	zoneIdParam := params["zoneId"]
@@ -249,7 +249,7 @@ func (c *ZoneAPIController) CreateKaktus(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListZoneKaktuses - 
+// ListZoneKaktuses -
 func (c *ZoneAPIController) ListZoneKaktuses(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	zoneIdParam := params["zoneId"]

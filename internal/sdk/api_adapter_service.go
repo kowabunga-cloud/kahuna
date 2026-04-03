@@ -28,7 +28,7 @@ func NewAdapterAPIService() *AdapterAPIService {
 	return &AdapterAPIService{}
 }
 
-// ListAdapters - 
+// ListAdapters -
 func (s *AdapterAPIService) ListAdapters(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListAdapters with the required logic for this service method.
 	// Add api_adapter_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *AdapterAPIService) ListAdapters(ctx context.Context) (ImplResponse, err
 	return Response(http.StatusNotImplemented, nil), errors.New("ListAdapters method not implemented")
 }
 
-// ReadAdapter - 
+// ReadAdapter -
 func (s *AdapterAPIService) ReadAdapter(ctx context.Context, adapterId string) (ImplResponse, error) {
 	// TODO - update ReadAdapter with the required logic for this service method.
 	// Add api_adapter_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *AdapterAPIService) ReadAdapter(ctx context.Context, adapterId string) (
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadAdapter method not implemented")
 }
 
-// UpdateAdapter - 
+// UpdateAdapter -
 func (s *AdapterAPIService) UpdateAdapter(ctx context.Context, adapterId string, adapter Adapter) (ImplResponse, error) {
 	// TODO - update UpdateAdapter with the required logic for this service method.
 	// Add api_adapter_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *AdapterAPIService) UpdateAdapter(ctx context.Context, adapterId string,
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateAdapter method not implemented")
 }
 
-// DeleteAdapter - 
+// DeleteAdapter -
 func (s *AdapterAPIService) DeleteAdapter(ctx context.Context, adapterId string) (ImplResponse, error) {
 	// TODO - update DeleteAdapter with the required logic for this service method.
 	// Add api_adapter_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

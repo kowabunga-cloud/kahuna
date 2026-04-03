@@ -195,7 +195,7 @@ func (c *UserAPIController) OrderedRoutes() []Route {
 
 
 
-// Login - 
+// Login -
 func (c *UserAPIController) Login(w http.ResponseWriter, r *http.Request) {
 	var userCredentialsParam UserCredentials
 	d := json.NewDecoder(r.Body)
@@ -222,7 +222,7 @@ func (c *UserAPIController) Login(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// Logout - 
+// Logout -
 func (c *UserAPIController) Logout(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.Logout(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -234,7 +234,7 @@ func (c *UserAPIController) Logout(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ResetPassword - 
+// ResetPassword -
 func (c *UserAPIController) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	var userEmailParam UserEmail
 	d := json.NewDecoder(r.Body)
@@ -261,7 +261,7 @@ func (c *UserAPIController) ResetPassword(w http.ResponseWriter, r *http.Request
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListUsers - 
+// ListUsers -
 func (c *UserAPIController) ListUsers(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListUsers(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -273,7 +273,7 @@ func (c *UserAPIController) ListUsers(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateUser - 
+// CreateUser -
 func (c *UserAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var userParam User
 	d := json.NewDecoder(r.Body)
@@ -300,7 +300,7 @@ func (c *UserAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadUser - 
+// ReadUser -
 func (c *UserAPIController) ReadUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userIdParam := params["userId"]
@@ -318,7 +318,7 @@ func (c *UserAPIController) ReadUser(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateUser - 
+// UpdateUser -
 func (c *UserAPIController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userIdParam := params["userId"]
@@ -351,7 +351,7 @@ func (c *UserAPIController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteUser - 
+// DeleteUser -
 func (c *UserAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userIdParam := params["userId"]
@@ -369,7 +369,7 @@ func (c *UserAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// SetUserPassword - 
+// SetUserPassword -
 func (c *UserAPIController) SetUserPassword(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userIdParam := params["userId"]
@@ -402,7 +402,7 @@ func (c *UserAPIController) SetUserPassword(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ResetUserPassword - 
+// ResetUserPassword -
 func (c *UserAPIController) ResetUserPassword(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userIdParam := params["userId"]
@@ -420,7 +420,7 @@ func (c *UserAPIController) ResetUserPassword(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// SetUserApiToken - 
+// SetUserApiToken -
 func (c *UserAPIController) SetUserApiToken(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)

@@ -147,7 +147,7 @@ func (c *VnetAPIController) OrderedRoutes() []Route {
 
 
 
-// ListVNets - 
+// ListVNets -
 func (c *VnetAPIController) ListVNets(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListVNets(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -159,7 +159,7 @@ func (c *VnetAPIController) ListVNets(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadVNet - 
+// ReadVNet -
 func (c *VnetAPIController) ReadVNet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	vnetIdParam := params["vnetId"]
@@ -177,7 +177,7 @@ func (c *VnetAPIController) ReadVNet(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateVNet - 
+// UpdateVNet -
 func (c *VnetAPIController) UpdateVNet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	vnetIdParam := params["vnetId"]
@@ -210,7 +210,7 @@ func (c *VnetAPIController) UpdateVNet(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteVNet - 
+// DeleteVNet -
 func (c *VnetAPIController) DeleteVNet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	vnetIdParam := params["vnetId"]
@@ -228,7 +228,7 @@ func (c *VnetAPIController) DeleteVNet(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateSubnet - 
+// CreateSubnet -
 func (c *VnetAPIController) CreateSubnet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	vnetIdParam := params["vnetId"]
@@ -261,7 +261,7 @@ func (c *VnetAPIController) CreateSubnet(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// SetVNetDefaultSubnet - 
+// SetVNetDefaultSubnet -
 func (c *VnetAPIController) SetVNetDefaultSubnet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	vnetIdParam := params["vnetId"]
@@ -284,7 +284,7 @@ func (c *VnetAPIController) SetVNetDefaultSubnet(w http.ResponseWriter, r *http.
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListVNetSubnets - 
+// ListVNetSubnets -
 func (c *VnetAPIController) ListVNetSubnets(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	vnetIdParam := params["vnetId"]

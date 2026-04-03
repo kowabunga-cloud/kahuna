@@ -111,7 +111,7 @@ func (c *KonveyAPIController) OrderedRoutes() []Route {
 
 
 
-// ListKonveys - 
+// ListKonveys -
 func (c *KonveyAPIController) ListKonveys(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListKonveys(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -123,7 +123,7 @@ func (c *KonveyAPIController) ListKonveys(w http.ResponseWriter, r *http.Request
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadKonvey - 
+// ReadKonvey -
 func (c *KonveyAPIController) ReadKonvey(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	konveyIdParam := params["konveyId"]
@@ -141,7 +141,7 @@ func (c *KonveyAPIController) ReadKonvey(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateKonvey - 
+// UpdateKonvey -
 func (c *KonveyAPIController) UpdateKonvey(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	konveyIdParam := params["konveyId"]
@@ -174,7 +174,7 @@ func (c *KonveyAPIController) UpdateKonvey(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteKonvey - 
+// DeleteKonvey -
 func (c *KonveyAPIController) DeleteKonvey(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	konveyIdParam := params["konveyId"]

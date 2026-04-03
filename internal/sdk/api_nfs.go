@@ -123,7 +123,7 @@ func (c *NfsAPIController) OrderedRoutes() []Route {
 
 
 
-// ListStorageNFSs - 
+// ListStorageNFSs -
 func (c *NfsAPIController) ListStorageNFSs(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListStorageNFSs(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -135,7 +135,7 @@ func (c *NfsAPIController) ListStorageNFSs(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadStorageNFS - 
+// ReadStorageNFS -
 func (c *NfsAPIController) ReadStorageNFS(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	nfsIdParam := params["nfsId"]
@@ -153,7 +153,7 @@ func (c *NfsAPIController) ReadStorageNFS(w http.ResponseWriter, r *http.Request
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateStorageNFS - 
+// UpdateStorageNFS -
 func (c *NfsAPIController) UpdateStorageNFS(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	nfsIdParam := params["nfsId"]
@@ -186,7 +186,7 @@ func (c *NfsAPIController) UpdateStorageNFS(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteStorageNFS - 
+// DeleteStorageNFS -
 func (c *NfsAPIController) DeleteStorageNFS(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	nfsIdParam := params["nfsId"]
@@ -204,7 +204,7 @@ func (c *NfsAPIController) DeleteStorageNFS(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListStorageNFSKylos - 
+// ListStorageNFSKylos -
 func (c *NfsAPIController) ListStorageNFSKylos(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	nfsIdParam := params["nfsId"]

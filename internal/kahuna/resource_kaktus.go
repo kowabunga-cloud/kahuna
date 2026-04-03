@@ -406,16 +406,16 @@ func (k *Kaktus) AddInstance(id string) {
 
 	// increase usage counters
 	k.Usage.InstancesCount += 1
-	k.Usage.VCPUs += uint16(instance.CPU)           // #nosec G115 -- vcpu count never overflows uint16
-	k.Usage.MemorySize += uint64(instance.Memory)   // #nosec G115 -- memory is always positive
+	k.Usage.VCPUs += uint16(instance.CPU)         // #nosec G115 -- vcpu count never overflows uint16
+	k.Usage.MemorySize += uint64(instance.Memory) // #nosec G115 -- memory is always positive
 
 	k.Save()
 }
 
 func (k *Kaktus) UpdateInstanceUsage(cpu, mem int64) {
 	// increase usage counters
-	k.Usage.VCPUs += uint16(cpu)           // #nosec G115 -- vcpu count never overflows uint16
-	k.Usage.MemorySize += uint64(mem)      // #nosec G115 -- memory is always positive
+	k.Usage.VCPUs += uint16(cpu)      // #nosec G115 -- vcpu count never overflows uint16
+	k.Usage.MemorySize += uint64(mem) // #nosec G115 -- memory is always positive
 	k.Save()
 }
 
@@ -431,8 +431,8 @@ func (k *Kaktus) RemoveInstance(id string) {
 
 	// decrease usage counters
 	k.Usage.InstancesCount -= 1
-	k.Usage.VCPUs -= uint16(ist.CPU)           // #nosec G115 -- vcpu count never overflows uint16
-	k.Usage.MemorySize -= uint64(ist.Memory)   // #nosec G115 -- memory is always positive
+	k.Usage.VCPUs -= uint16(ist.CPU)         // #nosec G115 -- vcpu count never overflows uint16
+	k.Usage.MemorySize -= uint64(ist.Memory) // #nosec G115 -- memory is always positive
 
 	RemoveChildRef(&k.InstanceIDs, id)
 	k.Save()

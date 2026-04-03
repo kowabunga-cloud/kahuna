@@ -28,7 +28,7 @@ func NewRegionAPIService() *RegionAPIService {
 	return &RegionAPIService{}
 }
 
-// ListRegions - 
+// ListRegions -
 func (s *RegionAPIService) ListRegions(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListRegions with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *RegionAPIService) ListRegions(ctx context.Context) (ImplResponse, error
 	return Response(http.StatusNotImplemented, nil), errors.New("ListRegions method not implemented")
 }
 
-// CreateRegion - 
+// CreateRegion -
 func (s *RegionAPIService) CreateRegion(ctx context.Context, region Region) (ImplResponse, error) {
 	// TODO - update CreateRegion with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -77,7 +77,7 @@ func (s *RegionAPIService) CreateRegion(ctx context.Context, region Region) (Imp
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateRegion method not implemented")
 }
 
-// ReadRegion - 
+// ReadRegion -
 func (s *RegionAPIService) ReadRegion(ctx context.Context, regionId string) (ImplResponse, error) {
 	// TODO - update ReadRegion with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -97,7 +97,7 @@ func (s *RegionAPIService) ReadRegion(ctx context.Context, regionId string) (Imp
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadRegion method not implemented")
 }
 
-// UpdateRegion - 
+// UpdateRegion -
 func (s *RegionAPIService) UpdateRegion(ctx context.Context, regionId string, region Region) (ImplResponse, error) {
 	// TODO - update UpdateRegion with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -126,7 +126,7 @@ func (s *RegionAPIService) UpdateRegion(ctx context.Context, regionId string, re
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateRegion method not implemented")
 }
 
-// DeleteRegion - 
+// DeleteRegion -
 func (s *RegionAPIService) DeleteRegion(ctx context.Context, regionId string) (ImplResponse, error) {
 	// TODO - update DeleteRegion with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -152,7 +152,7 @@ func (s *RegionAPIService) DeleteRegion(ctx context.Context, regionId string) (I
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteRegion method not implemented")
 }
 
-// CreateZone - 
+// CreateZone -
 func (s *RegionAPIService) CreateZone(ctx context.Context, regionId string, zone Zone) (ImplResponse, error) {
 	// TODO - update CreateZone with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -184,7 +184,7 @@ func (s *RegionAPIService) CreateZone(ctx context.Context, regionId string, zone
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateZone method not implemented")
 }
 
-// ListRegionZones - 
+// ListRegionZones -
 func (s *RegionAPIService) ListRegionZones(ctx context.Context, regionId string) (ImplResponse, error) {
 	// TODO - update ListRegionZones with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -204,7 +204,7 @@ func (s *RegionAPIService) ListRegionZones(ctx context.Context, regionId string)
 	return Response(http.StatusNotImplemented, nil), errors.New("ListRegionZones method not implemented")
 }
 
-// CreateStoragePool - 
+// CreateStoragePool -
 func (s *RegionAPIService) CreateStoragePool(ctx context.Context, regionId string, storagePool StoragePool) (ImplResponse, error) {
 	// TODO - update CreateStoragePool with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -236,7 +236,7 @@ func (s *RegionAPIService) CreateStoragePool(ctx context.Context, regionId strin
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateStoragePool method not implemented")
 }
 
-// CreateKiwi - 
+// CreateKiwi -
 func (s *RegionAPIService) CreateKiwi(ctx context.Context, regionId string, kiwi Kiwi) (ImplResponse, error) {
 	// TODO - update CreateKiwi with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -268,7 +268,7 @@ func (s *RegionAPIService) CreateKiwi(ctx context.Context, regionId string, kiwi
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateKiwi method not implemented")
 }
 
-// ListRegionKiwis - 
+// ListRegionKiwis -
 func (s *RegionAPIService) ListRegionKiwis(ctx context.Context, regionId string) (ImplResponse, error) {
 	// TODO - update ListRegionKiwis with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -288,7 +288,7 @@ func (s *RegionAPIService) ListRegionKiwis(ctx context.Context, regionId string)
 	return Response(http.StatusNotImplemented, nil), errors.New("ListRegionKiwis method not implemented")
 }
 
-// CreateVNet - 
+// CreateVNet -
 func (s *RegionAPIService) CreateVNet(ctx context.Context, regionId string, vNet VNet) (ImplResponse, error) {
 	// TODO - update CreateVNet with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -320,7 +320,7 @@ func (s *RegionAPIService) CreateVNet(ctx context.Context, regionId string, vNet
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateVNet method not implemented")
 }
 
-// ListRegionVNets - 
+// ListRegionVNets -
 func (s *RegionAPIService) ListRegionVNets(ctx context.Context, regionId string) (ImplResponse, error) {
 	// TODO - update ListRegionVNets with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -340,7 +340,7 @@ func (s *RegionAPIService) ListRegionVNets(ctx context.Context, regionId string)
 	return Response(http.StatusNotImplemented, nil), errors.New("ListRegionVNets method not implemented")
 }
 
-// SetRegionDefaultStoragePool - 
+// SetRegionDefaultStoragePool -
 func (s *RegionAPIService) SetRegionDefaultStoragePool(ctx context.Context, regionId string, poolId string) (ImplResponse, error) {
 	// TODO - update SetRegionDefaultStoragePool with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -363,7 +363,7 @@ func (s *RegionAPIService) SetRegionDefaultStoragePool(ctx context.Context, regi
 	return Response(http.StatusNotImplemented, nil), errors.New("SetRegionDefaultStoragePool method not implemented")
 }
 
-// ListRegionStoragePools - 
+// ListRegionStoragePools -
 func (s *RegionAPIService) ListRegionStoragePools(ctx context.Context, regionId string) (ImplResponse, error) {
 	// TODO - update ListRegionStoragePools with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -383,7 +383,7 @@ func (s *RegionAPIService) ListRegionStoragePools(ctx context.Context, regionId 
 	return Response(http.StatusNotImplemented, nil), errors.New("ListRegionStoragePools method not implemented")
 }
 
-// ListRegionStorageNFSs - 
+// ListRegionStorageNFSs -
 func (s *RegionAPIService) ListRegionStorageNFSs(ctx context.Context, regionId string, poolId string) (ImplResponse, error) {
 	// TODO - update ListRegionStorageNFSs with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -403,7 +403,7 @@ func (s *RegionAPIService) ListRegionStorageNFSs(ctx context.Context, regionId s
 	return Response(http.StatusNotImplemented, nil), errors.New("ListRegionStorageNFSs method not implemented")
 }
 
-// CreateStorageNFS - 
+// CreateStorageNFS -
 func (s *RegionAPIService) CreateStorageNFS(ctx context.Context, regionId string, storageNfs StorageNfs, poolId string) (ImplResponse, error) {
 	// TODO - update CreateStorageNFS with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -435,7 +435,7 @@ func (s *RegionAPIService) CreateStorageNFS(ctx context.Context, regionId string
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateStorageNFS method not implemented")
 }
 
-// SetRegionDefaultStorageNFS - 
+// SetRegionDefaultStorageNFS -
 func (s *RegionAPIService) SetRegionDefaultStorageNFS(ctx context.Context, regionId string, nfsId string) (ImplResponse, error) {
 	// TODO - update SetRegionDefaultStorageNFS with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -458,7 +458,7 @@ func (s *RegionAPIService) SetRegionDefaultStorageNFS(ctx context.Context, regio
 	return Response(http.StatusNotImplemented, nil), errors.New("SetRegionDefaultStorageNFS method not implemented")
 }
 
-// CreateRegionDnsRecord - 
+// CreateRegionDnsRecord -
 func (s *RegionAPIService) CreateRegionDnsRecord(ctx context.Context, regionId string, dnsRecord DnsRecord) (ImplResponse, error) {
 	// TODO - update CreateRegionDnsRecord with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -490,7 +490,7 @@ func (s *RegionAPIService) CreateRegionDnsRecord(ctx context.Context, regionId s
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateRegionDnsRecord method not implemented")
 }
 
-// ListRegionDnsRecords - 
+// ListRegionDnsRecords -
 func (s *RegionAPIService) ListRegionDnsRecords(ctx context.Context, regionId string) (ImplResponse, error) {
 	// TODO - update ListRegionDnsRecords with the required logic for this service method.
 	// Add api_region_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

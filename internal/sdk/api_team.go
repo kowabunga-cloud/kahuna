@@ -123,7 +123,7 @@ func (c *TeamAPIController) OrderedRoutes() []Route {
 
 
 
-// ListTeams - 
+// ListTeams -
 func (c *TeamAPIController) ListTeams(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListTeams(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -135,7 +135,7 @@ func (c *TeamAPIController) ListTeams(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateTeam - 
+// CreateTeam -
 func (c *TeamAPIController) CreateTeam(w http.ResponseWriter, r *http.Request) {
 	var teamParam Team
 	d := json.NewDecoder(r.Body)
@@ -162,7 +162,7 @@ func (c *TeamAPIController) CreateTeam(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadTeam - 
+// ReadTeam -
 func (c *TeamAPIController) ReadTeam(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	teamIdParam := params["teamId"]
@@ -180,7 +180,7 @@ func (c *TeamAPIController) ReadTeam(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateTeam - 
+// UpdateTeam -
 func (c *TeamAPIController) UpdateTeam(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	teamIdParam := params["teamId"]
@@ -213,7 +213,7 @@ func (c *TeamAPIController) UpdateTeam(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteTeam - 
+// DeleteTeam -
 func (c *TeamAPIController) DeleteTeam(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	teamIdParam := params["teamId"]

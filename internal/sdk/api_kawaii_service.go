@@ -28,7 +28,7 @@ func NewKawaiiAPIService() *KawaiiAPIService {
 	return &KawaiiAPIService{}
 }
 
-// ListKawaiis - 
+// ListKawaiis -
 func (s *KawaiiAPIService) ListKawaiis(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListKawaiis with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *KawaiiAPIService) ListKawaiis(ctx context.Context) (ImplResponse, error
 	return Response(http.StatusNotImplemented, nil), errors.New("ListKawaiis method not implemented")
 }
 
-// ReadKawaii - 
+// ReadKawaii -
 func (s *KawaiiAPIService) ReadKawaii(ctx context.Context, kawaiiId string) (ImplResponse, error) {
 	// TODO - update ReadKawaii with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *KawaiiAPIService) ReadKawaii(ctx context.Context, kawaiiId string) (Imp
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadKawaii method not implemented")
 }
 
-// UpdateKawaii - 
+// UpdateKawaii -
 func (s *KawaiiAPIService) UpdateKawaii(ctx context.Context, kawaiiId string, kawaii Kawaii) (ImplResponse, error) {
 	// TODO - update UpdateKawaii with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *KawaiiAPIService) UpdateKawaii(ctx context.Context, kawaiiId string, ka
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateKawaii method not implemented")
 }
 
-// DeleteKawaii - 
+// DeleteKawaii -
 func (s *KawaiiAPIService) DeleteKawaii(ctx context.Context, kawaiiId string) (ImplResponse, error) {
 	// TODO - update DeleteKawaii with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -120,7 +120,7 @@ func (s *KawaiiAPIService) DeleteKawaii(ctx context.Context, kawaiiId string) (I
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteKawaii method not implemented")
 }
 
-// ListKawaiiIpSecs - 
+// ListKawaiiIpSecs -
 func (s *KawaiiAPIService) ListKawaiiIpSecs(ctx context.Context, kawaiiId string) (ImplResponse, error) {
 	// TODO - update ListKawaiiIpSecs with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -137,7 +137,7 @@ func (s *KawaiiAPIService) ListKawaiiIpSecs(ctx context.Context, kawaiiId string
 	return Response(http.StatusNotImplemented, nil), errors.New("ListKawaiiIpSecs method not implemented")
 }
 
-// CreateKawaiiIpSec - 
+// CreateKawaiiIpSec -
 func (s *KawaiiAPIService) CreateKawaiiIpSec(ctx context.Context, kawaiiId string, kawaiiIpSec KawaiiIpSec) (ImplResponse, error) {
 	// TODO - update CreateKawaiiIpSec with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -169,7 +169,7 @@ func (s *KawaiiAPIService) CreateKawaiiIpSec(ctx context.Context, kawaiiId strin
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateKawaiiIpSec method not implemented")
 }
 
-// ReadKawaiiIpSec - 
+// ReadKawaiiIpSec -
 func (s *KawaiiAPIService) ReadKawaiiIpSec(ctx context.Context, kawaiiId string, kawaiiIpSecId string) (ImplResponse, error) {
 	// TODO - update ReadKawaiiIpSec with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -189,7 +189,7 @@ func (s *KawaiiAPIService) ReadKawaiiIpSec(ctx context.Context, kawaiiId string,
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadKawaiiIpSec method not implemented")
 }
 
-// UpdateKawaiiIpSec - 
+// UpdateKawaiiIpSec -
 func (s *KawaiiAPIService) UpdateKawaiiIpSec(ctx context.Context, kawaiiId string, kawaiiIpSecId string, kawaiiIpSec KawaiiIpSec) (ImplResponse, error) {
 	// TODO - update UpdateKawaiiIpSec with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -218,7 +218,7 @@ func (s *KawaiiAPIService) UpdateKawaiiIpSec(ctx context.Context, kawaiiId strin
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateKawaiiIpSec method not implemented")
 }
 
-// DeleteKawaiiIpSec - 
+// DeleteKawaiiIpSec -
 func (s *KawaiiAPIService) DeleteKawaiiIpSec(ctx context.Context, kawaiiId string, kawaiiIpSecId string) (ImplResponse, error) {
 	// TODO - update DeleteKawaiiIpSec with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

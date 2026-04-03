@@ -339,7 +339,7 @@ func (c *ProjectAPIController) OrderedRoutes() []Route {
 
 
 
-// ListProjects - 
+// ListProjects -
 func (c *ProjectAPIController) ListProjects(w http.ResponseWriter, r *http.Request) {
 	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {
@@ -370,7 +370,7 @@ func (c *ProjectAPIController) ListProjects(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateProject - 
+// CreateProject -
 func (c *ProjectAPIController) CreateProject(w http.ResponseWriter, r *http.Request) {
 	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {
@@ -416,7 +416,7 @@ func (c *ProjectAPIController) CreateProject(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadProject - 
+// ReadProject -
 func (c *ProjectAPIController) ReadProject(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -434,7 +434,7 @@ func (c *ProjectAPIController) ReadProject(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateProject - 
+// UpdateProject -
 func (c *ProjectAPIController) UpdateProject(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -467,7 +467,7 @@ func (c *ProjectAPIController) UpdateProject(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteProject - 
+// DeleteProject -
 func (c *ProjectAPIController) DeleteProject(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -485,7 +485,7 @@ func (c *ProjectAPIController) DeleteProject(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadProjectCost - 
+// ReadProjectCost -
 func (c *ProjectAPIController) ReadProjectCost(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -503,7 +503,7 @@ func (c *ProjectAPIController) ReadProjectCost(w http.ResponseWriter, r *http.Re
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadProjectUsage - 
+// ReadProjectUsage -
 func (c *ProjectAPIController) ReadProjectUsage(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -521,7 +521,7 @@ func (c *ProjectAPIController) ReadProjectUsage(w http.ResponseWriter, r *http.R
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateProjectDnsRecord - 
+// CreateProjectDnsRecord -
 func (c *ProjectAPIController) CreateProjectDnsRecord(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -554,7 +554,7 @@ func (c *ProjectAPIController) CreateProjectDnsRecord(w http.ResponseWriter, r *
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListProjectDnsRecords - 
+// ListProjectDnsRecords -
 func (c *ProjectAPIController) ListProjectDnsRecords(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -572,7 +572,7 @@ func (c *ProjectAPIController) ListProjectDnsRecords(w http.ResponseWriter, r *h
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateProjectRegionVolume - 
+// CreateProjectRegionVolume -
 func (c *ProjectAPIController) CreateProjectRegionVolume(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)
@@ -629,7 +629,7 @@ func (c *ProjectAPIController) CreateProjectRegionVolume(w http.ResponseWriter, 
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListProjectRegionVolumes - 
+// ListProjectRegionVolumes -
 func (c *ProjectAPIController) ListProjectRegionVolumes(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -652,7 +652,7 @@ func (c *ProjectAPIController) ListProjectRegionVolumes(w http.ResponseWriter, r
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateProjectZoneInstance - 
+// CreateProjectZoneInstance -
 func (c *ProjectAPIController) CreateProjectZoneInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -690,7 +690,7 @@ func (c *ProjectAPIController) CreateProjectZoneInstance(w http.ResponseWriter, 
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListProjectZoneInstances - 
+// ListProjectZoneInstances -
 func (c *ProjectAPIController) ListProjectZoneInstances(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -713,7 +713,7 @@ func (c *ProjectAPIController) ListProjectZoneInstances(w http.ResponseWriter, r
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateProjectZoneKompute - 
+// CreateProjectZoneKompute -
 func (c *ProjectAPIController) CreateProjectZoneKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)
@@ -784,7 +784,7 @@ func (c *ProjectAPIController) CreateProjectZoneKompute(w http.ResponseWriter, r
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListProjectZoneKomputes - 
+// ListProjectZoneKomputes -
 func (c *ProjectAPIController) ListProjectZoneKomputes(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -807,7 +807,7 @@ func (c *ProjectAPIController) ListProjectZoneKomputes(w http.ResponseWriter, r 
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListProjectRegionKylos - 
+// ListProjectRegionKylos -
 func (c *ProjectAPIController) ListProjectRegionKylos(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)
@@ -842,7 +842,7 @@ func (c *ProjectAPIController) ListProjectRegionKylos(w http.ResponseWriter, r *
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateProjectRegionKylo - 
+// CreateProjectRegionKylo -
 func (c *ProjectAPIController) CreateProjectRegionKylo(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)
@@ -892,7 +892,7 @@ func (c *ProjectAPIController) CreateProjectRegionKylo(w http.ResponseWriter, r 
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateProjectRegionKawaii - 
+// CreateProjectRegionKawaii -
 func (c *ProjectAPIController) CreateProjectRegionKawaii(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -930,7 +930,7 @@ func (c *ProjectAPIController) CreateProjectRegionKawaii(w http.ResponseWriter, 
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListProjectRegionKawaiis - 
+// ListProjectRegionKawaiis -
 func (c *ProjectAPIController) ListProjectRegionKawaiis(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -953,7 +953,7 @@ func (c *ProjectAPIController) ListProjectRegionKawaiis(w http.ResponseWriter, r
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateProjectZoneKonvey - 
+// CreateProjectZoneKonvey -
 func (c *ProjectAPIController) CreateProjectZoneKonvey(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -991,7 +991,7 @@ func (c *ProjectAPIController) CreateProjectZoneKonvey(w http.ResponseWriter, r 
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListProjectZoneKonveys - 
+// ListProjectZoneKonveys -
 func (c *ProjectAPIController) ListProjectZoneKonveys(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -1014,7 +1014,7 @@ func (c *ProjectAPIController) ListProjectZoneKonveys(w http.ResponseWriter, r *
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateProjectRegionKonvey - 
+// CreateProjectRegionKonvey -
 func (c *ProjectAPIController) CreateProjectRegionKonvey(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]
@@ -1052,7 +1052,7 @@ func (c *ProjectAPIController) CreateProjectRegionKonvey(w http.ResponseWriter, 
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListProjectRegionKonveys - 
+// ListProjectRegionKonveys -
 func (c *ProjectAPIController) ListProjectRegionKonveys(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	projectIdParam := params["projectId"]

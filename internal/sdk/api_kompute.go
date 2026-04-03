@@ -207,7 +207,7 @@ func (c *KomputeAPIController) OrderedRoutes() []Route {
 
 
 
-// ListKomputes - 
+// ListKomputes -
 func (c *KomputeAPIController) ListKomputes(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListKomputes(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -219,7 +219,7 @@ func (c *KomputeAPIController) ListKomputes(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadKompute - 
+// ReadKompute -
 func (c *KomputeAPIController) ReadKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]
@@ -237,7 +237,7 @@ func (c *KomputeAPIController) ReadKompute(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateKompute - 
+// UpdateKompute -
 func (c *KomputeAPIController) UpdateKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]
@@ -270,7 +270,7 @@ func (c *KomputeAPIController) UpdateKompute(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteKompute - 
+// DeleteKompute -
 func (c *KomputeAPIController) DeleteKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]
@@ -288,7 +288,7 @@ func (c *KomputeAPIController) DeleteKompute(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadKomputeState - 
+// ReadKomputeState -
 func (c *KomputeAPIController) ReadKomputeState(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]
@@ -306,7 +306,7 @@ func (c *KomputeAPIController) ReadKomputeState(w http.ResponseWriter, r *http.R
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// RebootKompute - 
+// RebootKompute -
 func (c *KomputeAPIController) RebootKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]
@@ -324,7 +324,7 @@ func (c *KomputeAPIController) RebootKompute(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ResetKompute - 
+// ResetKompute -
 func (c *KomputeAPIController) ResetKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]
@@ -342,7 +342,7 @@ func (c *KomputeAPIController) ResetKompute(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// SuspendKompute - 
+// SuspendKompute -
 func (c *KomputeAPIController) SuspendKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]
@@ -360,7 +360,7 @@ func (c *KomputeAPIController) SuspendKompute(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ResumeKompute - 
+// ResumeKompute -
 func (c *KomputeAPIController) ResumeKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]
@@ -378,7 +378,7 @@ func (c *KomputeAPIController) ResumeKompute(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// StartKompute - 
+// StartKompute -
 func (c *KomputeAPIController) StartKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]
@@ -396,7 +396,7 @@ func (c *KomputeAPIController) StartKompute(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// StopKompute - 
+// StopKompute -
 func (c *KomputeAPIController) StopKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]
@@ -414,7 +414,7 @@ func (c *KomputeAPIController) StopKompute(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ShutdownKompute - 
+// ShutdownKompute -
 func (c *KomputeAPIController) ShutdownKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	komputeIdParam := params["komputeId"]

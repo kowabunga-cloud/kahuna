@@ -171,7 +171,7 @@ func (c *KawaiiAPIController) OrderedRoutes() []Route {
 
 
 
-// ListKawaiis - 
+// ListKawaiis -
 func (c *KawaiiAPIController) ListKawaiis(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListKawaiis(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -183,7 +183,7 @@ func (c *KawaiiAPIController) ListKawaiis(w http.ResponseWriter, r *http.Request
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadKawaii - 
+// ReadKawaii -
 func (c *KawaiiAPIController) ReadKawaii(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kawaiiIdParam := params["kawaiiId"]
@@ -201,7 +201,7 @@ func (c *KawaiiAPIController) ReadKawaii(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateKawaii - 
+// UpdateKawaii -
 func (c *KawaiiAPIController) UpdateKawaii(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kawaiiIdParam := params["kawaiiId"]
@@ -234,7 +234,7 @@ func (c *KawaiiAPIController) UpdateKawaii(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteKawaii - 
+// DeleteKawaii -
 func (c *KawaiiAPIController) DeleteKawaii(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kawaiiIdParam := params["kawaiiId"]
@@ -252,7 +252,7 @@ func (c *KawaiiAPIController) DeleteKawaii(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListKawaiiIpSecs - 
+// ListKawaiiIpSecs -
 func (c *KawaiiAPIController) ListKawaiiIpSecs(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kawaiiIdParam := params["kawaiiId"]
@@ -270,7 +270,7 @@ func (c *KawaiiAPIController) ListKawaiiIpSecs(w http.ResponseWriter, r *http.Re
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateKawaiiIpSec - 
+// CreateKawaiiIpSec -
 func (c *KawaiiAPIController) CreateKawaiiIpSec(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kawaiiIdParam := params["kawaiiId"]
@@ -303,7 +303,7 @@ func (c *KawaiiAPIController) CreateKawaiiIpSec(w http.ResponseWriter, r *http.R
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadKawaiiIpSec - 
+// ReadKawaiiIpSec -
 func (c *KawaiiAPIController) ReadKawaiiIpSec(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kawaiiIdParam := params["kawaiiId"]
@@ -326,7 +326,7 @@ func (c *KawaiiAPIController) ReadKawaiiIpSec(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateKawaiiIpSec - 
+// UpdateKawaiiIpSec -
 func (c *KawaiiAPIController) UpdateKawaiiIpSec(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kawaiiIdParam := params["kawaiiId"]
@@ -364,7 +364,7 @@ func (c *KawaiiAPIController) UpdateKawaiiIpSec(w http.ResponseWriter, r *http.R
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteKawaiiIpSec - 
+// DeleteKawaiiIpSec -
 func (c *KawaiiAPIController) DeleteKawaiiIpSec(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kawaiiIdParam := params["kawaiiId"]

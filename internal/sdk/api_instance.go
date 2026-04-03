@@ -219,7 +219,7 @@ func (c *InstanceAPIController) OrderedRoutes() []Route {
 
 
 
-// ListInstances - 
+// ListInstances -
 func (c *InstanceAPIController) ListInstances(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListInstances(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -231,7 +231,7 @@ func (c *InstanceAPIController) ListInstances(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadInstance - 
+// ReadInstance -
 func (c *InstanceAPIController) ReadInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -249,7 +249,7 @@ func (c *InstanceAPIController) ReadInstance(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateInstance - 
+// UpdateInstance -
 func (c *InstanceAPIController) UpdateInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -282,7 +282,7 @@ func (c *InstanceAPIController) UpdateInstance(w http.ResponseWriter, r *http.Re
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteInstance - 
+// DeleteInstance -
 func (c *InstanceAPIController) DeleteInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -300,7 +300,7 @@ func (c *InstanceAPIController) DeleteInstance(w http.ResponseWriter, r *http.Re
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadInstanceState - 
+// ReadInstanceState -
 func (c *InstanceAPIController) ReadInstanceState(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -318,7 +318,7 @@ func (c *InstanceAPIController) ReadInstanceState(w http.ResponseWriter, r *http
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// RebootInstance - 
+// RebootInstance -
 func (c *InstanceAPIController) RebootInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -336,7 +336,7 @@ func (c *InstanceAPIController) RebootInstance(w http.ResponseWriter, r *http.Re
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ResetInstance - 
+// ResetInstance -
 func (c *InstanceAPIController) ResetInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -354,7 +354,7 @@ func (c *InstanceAPIController) ResetInstance(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// SuspendInstance - 
+// SuspendInstance -
 func (c *InstanceAPIController) SuspendInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -372,7 +372,7 @@ func (c *InstanceAPIController) SuspendInstance(w http.ResponseWriter, r *http.R
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ResumeInstance - 
+// ResumeInstance -
 func (c *InstanceAPIController) ResumeInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -390,7 +390,7 @@ func (c *InstanceAPIController) ResumeInstance(w http.ResponseWriter, r *http.Re
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// StartInstance - 
+// StartInstance -
 func (c *InstanceAPIController) StartInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -408,7 +408,7 @@ func (c *InstanceAPIController) StartInstance(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// StopInstance - 
+// StopInstance -
 func (c *InstanceAPIController) StopInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -426,7 +426,7 @@ func (c *InstanceAPIController) StopInstance(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ShutdownInstance - 
+// ShutdownInstance -
 func (c *InstanceAPIController) ShutdownInstance(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]
@@ -444,7 +444,7 @@ func (c *InstanceAPIController) ShutdownInstance(w http.ResponseWriter, r *http.
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadInstanceRemoteConnection - 
+// ReadInstanceRemoteConnection -
 func (c *InstanceAPIController) ReadInstanceRemoteConnection(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	instanceIdParam := params["instanceId"]

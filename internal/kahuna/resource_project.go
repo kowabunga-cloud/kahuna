@@ -71,17 +71,17 @@ type ProjectResources struct {
 }
 
 func (pr *ProjectResources) Update(quotas sdk.ProjectResources) {
-	pr.VCPUs = uint16(quotas.Vcpus)          // #nosec G115 -- vcpu count never overflows uint16
-	pr.MemorySize = uint64(quotas.Memory)     // #nosec G115 -- SDK uses int64 for proto compat; values are always positive
-	pr.StorageSize = uint64(quotas.Storage)   // #nosec G115 -- SDK uses int64 for proto compat; values are always positive
+	pr.VCPUs = uint16(quotas.Vcpus)              // #nosec G115 -- vcpu count never overflows uint16
+	pr.MemorySize = uint64(quotas.Memory)        // #nosec G115 -- SDK uses int64 for proto compat; values are always positive
+	pr.StorageSize = uint64(quotas.Storage)      // #nosec G115 -- SDK uses int64 for proto compat; values are always positive
 	pr.InstancesCount = uint16(quotas.Instances) // #nosec G115 -- instance count never overflows uint16
 }
 
 func (pr *ProjectResources) Model() sdk.ProjectResources {
 	return sdk.ProjectResources{
 		Instances: int32(pr.InstancesCount),
-		Memory:    int64(pr.MemorySize),   // #nosec G115 -- memory quota fits in int64
-		Storage:   int64(pr.StorageSize),  // #nosec G115 -- storage quota fits in int64
+		Memory:    int64(pr.MemorySize),  // #nosec G115 -- memory quota fits in int64
+		Storage:   int64(pr.StorageSize), // #nosec G115 -- storage quota fits in int64
 		Vcpus:     int32(pr.VCPUs),
 	}
 }
@@ -649,16 +649,16 @@ func (p *Project) AddInstance(id string) {
 
 	// increase usage counters
 	p.Usage.InstancesCount += 1
-	p.Usage.VCPUs += uint16(i.CPU)           // #nosec G115 -- vcpu count never overflows uint16
-	p.Usage.MemorySize += uint64(i.Memory)   // #nosec G115 -- memory is always positive
+	p.Usage.VCPUs += uint16(i.CPU)         // #nosec G115 -- vcpu count never overflows uint16
+	p.Usage.MemorySize += uint64(i.Memory) // #nosec G115 -- memory is always positive
 
 	p.Save()
 }
 
 func (p *Project) UpdateInstanceUsage(cpu, mem int64) {
 	// increase usage counters
-	p.Usage.VCPUs += uint16(cpu)           // #nosec G115 -- vcpu count never overflows uint16
-	p.Usage.MemorySize += uint64(mem)      // #nosec G115 -- memory is always positive
+	p.Usage.VCPUs += uint16(cpu)      // #nosec G115 -- vcpu count never overflows uint16
+	p.Usage.MemorySize += uint64(mem) // #nosec G115 -- memory is always positive
 	p.Save()
 }
 
@@ -674,8 +674,8 @@ func (p *Project) RemoveInstance(id string) {
 
 	// decrease usage counters
 	p.Usage.InstancesCount -= 1
-	p.Usage.VCPUs -= uint16(ist.CPU)           // #nosec G115 -- vcpu count never overflows uint16
-	p.Usage.MemorySize -= uint64(ist.Memory)   // #nosec G115 -- memory is always positive
+	p.Usage.VCPUs -= uint16(ist.CPU)         // #nosec G115 -- vcpu count never overflows uint16
+	p.Usage.MemorySize -= uint64(ist.Memory) // #nosec G115 -- memory is always positive
 
 	RemoveChildRef(&p.InstanceIDs, id)
 	p.Save()

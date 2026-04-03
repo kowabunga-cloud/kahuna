@@ -28,7 +28,7 @@ func NewVolumeAPIService() *VolumeAPIService {
 	return &VolumeAPIService{}
 }
 
-// ListVolumes - 
+// ListVolumes -
 func (s *VolumeAPIService) ListVolumes(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListVolumes with the required logic for this service method.
 	// Add api_volume_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *VolumeAPIService) ListVolumes(ctx context.Context) (ImplResponse, error
 	return Response(http.StatusNotImplemented, nil), errors.New("ListVolumes method not implemented")
 }
 
-// ReadVolume - 
+// ReadVolume -
 func (s *VolumeAPIService) ReadVolume(ctx context.Context, volumeId string) (ImplResponse, error) {
 	// TODO - update ReadVolume with the required logic for this service method.
 	// Add api_volume_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *VolumeAPIService) ReadVolume(ctx context.Context, volumeId string) (Imp
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadVolume method not implemented")
 }
 
-// UpdateVolume - 
+// UpdateVolume -
 func (s *VolumeAPIService) UpdateVolume(ctx context.Context, volumeId string, volume Volume) (ImplResponse, error) {
 	// TODO - update UpdateVolume with the required logic for this service method.
 	// Add api_volume_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *VolumeAPIService) UpdateVolume(ctx context.Context, volumeId string, vo
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateVolume method not implemented")
 }
 
-// DeleteVolume - 
+// DeleteVolume -
 func (s *VolumeAPIService) DeleteVolume(ctx context.Context, volumeId string) (ImplResponse, error) {
 	// TODO - update DeleteVolume with the required logic for this service method.
 	// Add api_volume_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

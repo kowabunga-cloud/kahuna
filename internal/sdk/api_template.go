@@ -111,7 +111,7 @@ func (c *TemplateAPIController) OrderedRoutes() []Route {
 
 
 
-// ListTemplates - 
+// ListTemplates -
 func (c *TemplateAPIController) ListTemplates(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListTemplates(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -123,7 +123,7 @@ func (c *TemplateAPIController) ListTemplates(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadTemplate - 
+// ReadTemplate -
 func (c *TemplateAPIController) ReadTemplate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	templateIdParam := params["templateId"]
@@ -141,7 +141,7 @@ func (c *TemplateAPIController) ReadTemplate(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateTemplate - 
+// UpdateTemplate -
 func (c *TemplateAPIController) UpdateTemplate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	templateIdParam := params["templateId"]
@@ -174,7 +174,7 @@ func (c *TemplateAPIController) UpdateTemplate(w http.ResponseWriter, r *http.Re
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteTemplate - 
+// DeleteTemplate -
 func (c *TemplateAPIController) DeleteTemplate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	templateIdParam := params["templateId"]

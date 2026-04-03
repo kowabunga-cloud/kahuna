@@ -28,7 +28,7 @@ func NewZoneAPIService() *ZoneAPIService {
 	return &ZoneAPIService{}
 }
 
-// ListZones - 
+// ListZones -
 func (s *ZoneAPIService) ListZones(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListZones with the required logic for this service method.
 	// Add api_zone_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *ZoneAPIService) ListZones(ctx context.Context) (ImplResponse, error) {
 	return Response(http.StatusNotImplemented, nil), errors.New("ListZones method not implemented")
 }
 
-// ReadZone - 
+// ReadZone -
 func (s *ZoneAPIService) ReadZone(ctx context.Context, zoneId string) (ImplResponse, error) {
 	// TODO - update ReadZone with the required logic for this service method.
 	// Add api_zone_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *ZoneAPIService) ReadZone(ctx context.Context, zoneId string) (ImplRespo
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadZone method not implemented")
 }
 
-// UpdateZone - 
+// UpdateZone -
 func (s *ZoneAPIService) UpdateZone(ctx context.Context, zoneId string, zone Zone) (ImplResponse, error) {
 	// TODO - update UpdateZone with the required logic for this service method.
 	// Add api_zone_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *ZoneAPIService) UpdateZone(ctx context.Context, zoneId string, zone Zon
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateZone method not implemented")
 }
 
-// DeleteZone - 
+// DeleteZone -
 func (s *ZoneAPIService) DeleteZone(ctx context.Context, zoneId string) (ImplResponse, error) {
 	// TODO - update DeleteZone with the required logic for this service method.
 	// Add api_zone_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -120,7 +120,7 @@ func (s *ZoneAPIService) DeleteZone(ctx context.Context, zoneId string) (ImplRes
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteZone method not implemented")
 }
 
-// CreateKaktus - 
+// CreateKaktus -
 func (s *ZoneAPIService) CreateKaktus(ctx context.Context, zoneId string, kaktus Kaktus) (ImplResponse, error) {
 	// TODO - update CreateKaktus with the required logic for this service method.
 	// Add api_zone_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -152,7 +152,7 @@ func (s *ZoneAPIService) CreateKaktus(ctx context.Context, zoneId string, kaktus
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateKaktus method not implemented")
 }
 
-// ListZoneKaktuses - 
+// ListZoneKaktuses -
 func (s *ZoneAPIService) ListZoneKaktuses(ctx context.Context, zoneId string) (ImplResponse, error) {
 	// TODO - update ListZoneKaktuses with the required logic for this service method.
 	// Add api_zone_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

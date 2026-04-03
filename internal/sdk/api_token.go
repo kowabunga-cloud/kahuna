@@ -111,7 +111,7 @@ func (c *TokenAPIController) OrderedRoutes() []Route {
 
 
 
-// ListApiTokens - 
+// ListApiTokens -
 func (c *TokenAPIController) ListApiTokens(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListApiTokens(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -123,7 +123,7 @@ func (c *TokenAPIController) ListApiTokens(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadApiToken - 
+// ReadApiToken -
 func (c *TokenAPIController) ReadApiToken(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	tokenIdParam := params["tokenId"]
@@ -141,7 +141,7 @@ func (c *TokenAPIController) ReadApiToken(w http.ResponseWriter, r *http.Request
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateApiToken - 
+// UpdateApiToken -
 func (c *TokenAPIController) UpdateApiToken(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	tokenIdParam := params["tokenId"]
@@ -174,7 +174,7 @@ func (c *TokenAPIController) UpdateApiToken(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteApiToken - 
+// DeleteApiToken -
 func (c *TokenAPIController) DeleteApiToken(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	tokenIdParam := params["tokenId"]

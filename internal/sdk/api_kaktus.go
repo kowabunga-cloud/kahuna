@@ -135,7 +135,7 @@ func (c *KaktusAPIController) OrderedRoutes() []Route {
 
 
 
-// ListKaktuss - 
+// ListKaktuss -
 func (c *KaktusAPIController) ListKaktuss(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListKaktuss(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -147,7 +147,7 @@ func (c *KaktusAPIController) ListKaktuss(w http.ResponseWriter, r *http.Request
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadKaktus - 
+// ReadKaktus -
 func (c *KaktusAPIController) ReadKaktus(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kaktusIdParam := params["kaktusId"]
@@ -165,7 +165,7 @@ func (c *KaktusAPIController) ReadKaktus(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateKaktus - 
+// UpdateKaktus -
 func (c *KaktusAPIController) UpdateKaktus(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kaktusIdParam := params["kaktusId"]
@@ -198,7 +198,7 @@ func (c *KaktusAPIController) UpdateKaktus(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteKaktus - 
+// DeleteKaktus -
 func (c *KaktusAPIController) DeleteKaktus(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kaktusIdParam := params["kaktusId"]
@@ -216,7 +216,7 @@ func (c *KaktusAPIController) DeleteKaktus(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadKaktusCaps - 
+// ReadKaktusCaps -
 func (c *KaktusAPIController) ReadKaktusCaps(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kaktusIdParam := params["kaktusId"]
@@ -234,7 +234,7 @@ func (c *KaktusAPIController) ReadKaktusCaps(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListKaktusInstances - 
+// ListKaktusInstances -
 func (c *KaktusAPIController) ListKaktusInstances(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kaktusIdParam := params["kaktusId"]

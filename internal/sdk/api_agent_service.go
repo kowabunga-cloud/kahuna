@@ -28,7 +28,7 @@ func NewAgentAPIService() *AgentAPIService {
 	return &AgentAPIService{}
 }
 
-// ListAgents - 
+// ListAgents -
 func (s *AgentAPIService) ListAgents(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListAgents with the required logic for this service method.
 	// Add api_agent_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *AgentAPIService) ListAgents(ctx context.Context) (ImplResponse, error) 
 	return Response(http.StatusNotImplemented, nil), errors.New("ListAgents method not implemented")
 }
 
-// CreateAgent - 
+// CreateAgent -
 func (s *AgentAPIService) CreateAgent(ctx context.Context, agent Agent) (ImplResponse, error) {
 	// TODO - update CreateAgent with the required logic for this service method.
 	// Add api_agent_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -77,7 +77,7 @@ func (s *AgentAPIService) CreateAgent(ctx context.Context, agent Agent) (ImplRes
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateAgent method not implemented")
 }
 
-// ReadAgent - 
+// ReadAgent -
 func (s *AgentAPIService) ReadAgent(ctx context.Context, agentId string) (ImplResponse, error) {
 	// TODO - update ReadAgent with the required logic for this service method.
 	// Add api_agent_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -97,7 +97,7 @@ func (s *AgentAPIService) ReadAgent(ctx context.Context, agentId string) (ImplRe
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadAgent method not implemented")
 }
 
-// UpdateAgent - 
+// UpdateAgent -
 func (s *AgentAPIService) UpdateAgent(ctx context.Context, agentId string, agent Agent) (ImplResponse, error) {
 	// TODO - update UpdateAgent with the required logic for this service method.
 	// Add api_agent_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -126,7 +126,7 @@ func (s *AgentAPIService) UpdateAgent(ctx context.Context, agentId string, agent
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateAgent method not implemented")
 }
 
-// DeleteAgent - 
+// DeleteAgent -
 func (s *AgentAPIService) DeleteAgent(ctx context.Context, agentId string) (ImplResponse, error) {
 	// TODO - update DeleteAgent with the required logic for this service method.
 	// Add api_agent_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -152,7 +152,7 @@ func (s *AgentAPIService) DeleteAgent(ctx context.Context, agentId string) (Impl
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteAgent method not implemented")
 }
 
-// SetAgentApiToken - 
+// SetAgentApiToken -
 func (s *AgentAPIService) SetAgentApiToken(ctx context.Context, agentId string, expire bool, expirationDate string) (ImplResponse, error) {
 	// TODO - update SetAgentApiToken with the required logic for this service method.
 	// Add api_agent_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

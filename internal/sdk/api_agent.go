@@ -135,7 +135,7 @@ func (c *AgentAPIController) OrderedRoutes() []Route {
 
 
 
-// ListAgents - 
+// ListAgents -
 func (c *AgentAPIController) ListAgents(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListAgents(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -147,7 +147,7 @@ func (c *AgentAPIController) ListAgents(w http.ResponseWriter, r *http.Request) 
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateAgent - 
+// CreateAgent -
 func (c *AgentAPIController) CreateAgent(w http.ResponseWriter, r *http.Request) {
 	var agentParam Agent
 	d := json.NewDecoder(r.Body)
@@ -174,7 +174,7 @@ func (c *AgentAPIController) CreateAgent(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadAgent - 
+// ReadAgent -
 func (c *AgentAPIController) ReadAgent(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	agentIdParam := params["agentId"]
@@ -192,7 +192,7 @@ func (c *AgentAPIController) ReadAgent(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateAgent - 
+// UpdateAgent -
 func (c *AgentAPIController) UpdateAgent(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	agentIdParam := params["agentId"]
@@ -225,7 +225,7 @@ func (c *AgentAPIController) UpdateAgent(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteAgent - 
+// DeleteAgent -
 func (c *AgentAPIController) DeleteAgent(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	agentIdParam := params["agentId"]
@@ -243,7 +243,7 @@ func (c *AgentAPIController) DeleteAgent(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// SetAgentApiToken - 
+// SetAgentApiToken -
 func (c *AgentAPIController) SetAgentApiToken(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)

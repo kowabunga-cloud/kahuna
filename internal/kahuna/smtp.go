@@ -85,8 +85,8 @@ func NewEmailProjectCreated(prj *Project, user *User) error {
 
 	instances := quotaToString(int(prj.Quotas.InstancesCount), false)
 	vcpus := quotaToString(int(prj.Quotas.VCPUs), false)
-	mem := quotaToString(int(prj.Quotas.MemorySize), true)    // #nosec G115 -- quota fits in int on 64-bit systems
-	disk := quotaToString(int(prj.Quotas.StorageSize), true)  // #nosec G115 -- quota fits in int on 64-bit systems
+	mem := quotaToString(int(prj.Quotas.MemorySize), true)   // #nosec G115 -- quota fits in int on 64-bit systems
+	disk := quotaToString(int(prj.Quotas.StorageSize), true) // #nosec G115 -- quota fits in int on 64-bit systems
 
 	email := hermes.Email{
 		Body: hermes.Body{

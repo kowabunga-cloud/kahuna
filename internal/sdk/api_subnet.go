@@ -135,7 +135,7 @@ func (c *SubnetAPIController) OrderedRoutes() []Route {
 
 
 
-// ListSubnets - 
+// ListSubnets -
 func (c *SubnetAPIController) ListSubnets(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListSubnets(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -147,7 +147,7 @@ func (c *SubnetAPIController) ListSubnets(w http.ResponseWriter, r *http.Request
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadSubnet - 
+// ReadSubnet -
 func (c *SubnetAPIController) ReadSubnet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	subnetIdParam := params["subnetId"]
@@ -165,7 +165,7 @@ func (c *SubnetAPIController) ReadSubnet(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateSubnet - 
+// UpdateSubnet -
 func (c *SubnetAPIController) UpdateSubnet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	subnetIdParam := params["subnetId"]
@@ -198,7 +198,7 @@ func (c *SubnetAPIController) UpdateSubnet(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteSubnet - 
+// DeleteSubnet -
 func (c *SubnetAPIController) DeleteSubnet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	subnetIdParam := params["subnetId"]
@@ -216,7 +216,7 @@ func (c *SubnetAPIController) DeleteSubnet(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateAdapter - 
+// CreateAdapter -
 func (c *SubnetAPIController) CreateAdapter(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)
@@ -268,7 +268,7 @@ func (c *SubnetAPIController) CreateAdapter(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListSubnetAdapters - 
+// ListSubnetAdapters -
 func (c *SubnetAPIController) ListSubnetAdapters(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	subnetIdParam := params["subnetId"]

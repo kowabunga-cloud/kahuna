@@ -28,7 +28,7 @@ func NewKiwiAPIService() *KiwiAPIService {
 	return &KiwiAPIService{}
 }
 
-// ListKiwis - 
+// ListKiwis -
 func (s *KiwiAPIService) ListKiwis(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListKiwis with the required logic for this service method.
 	// Add api_kiwi_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *KiwiAPIService) ListKiwis(ctx context.Context) (ImplResponse, error) {
 	return Response(http.StatusNotImplemented, nil), errors.New("ListKiwis method not implemented")
 }
 
-// ReadKiwi - 
+// ReadKiwi -
 func (s *KiwiAPIService) ReadKiwi(ctx context.Context, kiwiId string) (ImplResponse, error) {
 	// TODO - update ReadKiwi with the required logic for this service method.
 	// Add api_kiwi_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *KiwiAPIService) ReadKiwi(ctx context.Context, kiwiId string) (ImplRespo
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadKiwi method not implemented")
 }
 
-// UpdateKiwi - 
+// UpdateKiwi -
 func (s *KiwiAPIService) UpdateKiwi(ctx context.Context, kiwiId string, kiwi Kiwi) (ImplResponse, error) {
 	// TODO - update UpdateKiwi with the required logic for this service method.
 	// Add api_kiwi_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *KiwiAPIService) UpdateKiwi(ctx context.Context, kiwiId string, kiwi Kiw
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateKiwi method not implemented")
 }
 
-// DeleteKiwi - 
+// DeleteKiwi -
 func (s *KiwiAPIService) DeleteKiwi(ctx context.Context, kiwiId string) (ImplResponse, error) {
 	// TODO - update DeleteKiwi with the required logic for this service method.
 	// Add api_kiwi_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

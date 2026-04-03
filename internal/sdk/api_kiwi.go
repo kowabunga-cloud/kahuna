@@ -111,7 +111,7 @@ func (c *KiwiAPIController) OrderedRoutes() []Route {
 
 
 
-// ListKiwis - 
+// ListKiwis -
 func (c *KiwiAPIController) ListKiwis(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListKiwis(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -123,7 +123,7 @@ func (c *KiwiAPIController) ListKiwis(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadKiwi - 
+// ReadKiwi -
 func (c *KiwiAPIController) ReadKiwi(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kiwiIdParam := params["kiwiId"]
@@ -141,7 +141,7 @@ func (c *KiwiAPIController) ReadKiwi(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateKiwi - 
+// UpdateKiwi -
 func (c *KiwiAPIController) UpdateKiwi(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kiwiIdParam := params["kiwiId"]
@@ -174,7 +174,7 @@ func (c *KiwiAPIController) UpdateKiwi(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteKiwi - 
+// DeleteKiwi -
 func (c *KiwiAPIController) DeleteKiwi(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kiwiIdParam := params["kiwiId"]

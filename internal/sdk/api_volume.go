@@ -111,7 +111,7 @@ func (c *VolumeAPIController) OrderedRoutes() []Route {
 
 
 
-// ListVolumes - 
+// ListVolumes -
 func (c *VolumeAPIController) ListVolumes(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListVolumes(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -123,7 +123,7 @@ func (c *VolumeAPIController) ListVolumes(w http.ResponseWriter, r *http.Request
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadVolume - 
+// ReadVolume -
 func (c *VolumeAPIController) ReadVolume(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	volumeIdParam := params["volumeId"]
@@ -141,7 +141,7 @@ func (c *VolumeAPIController) ReadVolume(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateVolume - 
+// UpdateVolume -
 func (c *VolumeAPIController) UpdateVolume(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	volumeIdParam := params["volumeId"]
@@ -174,7 +174,7 @@ func (c *VolumeAPIController) UpdateVolume(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteVolume - 
+// DeleteVolume -
 func (c *VolumeAPIController) DeleteVolume(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	volumeIdParam := params["volumeId"]

@@ -28,7 +28,7 @@ func NewKonveyAPIService() *KonveyAPIService {
 	return &KonveyAPIService{}
 }
 
-// ListKonveys - 
+// ListKonveys -
 func (s *KonveyAPIService) ListKonveys(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListKonveys with the required logic for this service method.
 	// Add api_konvey_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *KonveyAPIService) ListKonveys(ctx context.Context) (ImplResponse, error
 	return Response(http.StatusNotImplemented, nil), errors.New("ListKonveys method not implemented")
 }
 
-// ReadKonvey - 
+// ReadKonvey -
 func (s *KonveyAPIService) ReadKonvey(ctx context.Context, konveyId string) (ImplResponse, error) {
 	// TODO - update ReadKonvey with the required logic for this service method.
 	// Add api_konvey_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *KonveyAPIService) ReadKonvey(ctx context.Context, konveyId string) (Imp
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadKonvey method not implemented")
 }
 
-// UpdateKonvey - 
+// UpdateKonvey -
 func (s *KonveyAPIService) UpdateKonvey(ctx context.Context, konveyId string, konvey Konvey) (ImplResponse, error) {
 	// TODO - update UpdateKonvey with the required logic for this service method.
 	// Add api_konvey_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *KonveyAPIService) UpdateKonvey(ctx context.Context, konveyId string, ko
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateKonvey method not implemented")
 }
 
-// DeleteKonvey - 
+// DeleteKonvey -
 func (s *KonveyAPIService) DeleteKonvey(ctx context.Context, konveyId string) (ImplResponse, error) {
 	// TODO - update DeleteKonvey with the required logic for this service method.
 	// Add api_konvey_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

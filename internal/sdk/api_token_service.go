@@ -28,7 +28,7 @@ func NewTokenAPIService() *TokenAPIService {
 	return &TokenAPIService{}
 }
 
-// ListApiTokens - 
+// ListApiTokens -
 func (s *TokenAPIService) ListApiTokens(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListApiTokens with the required logic for this service method.
 	// Add api_token_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *TokenAPIService) ListApiTokens(ctx context.Context) (ImplResponse, erro
 	return Response(http.StatusNotImplemented, nil), errors.New("ListApiTokens method not implemented")
 }
 
-// ReadApiToken - 
+// ReadApiToken -
 func (s *TokenAPIService) ReadApiToken(ctx context.Context, tokenId string) (ImplResponse, error) {
 	// TODO - update ReadApiToken with the required logic for this service method.
 	// Add api_token_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *TokenAPIService) ReadApiToken(ctx context.Context, tokenId string) (Imp
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadApiToken method not implemented")
 }
 
-// UpdateApiToken - 
+// UpdateApiToken -
 func (s *TokenAPIService) UpdateApiToken(ctx context.Context, tokenId string, apiToken ApiToken) (ImplResponse, error) {
 	// TODO - update UpdateApiToken with the required logic for this service method.
 	// Add api_token_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *TokenAPIService) UpdateApiToken(ctx context.Context, tokenId string, ap
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateApiToken method not implemented")
 }
 
-// DeleteApiToken - 
+// DeleteApiToken -
 func (s *TokenAPIService) DeleteApiToken(ctx context.Context, tokenId string) (ImplResponse, error) {
 	// TODO - update DeleteApiToken with the required logic for this service method.
 	// Add api_token_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

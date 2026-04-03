@@ -111,7 +111,7 @@ func (c *KyloAPIController) OrderedRoutes() []Route {
 
 
 
-// ListKylos - 
+// ListKylos -
 func (c *KyloAPIController) ListKylos(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListKylos(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -123,7 +123,7 @@ func (c *KyloAPIController) ListKylos(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadKylo - 
+// ReadKylo -
 func (c *KyloAPIController) ReadKylo(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kyloIdParam := params["kyloId"]
@@ -141,7 +141,7 @@ func (c *KyloAPIController) ReadKylo(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateKylo - 
+// UpdateKylo -
 func (c *KyloAPIController) UpdateKylo(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kyloIdParam := params["kyloId"]
@@ -174,7 +174,7 @@ func (c *KyloAPIController) UpdateKylo(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteKylo - 
+// DeleteKylo -
 func (c *KyloAPIController) DeleteKylo(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	kyloIdParam := params["kyloId"]

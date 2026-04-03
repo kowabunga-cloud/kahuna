@@ -99,7 +99,7 @@ func (c *RecordAPIController) OrderedRoutes() []Route {
 
 
 
-// ReadDnsRecord - 
+// ReadDnsRecord -
 func (c *RecordAPIController) ReadDnsRecord(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	recordIdParam := params["recordId"]
@@ -117,7 +117,7 @@ func (c *RecordAPIController) ReadDnsRecord(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateDnsRecord - 
+// UpdateDnsRecord -
 func (c *RecordAPIController) UpdateDnsRecord(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	recordIdParam := params["recordId"]
@@ -150,7 +150,7 @@ func (c *RecordAPIController) UpdateDnsRecord(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteDnsRecord - 
+// DeleteDnsRecord -
 func (c *RecordAPIController) DeleteDnsRecord(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	recordIdParam := params["recordId"]

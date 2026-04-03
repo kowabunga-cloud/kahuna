@@ -28,7 +28,7 @@ func NewKaktusAPIService() *KaktusAPIService {
 	return &KaktusAPIService{}
 }
 
-// ListKaktuss - 
+// ListKaktuss -
 func (s *KaktusAPIService) ListKaktuss(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListKaktuss with the required logic for this service method.
 	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *KaktusAPIService) ListKaktuss(ctx context.Context) (ImplResponse, error
 	return Response(http.StatusNotImplemented, nil), errors.New("ListKaktuss method not implemented")
 }
 
-// ReadKaktus - 
+// ReadKaktus -
 func (s *KaktusAPIService) ReadKaktus(ctx context.Context, kaktusId string) (ImplResponse, error) {
 	// TODO - update ReadKaktus with the required logic for this service method.
 	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *KaktusAPIService) ReadKaktus(ctx context.Context, kaktusId string) (Imp
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadKaktus method not implemented")
 }
 
-// UpdateKaktus - 
+// UpdateKaktus -
 func (s *KaktusAPIService) UpdateKaktus(ctx context.Context, kaktusId string, kaktus Kaktus) (ImplResponse, error) {
 	// TODO - update UpdateKaktus with the required logic for this service method.
 	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *KaktusAPIService) UpdateKaktus(ctx context.Context, kaktusId string, ka
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateKaktus method not implemented")
 }
 
-// DeleteKaktus - 
+// DeleteKaktus -
 func (s *KaktusAPIService) DeleteKaktus(ctx context.Context, kaktusId string) (ImplResponse, error) {
 	// TODO - update DeleteKaktus with the required logic for this service method.
 	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -120,7 +120,7 @@ func (s *KaktusAPIService) DeleteKaktus(ctx context.Context, kaktusId string) (I
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteKaktus method not implemented")
 }
 
-// ReadKaktusCaps - 
+// ReadKaktusCaps -
 func (s *KaktusAPIService) ReadKaktusCaps(ctx context.Context, kaktusId string) (ImplResponse, error) {
 	// TODO - update ReadKaktusCaps with the required logic for this service method.
 	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -140,7 +140,7 @@ func (s *KaktusAPIService) ReadKaktusCaps(ctx context.Context, kaktusId string) 
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadKaktusCaps method not implemented")
 }
 
-// ListKaktusInstances - 
+// ListKaktusInstances -
 func (s *KaktusAPIService) ListKaktusInstances(ctx context.Context, kaktusId string) (ImplResponse, error) {
 	// TODO - update ListKaktusInstances with the required logic for this service method.
 	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

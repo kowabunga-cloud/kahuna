@@ -28,7 +28,7 @@ func NewSubnetAPIService() *SubnetAPIService {
 	return &SubnetAPIService{}
 }
 
-// ListSubnets - 
+// ListSubnets -
 func (s *SubnetAPIService) ListSubnets(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListSubnets with the required logic for this service method.
 	// Add api_subnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *SubnetAPIService) ListSubnets(ctx context.Context) (ImplResponse, error
 	return Response(http.StatusNotImplemented, nil), errors.New("ListSubnets method not implemented")
 }
 
-// ReadSubnet - 
+// ReadSubnet -
 func (s *SubnetAPIService) ReadSubnet(ctx context.Context, subnetId string) (ImplResponse, error) {
 	// TODO - update ReadSubnet with the required logic for this service method.
 	// Add api_subnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *SubnetAPIService) ReadSubnet(ctx context.Context, subnetId string) (Imp
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadSubnet method not implemented")
 }
 
-// UpdateSubnet - 
+// UpdateSubnet -
 func (s *SubnetAPIService) UpdateSubnet(ctx context.Context, subnetId string, subnet Subnet) (ImplResponse, error) {
 	// TODO - update UpdateSubnet with the required logic for this service method.
 	// Add api_subnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *SubnetAPIService) UpdateSubnet(ctx context.Context, subnetId string, su
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateSubnet method not implemented")
 }
 
-// DeleteSubnet - 
+// DeleteSubnet -
 func (s *SubnetAPIService) DeleteSubnet(ctx context.Context, subnetId string) (ImplResponse, error) {
 	// TODO - update DeleteSubnet with the required logic for this service method.
 	// Add api_subnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -120,7 +120,7 @@ func (s *SubnetAPIService) DeleteSubnet(ctx context.Context, subnetId string) (I
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteSubnet method not implemented")
 }
 
-// CreateAdapter - 
+// CreateAdapter -
 func (s *SubnetAPIService) CreateAdapter(ctx context.Context, subnetId string, adapter Adapter, assignIP bool) (ImplResponse, error) {
 	// TODO - update CreateAdapter with the required logic for this service method.
 	// Add api_subnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -152,7 +152,7 @@ func (s *SubnetAPIService) CreateAdapter(ctx context.Context, subnetId string, a
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateAdapter method not implemented")
 }
 
-// ListSubnetAdapters - 
+// ListSubnetAdapters -
 func (s *SubnetAPIService) ListSubnetAdapters(ctx context.Context, subnetId string) (ImplResponse, error) {
 	// TODO - update ListSubnetAdapters with the required logic for this service method.
 	// Add api_subnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

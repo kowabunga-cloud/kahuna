@@ -28,7 +28,7 @@ func NewTeamAPIService() *TeamAPIService {
 	return &TeamAPIService{}
 }
 
-// ListTeams - 
+// ListTeams -
 func (s *TeamAPIService) ListTeams(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListTeams with the required logic for this service method.
 	// Add api_team_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *TeamAPIService) ListTeams(ctx context.Context) (ImplResponse, error) {
 	return Response(http.StatusNotImplemented, nil), errors.New("ListTeams method not implemented")
 }
 
-// CreateTeam - 
+// CreateTeam -
 func (s *TeamAPIService) CreateTeam(ctx context.Context, team Team) (ImplResponse, error) {
 	// TODO - update CreateTeam with the required logic for this service method.
 	// Add api_team_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -77,7 +77,7 @@ func (s *TeamAPIService) CreateTeam(ctx context.Context, team Team) (ImplRespons
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateTeam method not implemented")
 }
 
-// ReadTeam - 
+// ReadTeam -
 func (s *TeamAPIService) ReadTeam(ctx context.Context, teamId string) (ImplResponse, error) {
 	// TODO - update ReadTeam with the required logic for this service method.
 	// Add api_team_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -97,7 +97,7 @@ func (s *TeamAPIService) ReadTeam(ctx context.Context, teamId string) (ImplRespo
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadTeam method not implemented")
 }
 
-// UpdateTeam - 
+// UpdateTeam -
 func (s *TeamAPIService) UpdateTeam(ctx context.Context, teamId string, team Team) (ImplResponse, error) {
 	// TODO - update UpdateTeam with the required logic for this service method.
 	// Add api_team_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -126,7 +126,7 @@ func (s *TeamAPIService) UpdateTeam(ctx context.Context, teamId string, team Tea
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateTeam method not implemented")
 }
 
-// DeleteTeam - 
+// DeleteTeam -
 func (s *TeamAPIService) DeleteTeam(ctx context.Context, teamId string) (ImplResponse, error) {
 	// TODO - update DeleteTeam with the required logic for this service method.
 	// Add api_team_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

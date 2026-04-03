@@ -28,7 +28,7 @@ func NewKomputeAPIService() *KomputeAPIService {
 	return &KomputeAPIService{}
 }
 
-// ListKomputes - 
+// ListKomputes -
 func (s *KomputeAPIService) ListKomputes(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListKomputes with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -45,7 +45,7 @@ func (s *KomputeAPIService) ListKomputes(ctx context.Context) (ImplResponse, err
 	return Response(http.StatusNotImplemented, nil), errors.New("ListKomputes method not implemented")
 }
 
-// ReadKompute - 
+// ReadKompute -
 func (s *KomputeAPIService) ReadKompute(ctx context.Context, komputeId string) (ImplResponse, error) {
 	// TODO - update ReadKompute with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -65,7 +65,7 @@ func (s *KomputeAPIService) ReadKompute(ctx context.Context, komputeId string) (
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadKompute method not implemented")
 }
 
-// UpdateKompute - 
+// UpdateKompute -
 func (s *KomputeAPIService) UpdateKompute(ctx context.Context, komputeId string, kompute Kompute) (ImplResponse, error) {
 	// TODO - update UpdateKompute with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -94,7 +94,7 @@ func (s *KomputeAPIService) UpdateKompute(ctx context.Context, komputeId string,
 	return Response(http.StatusNotImplemented, nil), errors.New("UpdateKompute method not implemented")
 }
 
-// DeleteKompute - 
+// DeleteKompute -
 func (s *KomputeAPIService) DeleteKompute(ctx context.Context, komputeId string) (ImplResponse, error) {
 	// TODO - update DeleteKompute with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -120,7 +120,7 @@ func (s *KomputeAPIService) DeleteKompute(ctx context.Context, komputeId string)
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteKompute method not implemented")
 }
 
-// ReadKomputeState - 
+// ReadKomputeState -
 func (s *KomputeAPIService) ReadKomputeState(ctx context.Context, komputeId string) (ImplResponse, error) {
 	// TODO - update ReadKomputeState with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -140,7 +140,7 @@ func (s *KomputeAPIService) ReadKomputeState(ctx context.Context, komputeId stri
 	return Response(http.StatusNotImplemented, nil), errors.New("ReadKomputeState method not implemented")
 }
 
-// RebootKompute - 
+// RebootKompute -
 func (s *KomputeAPIService) RebootKompute(ctx context.Context, komputeId string) (ImplResponse, error) {
 	// TODO - update RebootKompute with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -163,7 +163,7 @@ func (s *KomputeAPIService) RebootKompute(ctx context.Context, komputeId string)
 	return Response(http.StatusNotImplemented, nil), errors.New("RebootKompute method not implemented")
 }
 
-// ResetKompute - 
+// ResetKompute -
 func (s *KomputeAPIService) ResetKompute(ctx context.Context, komputeId string) (ImplResponse, error) {
 	// TODO - update ResetKompute with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -186,7 +186,7 @@ func (s *KomputeAPIService) ResetKompute(ctx context.Context, komputeId string) 
 	return Response(http.StatusNotImplemented, nil), errors.New("ResetKompute method not implemented")
 }
 
-// SuspendKompute - 
+// SuspendKompute -
 func (s *KomputeAPIService) SuspendKompute(ctx context.Context, komputeId string) (ImplResponse, error) {
 	// TODO - update SuspendKompute with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -209,7 +209,7 @@ func (s *KomputeAPIService) SuspendKompute(ctx context.Context, komputeId string
 	return Response(http.StatusNotImplemented, nil), errors.New("SuspendKompute method not implemented")
 }
 
-// ResumeKompute - 
+// ResumeKompute -
 func (s *KomputeAPIService) ResumeKompute(ctx context.Context, komputeId string) (ImplResponse, error) {
 	// TODO - update ResumeKompute with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -232,7 +232,7 @@ func (s *KomputeAPIService) ResumeKompute(ctx context.Context, komputeId string)
 	return Response(http.StatusNotImplemented, nil), errors.New("ResumeKompute method not implemented")
 }
 
-// StartKompute - 
+// StartKompute -
 func (s *KomputeAPIService) StartKompute(ctx context.Context, komputeId string) (ImplResponse, error) {
 	// TODO - update StartKompute with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -255,7 +255,7 @@ func (s *KomputeAPIService) StartKompute(ctx context.Context, komputeId string) 
 	return Response(http.StatusNotImplemented, nil), errors.New("StartKompute method not implemented")
 }
 
-// StopKompute - 
+// StopKompute -
 func (s *KomputeAPIService) StopKompute(ctx context.Context, komputeId string) (ImplResponse, error) {
 	// TODO - update StopKompute with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
@@ -278,7 +278,7 @@ func (s *KomputeAPIService) StopKompute(ctx context.Context, komputeId string) (
 	return Response(http.StatusNotImplemented, nil), errors.New("StopKompute method not implemented")
 }
 
-// ShutdownKompute - 
+// ShutdownKompute -
 func (s *KomputeAPIService) ShutdownKompute(ctx context.Context, komputeId string) (ImplResponse, error) {
 	// TODO - update ShutdownKompute with the required logic for this service method.
 	// Add api_kompute_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.

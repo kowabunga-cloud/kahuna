@@ -111,7 +111,7 @@ func (c *AdapterAPIController) OrderedRoutes() []Route {
 
 
 
-// ListAdapters - 
+// ListAdapters -
 func (c *AdapterAPIController) ListAdapters(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListAdapters(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -123,7 +123,7 @@ func (c *AdapterAPIController) ListAdapters(w http.ResponseWriter, r *http.Reque
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ReadAdapter - 
+// ReadAdapter -
 func (c *AdapterAPIController) ReadAdapter(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	adapterIdParam := params["adapterId"]
@@ -141,7 +141,7 @@ func (c *AdapterAPIController) ReadAdapter(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// UpdateAdapter - 
+// UpdateAdapter -
 func (c *AdapterAPIController) UpdateAdapter(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	adapterIdParam := params["adapterId"]
@@ -174,7 +174,7 @@ func (c *AdapterAPIController) UpdateAdapter(w http.ResponseWriter, r *http.Requ
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// DeleteAdapter - 
+// DeleteAdapter -
 func (c *AdapterAPIController) DeleteAdapter(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	adapterIdParam := params["adapterId"]

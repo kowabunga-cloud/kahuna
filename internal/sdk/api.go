@@ -21,7 +21,7 @@ import (
 // AdapterAPIRouter defines the required methods for binding the api requests to a responses for the AdapterAPI
 // The AdapterAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a AdapterAPIServicer to perform the required actions, then write the service results to the http response.
-type AdapterAPIRouter interface { 
+type AdapterAPIRouter interface {
 	ListAdapters(http.ResponseWriter, *http.Request)
 	ReadAdapter(http.ResponseWriter, *http.Request)
 	UpdateAdapter(http.ResponseWriter, *http.Request)
@@ -30,7 +30,7 @@ type AdapterAPIRouter interface {
 // AgentAPIRouter defines the required methods for binding the api requests to a responses for the AgentAPI
 // The AgentAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a AgentAPIServicer to perform the required actions, then write the service results to the http response.
-type AgentAPIRouter interface { 
+type AgentAPIRouter interface {
 	ListAgents(http.ResponseWriter, *http.Request)
 	CreateAgent(http.ResponseWriter, *http.Request)
 	ReadAgent(http.ResponseWriter, *http.Request)
@@ -41,7 +41,7 @@ type AgentAPIRouter interface {
 // InstanceAPIRouter defines the required methods for binding the api requests to a responses for the InstanceAPI
 // The InstanceAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a InstanceAPIServicer to perform the required actions, then write the service results to the http response.
-type InstanceAPIRouter interface { 
+type InstanceAPIRouter interface {
 	ListInstances(http.ResponseWriter, *http.Request)
 	ReadInstance(http.ResponseWriter, *http.Request)
 	UpdateInstance(http.ResponseWriter, *http.Request)
@@ -59,7 +59,7 @@ type InstanceAPIRouter interface {
 // KaktusAPIRouter defines the required methods for binding the api requests to a responses for the KaktusAPI
 // The KaktusAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a KaktusAPIServicer to perform the required actions, then write the service results to the http response.
-type KaktusAPIRouter interface { 
+type KaktusAPIRouter interface {
 	ListKaktuss(http.ResponseWriter, *http.Request)
 	ReadKaktus(http.ResponseWriter, *http.Request)
 	UpdateKaktus(http.ResponseWriter, *http.Request)
@@ -70,7 +70,7 @@ type KaktusAPIRouter interface {
 // KawaiiAPIRouter defines the required methods for binding the api requests to a responses for the KawaiiAPI
 // The KawaiiAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a KawaiiAPIServicer to perform the required actions, then write the service results to the http response.
-type KawaiiAPIRouter interface { 
+type KawaiiAPIRouter interface {
 	ListKawaiis(http.ResponseWriter, *http.Request)
 	ReadKawaii(http.ResponseWriter, *http.Request)
 	UpdateKawaii(http.ResponseWriter, *http.Request)
@@ -84,7 +84,7 @@ type KawaiiAPIRouter interface {
 // KiwiAPIRouter defines the required methods for binding the api requests to a responses for the KiwiAPI
 // The KiwiAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a KiwiAPIServicer to perform the required actions, then write the service results to the http response.
-type KiwiAPIRouter interface { 
+type KiwiAPIRouter interface {
 	ListKiwis(http.ResponseWriter, *http.Request)
 	ReadKiwi(http.ResponseWriter, *http.Request)
 	UpdateKiwi(http.ResponseWriter, *http.Request)
@@ -93,7 +93,7 @@ type KiwiAPIRouter interface {
 // KomputeAPIRouter defines the required methods for binding the api requests to a responses for the KomputeAPI
 // The KomputeAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a KomputeAPIServicer to perform the required actions, then write the service results to the http response.
-type KomputeAPIRouter interface { 
+type KomputeAPIRouter interface {
 	ListKomputes(http.ResponseWriter, *http.Request)
 	ReadKompute(http.ResponseWriter, *http.Request)
 	UpdateKompute(http.ResponseWriter, *http.Request)
@@ -110,7 +110,7 @@ type KomputeAPIRouter interface {
 // KonveyAPIRouter defines the required methods for binding the api requests to a responses for the KonveyAPI
 // The KonveyAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a KonveyAPIServicer to perform the required actions, then write the service results to the http response.
-type KonveyAPIRouter interface { 
+type KonveyAPIRouter interface {
 	ListKonveys(http.ResponseWriter, *http.Request)
 	ReadKonvey(http.ResponseWriter, *http.Request)
 	UpdateKonvey(http.ResponseWriter, *http.Request)
@@ -119,7 +119,7 @@ type KonveyAPIRouter interface {
 // KyloAPIRouter defines the required methods for binding the api requests to a responses for the KyloAPI
 // The KyloAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a KyloAPIServicer to perform the required actions, then write the service results to the http response.
-type KyloAPIRouter interface { 
+type KyloAPIRouter interface {
 	ListKylos(http.ResponseWriter, *http.Request)
 	ReadKylo(http.ResponseWriter, *http.Request)
 	UpdateKylo(http.ResponseWriter, *http.Request)
@@ -128,7 +128,7 @@ type KyloAPIRouter interface {
 // NfsAPIRouter defines the required methods for binding the api requests to a responses for the NfsAPI
 // The NfsAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a NfsAPIServicer to perform the required actions, then write the service results to the http response.
-type NfsAPIRouter interface { 
+type NfsAPIRouter interface {
 	ListStorageNFSs(http.ResponseWriter, *http.Request)
 	ReadStorageNFS(http.ResponseWriter, *http.Request)
 	UpdateStorageNFS(http.ResponseWriter, *http.Request)
@@ -138,7 +138,7 @@ type NfsAPIRouter interface {
 // PoolAPIRouter defines the required methods for binding the api requests to a responses for the PoolAPI
 // The PoolAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a PoolAPIServicer to perform the required actions, then write the service results to the http response.
-type PoolAPIRouter interface { 
+type PoolAPIRouter interface {
 	ListStoragePools(http.ResponseWriter, *http.Request)
 	ReadStoragePool(http.ResponseWriter, *http.Request)
 	UpdateStoragePool(http.ResponseWriter, *http.Request)
@@ -151,7 +151,7 @@ type PoolAPIRouter interface {
 // ProjectAPIRouter defines the required methods for binding the api requests to a responses for the ProjectAPI
 // The ProjectAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a ProjectAPIServicer to perform the required actions, then write the service results to the http response.
-type ProjectAPIRouter interface { 
+type ProjectAPIRouter interface {
 	ListProjects(http.ResponseWriter, *http.Request)
 	CreateProject(http.ResponseWriter, *http.Request)
 	ReadProject(http.ResponseWriter, *http.Request)
@@ -179,7 +179,7 @@ type ProjectAPIRouter interface {
 // RecordAPIRouter defines the required methods for binding the api requests to a responses for the RecordAPI
 // The RecordAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a RecordAPIServicer to perform the required actions, then write the service results to the http response.
-type RecordAPIRouter interface { 
+type RecordAPIRouter interface {
 	ReadDnsRecord(http.ResponseWriter, *http.Request)
 	UpdateDnsRecord(http.ResponseWriter, *http.Request)
 	DeleteDnsRecord(http.ResponseWriter, *http.Request)
@@ -187,7 +187,7 @@ type RecordAPIRouter interface {
 // RegionAPIRouter defines the required methods for binding the api requests to a responses for the RegionAPI
 // The RegionAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a RegionAPIServicer to perform the required actions, then write the service results to the http response.
-type RegionAPIRouter interface { 
+type RegionAPIRouter interface {
 	ListRegions(http.ResponseWriter, *http.Request)
 	CreateRegion(http.ResponseWriter, *http.Request)
 	ReadRegion(http.ResponseWriter, *http.Request)
@@ -211,7 +211,7 @@ type RegionAPIRouter interface {
 // SubnetAPIRouter defines the required methods for binding the api requests to a responses for the SubnetAPI
 // The SubnetAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a SubnetAPIServicer to perform the required actions, then write the service results to the http response.
-type SubnetAPIRouter interface { 
+type SubnetAPIRouter interface {
 	ListSubnets(http.ResponseWriter, *http.Request)
 	ReadSubnet(http.ResponseWriter, *http.Request)
 	UpdateSubnet(http.ResponseWriter, *http.Request)
@@ -222,7 +222,7 @@ type SubnetAPIRouter interface {
 // TeamAPIRouter defines the required methods for binding the api requests to a responses for the TeamAPI
 // The TeamAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a TeamAPIServicer to perform the required actions, then write the service results to the http response.
-type TeamAPIRouter interface { 
+type TeamAPIRouter interface {
 	ListTeams(http.ResponseWriter, *http.Request)
 	CreateTeam(http.ResponseWriter, *http.Request)
 	ReadTeam(http.ResponseWriter, *http.Request)
@@ -232,7 +232,7 @@ type TeamAPIRouter interface {
 // TemplateAPIRouter defines the required methods for binding the api requests to a responses for the TemplateAPI
 // The TemplateAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a TemplateAPIServicer to perform the required actions, then write the service results to the http response.
-type TemplateAPIRouter interface { 
+type TemplateAPIRouter interface {
 	ListTemplates(http.ResponseWriter, *http.Request)
 	ReadTemplate(http.ResponseWriter, *http.Request)
 	UpdateTemplate(http.ResponseWriter, *http.Request)
@@ -241,7 +241,7 @@ type TemplateAPIRouter interface {
 // TokenAPIRouter defines the required methods for binding the api requests to a responses for the TokenAPI
 // The TokenAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a TokenAPIServicer to perform the required actions, then write the service results to the http response.
-type TokenAPIRouter interface { 
+type TokenAPIRouter interface {
 	ListApiTokens(http.ResponseWriter, *http.Request)
 	ReadApiToken(http.ResponseWriter, *http.Request)
 	UpdateApiToken(http.ResponseWriter, *http.Request)
@@ -250,7 +250,7 @@ type TokenAPIRouter interface {
 // UserAPIRouter defines the required methods for binding the api requests to a responses for the UserAPI
 // The UserAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a UserAPIServicer to perform the required actions, then write the service results to the http response.
-type UserAPIRouter interface { 
+type UserAPIRouter interface {
 	Login(http.ResponseWriter, *http.Request)
 	Logout(http.ResponseWriter, *http.Request)
 	ResetPassword(http.ResponseWriter, *http.Request)
@@ -266,7 +266,7 @@ type UserAPIRouter interface {
 // VnetAPIRouter defines the required methods for binding the api requests to a responses for the VnetAPI
 // The VnetAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a VnetAPIServicer to perform the required actions, then write the service results to the http response.
-type VnetAPIRouter interface { 
+type VnetAPIRouter interface {
 	ListVNets(http.ResponseWriter, *http.Request)
 	ReadVNet(http.ResponseWriter, *http.Request)
 	UpdateVNet(http.ResponseWriter, *http.Request)
@@ -278,7 +278,7 @@ type VnetAPIRouter interface {
 // VolumeAPIRouter defines the required methods for binding the api requests to a responses for the VolumeAPI
 // The VolumeAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a VolumeAPIServicer to perform the required actions, then write the service results to the http response.
-type VolumeAPIRouter interface { 
+type VolumeAPIRouter interface {
 	ListVolumes(http.ResponseWriter, *http.Request)
 	ReadVolume(http.ResponseWriter, *http.Request)
 	UpdateVolume(http.ResponseWriter, *http.Request)
@@ -287,7 +287,7 @@ type VolumeAPIRouter interface {
 // ZoneAPIRouter defines the required methods for binding the api requests to a responses for the ZoneAPI
 // The ZoneAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a ZoneAPIServicer to perform the required actions, then write the service results to the http response.
-type ZoneAPIRouter interface { 
+type ZoneAPIRouter interface {
 	ListZones(http.ResponseWriter, *http.Request)
 	ReadZone(http.ResponseWriter, *http.Request)
 	UpdateZone(http.ResponseWriter, *http.Request)
@@ -301,7 +301,7 @@ type ZoneAPIRouter interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type AdapterAPIServicer interface { 
+type AdapterAPIServicer interface {
 	ListAdapters(context.Context) (ImplResponse, error)
 	ReadAdapter(context.Context, string) (ImplResponse, error)
 	UpdateAdapter(context.Context, string, Adapter) (ImplResponse, error)
@@ -313,7 +313,7 @@ type AdapterAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type AgentAPIServicer interface { 
+type AgentAPIServicer interface {
 	ListAgents(context.Context) (ImplResponse, error)
 	CreateAgent(context.Context, Agent) (ImplResponse, error)
 	ReadAgent(context.Context, string) (ImplResponse, error)
@@ -327,7 +327,7 @@ type AgentAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type InstanceAPIServicer interface { 
+type InstanceAPIServicer interface {
 	ListInstances(context.Context) (ImplResponse, error)
 	ReadInstance(context.Context, string) (ImplResponse, error)
 	UpdateInstance(context.Context, string, Instance) (ImplResponse, error)
@@ -348,7 +348,7 @@ type InstanceAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type KaktusAPIServicer interface { 
+type KaktusAPIServicer interface {
 	ListKaktuss(context.Context) (ImplResponse, error)
 	ReadKaktus(context.Context, string) (ImplResponse, error)
 	UpdateKaktus(context.Context, string, Kaktus) (ImplResponse, error)
@@ -362,7 +362,7 @@ type KaktusAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type KawaiiAPIServicer interface { 
+type KawaiiAPIServicer interface {
 	ListKawaiis(context.Context) (ImplResponse, error)
 	ReadKawaii(context.Context, string) (ImplResponse, error)
 	UpdateKawaii(context.Context, string, Kawaii) (ImplResponse, error)
@@ -379,7 +379,7 @@ type KawaiiAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type KiwiAPIServicer interface { 
+type KiwiAPIServicer interface {
 	ListKiwis(context.Context) (ImplResponse, error)
 	ReadKiwi(context.Context, string) (ImplResponse, error)
 	UpdateKiwi(context.Context, string, Kiwi) (ImplResponse, error)
@@ -391,7 +391,7 @@ type KiwiAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type KomputeAPIServicer interface { 
+type KomputeAPIServicer interface {
 	ListKomputes(context.Context) (ImplResponse, error)
 	ReadKompute(context.Context, string) (ImplResponse, error)
 	UpdateKompute(context.Context, string, Kompute) (ImplResponse, error)
@@ -411,7 +411,7 @@ type KomputeAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type KonveyAPIServicer interface { 
+type KonveyAPIServicer interface {
 	ListKonveys(context.Context) (ImplResponse, error)
 	ReadKonvey(context.Context, string) (ImplResponse, error)
 	UpdateKonvey(context.Context, string, Konvey) (ImplResponse, error)
@@ -423,7 +423,7 @@ type KonveyAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type KyloAPIServicer interface { 
+type KyloAPIServicer interface {
 	ListKylos(context.Context) (ImplResponse, error)
 	ReadKylo(context.Context, string) (ImplResponse, error)
 	UpdateKylo(context.Context, string, Kylo) (ImplResponse, error)
@@ -435,7 +435,7 @@ type KyloAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type NfsAPIServicer interface { 
+type NfsAPIServicer interface {
 	ListStorageNFSs(context.Context) (ImplResponse, error)
 	ReadStorageNFS(context.Context, string) (ImplResponse, error)
 	UpdateStorageNFS(context.Context, string, StorageNfs) (ImplResponse, error)
@@ -448,7 +448,7 @@ type NfsAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type PoolAPIServicer interface { 
+type PoolAPIServicer interface {
 	ListStoragePools(context.Context) (ImplResponse, error)
 	ReadStoragePool(context.Context, string) (ImplResponse, error)
 	UpdateStoragePool(context.Context, string, StoragePool) (ImplResponse, error)
@@ -464,7 +464,7 @@ type PoolAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type ProjectAPIServicer interface { 
+type ProjectAPIServicer interface {
 	ListProjects(context.Context, int32) (ImplResponse, error)
 	CreateProject(context.Context, Project, int32) (ImplResponse, error)
 	ReadProject(context.Context, string) (ImplResponse, error)
@@ -495,7 +495,7 @@ type ProjectAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type RecordAPIServicer interface { 
+type RecordAPIServicer interface {
 	ReadDnsRecord(context.Context, string) (ImplResponse, error)
 	UpdateDnsRecord(context.Context, string, DnsRecord) (ImplResponse, error)
 	DeleteDnsRecord(context.Context, string) (ImplResponse, error)
@@ -506,7 +506,7 @@ type RecordAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type RegionAPIServicer interface { 
+type RegionAPIServicer interface {
 	ListRegions(context.Context) (ImplResponse, error)
 	CreateRegion(context.Context, Region) (ImplResponse, error)
 	ReadRegion(context.Context, string) (ImplResponse, error)
@@ -533,7 +533,7 @@ type RegionAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type SubnetAPIServicer interface { 
+type SubnetAPIServicer interface {
 	ListSubnets(context.Context) (ImplResponse, error)
 	ReadSubnet(context.Context, string) (ImplResponse, error)
 	UpdateSubnet(context.Context, string, Subnet) (ImplResponse, error)
@@ -547,7 +547,7 @@ type SubnetAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type TeamAPIServicer interface { 
+type TeamAPIServicer interface {
 	ListTeams(context.Context) (ImplResponse, error)
 	CreateTeam(context.Context, Team) (ImplResponse, error)
 	ReadTeam(context.Context, string) (ImplResponse, error)
@@ -560,7 +560,7 @@ type TeamAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type TemplateAPIServicer interface { 
+type TemplateAPIServicer interface {
 	ListTemplates(context.Context) (ImplResponse, error)
 	ReadTemplate(context.Context, string) (ImplResponse, error)
 	UpdateTemplate(context.Context, string, Template) (ImplResponse, error)
@@ -572,7 +572,7 @@ type TemplateAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type TokenAPIServicer interface { 
+type TokenAPIServicer interface {
 	ListApiTokens(context.Context) (ImplResponse, error)
 	ReadApiToken(context.Context, string) (ImplResponse, error)
 	UpdateApiToken(context.Context, string, ApiToken) (ImplResponse, error)
@@ -584,7 +584,7 @@ type TokenAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type UserAPIServicer interface { 
+type UserAPIServicer interface {
 	Login(context.Context, UserCredentials) (ImplResponse, error)
 	Logout(context.Context) (ImplResponse, error)
 	ResetPassword(context.Context, UserEmail) (ImplResponse, error)
@@ -603,7 +603,7 @@ type UserAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type VnetAPIServicer interface { 
+type VnetAPIServicer interface {
 	ListVNets(context.Context) (ImplResponse, error)
 	ReadVNet(context.Context, string) (ImplResponse, error)
 	UpdateVNet(context.Context, string, VNet) (ImplResponse, error)
@@ -618,7 +618,7 @@ type VnetAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type VolumeAPIServicer interface { 
+type VolumeAPIServicer interface {
 	ListVolumes(context.Context) (ImplResponse, error)
 	ReadVolume(context.Context, string) (ImplResponse, error)
 	UpdateVolume(context.Context, string, Volume) (ImplResponse, error)
@@ -630,7 +630,7 @@ type VolumeAPIServicer interface {
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type ZoneAPIServicer interface { 
+type ZoneAPIServicer interface {
 	ListZones(context.Context) (ImplResponse, error)
 	ReadZone(context.Context, string) (ImplResponse, error)
 	UpdateZone(context.Context, string, Zone) (ImplResponse, error)
