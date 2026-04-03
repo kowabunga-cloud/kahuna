@@ -131,7 +131,7 @@ get-gosec: ; $(info $(M) downloading gosec…) @
 
 .PHONY: sec
 sec: get-gosec ; $(info $(M) running gosec…) @ ## AST / SSA code checks
-	$Q $(GOSEC) -terse -exclude=G101,G115 ./internal/kahuna/... ./cmd/kahuna/... ; exit 0
+	$Q $(GOSEC) -terse -exclude=G115 ./internal/kahuna/... ./cmd/kahuna/... ; exit 0
 
 .PHONY: vet
 vet: ; $(info $(M) running go vet…) @

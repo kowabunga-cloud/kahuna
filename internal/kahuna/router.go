@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	HttpHeaderAuthApiKey       = "X-API-Key"
+	HttpHeaderAuthApiKey       = "X-API-Key" // #nosec G101
 	HttpHeaderAuthorization    = "Authorization"
 	HttpHeaderAuthBearerPrefix = "Bearer "
 	HttpApiMethodAll           = "*"
