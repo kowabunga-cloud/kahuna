@@ -19,6 +19,6 @@ repos:
       - id: go-mod-tidy
       - id: go-test-mod
       - id: go-vulncheck-mod
-#      - id: go-sec-mod
       - id: go-fmt
+        exclude: ^(internal/sdk/|vendor/)
       - id: golangci-lint-mod
