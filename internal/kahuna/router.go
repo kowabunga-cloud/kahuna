@@ -259,13 +259,11 @@ func reqIsAuthenticated(r *http.Request) (*http.Request, bool) {
 		}
 
 		// check for regular user API key
-		tokens := FindTokens()
+		tokens, err := FindTokensAllUsers()
+		if err != nil {
+			return nil, false
+		}
 		for _, t := range tokens {
-			// currently no better way than to verify all registered API keys ... ;-(
-			if t.ParentType != TokenParentTypeUser {
-				continue
-			}
-
 			err := t.Verify(apikey)
 			if err != nil {
 				continue

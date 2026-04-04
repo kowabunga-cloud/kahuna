@@ -149,6 +149,18 @@ func FindTokensByAgent(agentId string) ([]Token, error) {
 	return FindResourcesByKey[Token](MongoCollectionTokenName, "agent_id", agentId)
 }
 
+func findTokensAll(parentType string) ([]Token, error) {
+	return FindResourcesByKey[Token](MongoCollectionTokenName, "parent_type", parentType)
+}
+
+func FindTokensAllUsers() ([]Token, error) {
+	return findTokensAll(TokenParentTypeUser)
+}
+
+func FindTokensAllAgents() ([]Token, error) {
+	return findTokensAll(TokenParentTypeAgent)
+}
+
 func (t *Token) renameDbField(from, to string) error {
 	return GetDB().Rename(MongoCollectionTokenName, t.ID, from, to)
 }
