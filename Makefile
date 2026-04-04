@@ -2,8 +2,6 @@
 # Apache License, Version 2.0 (see LICENSE or https://www.apache.org/licenses/LICENSE-2.0.txt)
 # SPDX-License-Identifier: Apache-2.0
 
-PKG_NAME=github.com/kowabunga-cloud/kahuna/internal/kahuna
-
 SRC_DIR = internal
 SDK_GENERATOR = go-server
 SDK_PACKAGE_NAME = sdk
@@ -27,8 +25,7 @@ GOLINT = $(BINDIR)/golangci-lint
 GOVULNCHECK = $(BINDIR)/govulncheck
 GOSEC = $(BINDIR)/gosec
 
-PKGS = $(shell go list ./... | grep -v /$(SDK_PACKAGE_NAME))
-PKGS_SHORT = $(shell go list ./... | grep -v /$(SDK_PACKAGE_NAME) | sed 's%github.com/kowabunga-cloud/kahuna/%%')
+PKGS = ./cmd/kahuna/... ./internal/kahuna/...
 
 V = 0
 Q = $(if $(filter 1,$V),,@)
@@ -135,11 +132,11 @@ sec: get-gosec ; $(info $(M) running gosec…) @ ## AST / SSA code checks
 
 .PHONY: vet
 vet: ; $(info $(M) running go vet…) @
-	$Q go vet $(PKGS) ; exit 0
+	$Q go vet $(PKGS)
 
 .PHONY: fmt
 fmt: ; $(info $(M) running go fmt…) @
-	$Q gofmt -w -s $(PKGS_SHORT)
+	$Q go fmt $(PKGS)
 
 .PHONY: clean
 clean: ; $(info $(M) cleaning…)	@ ## Cleanup everything
