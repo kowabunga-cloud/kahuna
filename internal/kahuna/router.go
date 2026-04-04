@@ -33,16 +33,32 @@ const (
 )
 
 type ApiOperation struct {
-	Route  string
-	Method string
+	Route    string
+	Method   string
+	compiled *regexp.Regexp
 }
+
+// buildApiOperations pre-compiles regex patterns for each operation.
+// {userId} placeholders are replaced with the ObjectID hex character class so
+// the pattern can be matched statically; the actual userId is verified
+// separately via userIdInPath.
+func buildApiOperations(ops []ApiOperation) []ApiOperation {
+	for i, op := range ops {
+		pattern := SdkBaseRoute + strings.ReplaceAll(op.Route, "{userId}", "[0-9a-f]{24}")
+		ops[i].compiled = regexp.MustCompile(pattern)
+	}
+	return ops
+}
+
+// userIdInPath extracts the ObjectID hex string from a /user/<id> URL segment.
+var userIdInPath = regexp.MustCompile(`/user/([0-9a-f]{24})`)
 
 var noAuthApiOperations = []string{
 	"Login",
 	"ResetPassword",
 }
 
-var userAllowedRoutes = []ApiOperation{
+var userAllowedRoutes = buildApiOperations([]ApiOperation{
 	{
 		Route:  "/logout",
 		Method: "POST",
@@ -71,14 +87,14 @@ var userAllowedRoutes = []ApiOperation{
 		Route:  "/zone/[A-Za-z0-9]*$",
 		Method: "GET",
 	},
-}
+})
 
-var projectAdminAllowedRoutes = []ApiOperation{
+var projectAdminAllowedRoutes = buildApiOperations([]ApiOperation{
 	{
 		Route:  "/project$",
 		Method: HttpApiMethodAll,
 	},
-}
+})
 
 func htmlResponse(param string) string {
 	return fmt.Sprintf(
@@ -345,8 +361,7 @@ func reqIsAuthorized(r *http.Request) bool {
 	projectAdmin := ctxGetProjectAdminRole(ctx)
 	if projectAdmin {
 		for _, route := range projectAdminAllowedRoutes {
-			match, _ := regexp.MatchString(SdkBaseRoute+route.Route, r.RequestURI)
-			if match && validMethod(r.Method, route) {
+			if route.compiled.MatchString(r.RequestURI) && validMethod(r.Method, route) {
 				return true
 			}
 		}
@@ -356,11 +371,17 @@ func reqIsAuthorized(r *http.Request) bool {
 	userId := ctxGetUserId(ctx)
 	if userId != "" {
 		for _, route := range userAllowedRoutes {
-			rt := SdkBaseRoute + strings.ReplaceAll(route.Route, "{userId}", userId)
-			match, _ := regexp.MatchString(rt, r.RequestURI)
-			if match && validMethod(r.Method, route) {
-				return true
+			if !route.compiled.MatchString(r.RequestURI) || !validMethod(r.Method, route) {
+				continue
 			}
+			// For user-scoped routes, verify the userId in the URL matches the authenticated user.
+			if strings.Contains(route.Route, "{userId}") {
+				m := userIdInPath.FindStringSubmatch(r.RequestURI)
+				if len(m) < 2 || m[1] != userId {
+					continue
+				}
+			}
+			return true
 		}
 	}
 
