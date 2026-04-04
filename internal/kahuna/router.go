@@ -8,6 +8,7 @@ package kahuna
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -235,7 +236,7 @@ func reqIsAuthenticated(r *http.Request) (*http.Request, bool) {
 	apikey := r.Header.Get(HttpHeaderAuthApiKey)
 	if apikey != "" {
 		// check if passed API key correspond to Kowabunga master one
-		if apikey == GetCfg().Global.APIKey {
+		if subtle.ConstantTimeCompare([]byte(apikey), []byte(GetCfg().Global.APIKey)) == 1 {
 			klog.Debugf("API-key based authentication")
 			ctx = ctxSetSuperAdminRole(ctx)
 			return r.WithContext(ctx), true
