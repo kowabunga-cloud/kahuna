@@ -138,7 +138,10 @@ func (s *VNetService) UpdateVNet(ctx context.Context, vnetId string, vNet sdk.VN
 	}
 
 	// update vnet
-	v.Update(vNet.Name, vNet.Description, int(vNet.Vlan), vNet.Interface)
+	err = v.Update(vNet.Name, vNet.Description, int(vNet.Vlan), vNet.Interface)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := v.Model()
 	LogHttpResponse(payload)

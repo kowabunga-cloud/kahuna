@@ -198,18 +198,15 @@ func (r *Region) AverageVirtualResources() *RegionVirtualResources {
 	return &r.VirtualResources
 }
 
-func (r *Region) Update(name, desc, domain string) {
+func (r *Region) Update(name, desc, domain string) error {
 	r.UpdateResourceDefaults(name, desc)
 	SetFieldStr(&r.Domain, domain)
-	r.Save()
+	return r.Save()
 }
 
-func (r *Region) Save() {
+func (r *Region) Save() error {
 	r.Updated()
-	_, err := GetDB().Update(MongoCollectionRegionName, r.ID, r)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionRegionName, r.ID, r)
 }
 
 func (r *Region) Delete() error {
@@ -275,16 +272,16 @@ func (r *Region) Zone(id string) (*Zone, error) {
 	return FindChildByID[Zone](&r.ZoneIDs, id, MongoCollectionZoneName, ErrRegionNoSuchZone)
 }
 
-func (r *Region) AddZone(id string) {
+func (r *Region) AddZone(id string) error {
 	klog.Debugf("Adding zone %s to region %s", id, r.String())
 	AddChildRef(&r.ZoneIDs, id)
-	r.Save()
+	return r.Save()
 }
 
-func (r *Region) RemoveZone(id string) {
+func (r *Region) RemoveZone(id string) error {
 	klog.Debugf("Removing zone %s from region %s", id, r.String())
 	RemoveChildRef(&r.ZoneIDs, id)
-	r.Save()
+	return r.Save()
 }
 
 // Network Gateways
@@ -297,16 +294,16 @@ func (r *Region) Kiwi(id string) (*Kiwi, error) {
 	return FindChildByID[Kiwi](&r.KiwiIDs, id, MongoCollectionKiwiName, ErrRegionNoSuchKiwi)
 }
 
-func (r *Region) AddKiwi(id string) {
+func (r *Region) AddKiwi(id string) error {
 	klog.Debugf("Adding network gateway %s to region %s", id, r.String())
 	AddChildRef(&r.KiwiIDs, id)
-	r.Save()
+	return r.Save()
 }
 
-func (r *Region) RemoveKiwi(id string) {
+func (r *Region) RemoveKiwi(id string) error {
 	klog.Debugf("Removing kiwi %s from region %s", id, r.String())
 	RemoveChildRef(&r.KiwiIDs, id)
-	r.Save()
+	return r.Save()
 }
 
 // Virtual Networks
@@ -319,16 +316,16 @@ func (r *Region) VNet(id string) (*VNet, error) {
 	return FindChildByID[VNet](&r.VNetIDs, id, MongoCollectionVNetName, ErrRegionNoSuchVNet)
 }
 
-func (r *Region) AddVNet(id string) {
+func (r *Region) AddVNet(id string) error {
 	klog.Debugf("Adding virtual network %s to region %s", id, r.String())
 	AddChildRef(&r.VNetIDs, id)
-	r.Save()
+	return r.Save()
 }
 
-func (r *Region) RemoveVNet(id string) {
+func (r *Region) RemoveVNet(id string) error {
 	klog.Debugf("Removing virtual network %s from region %s", id, r.String())
 	RemoveChildRef(&r.VNetIDs, id)
-	r.Save()
+	return r.Save()
 }
 
 func (r *Region) GetPublicSubnet() (string, error) {
@@ -359,7 +356,7 @@ func (r *Region) StoragePool(id string) (*StoragePool, error) {
 	return FindChildByID[StoragePool](&r.StoragePoolIDs, id, MongoCollectionRegionName, ErrRegionNoSuchStoragePool)
 }
 
-func (r *Region) AddStoragePool(id string) {
+func (r *Region) AddStoragePool(id string) error {
 	klog.Debugf("Adding storage pool %s to region %s", id, r.String())
 	AddChildRef(&r.StoragePoolIDs, id)
 
@@ -367,11 +364,12 @@ func (r *Region) AddStoragePool(id string) {
 	err := r.SetDefaultStoragePool(id, false)
 	if err != nil {
 		klog.Error(err)
+		return err
 	}
-	r.Save()
+	return r.Save()
 }
 
-func (r *Region) RemoveStoragePool(id string) {
+func (r *Region) RemoveStoragePool(id string) error {
 	klog.Debugf("Removing storage pool %s from region %s", id, r.String())
 	RemoveChildRef(&r.StoragePoolIDs, id)
 	// possibly unset default storage pool
@@ -381,8 +379,9 @@ func (r *Region) RemoveStoragePool(id string) {
 	err := r.UpdateCapabilities()
 	if err != nil {
 		klog.Error(err.Error())
+		return err
 	}
-	r.Save()
+	return r.Save()
 }
 
 func (r *Region) SetDefaultStoragePool(id string, force bool) error {
@@ -394,9 +393,7 @@ func (r *Region) SetDefaultStoragePool(id string, force bool) error {
 	if force || r.Defaults.StoragePoolID == "" {
 		r.Defaults.StoragePoolID = pool.String()
 	}
-	r.Save()
-
-	return nil
+	return r.Save()
 }
 
 // NFS Storages
@@ -409,7 +406,7 @@ func (r *Region) Nfs(id string) (*NFS, error) {
 	return FindChildByID[NFS](&r.NfsIDs, id, MongoCollectionNfsName, ErrRegionNoSuchNfs)
 }
 
-func (r *Region) AddNfs(id string) {
+func (r *Region) AddNfs(id string) error {
 	klog.Debugf("Adding NFS storage %s to region %s", id, r.String())
 	AddChildRef(&r.NfsIDs, id)
 
@@ -417,18 +414,19 @@ func (r *Region) AddNfs(id string) {
 	err := r.SetDefaultNfs(id, false)
 	if err != nil {
 		klog.Error(err)
+		return err
 	}
-	r.Save()
+	return r.Save()
 }
 
-func (r *Region) RemoveNfs(id string) {
+func (r *Region) RemoveNfs(id string) error {
 	klog.Debugf("Removing NFS storage %s from region %s", id, r.String())
 	RemoveChildRef(&r.NfsIDs, id)
 	// possibly unset default pool
 	if r.Defaults.NfsID == id {
 		r.Defaults.NfsID = ""
 	}
-	r.Save()
+	return r.Save()
 }
 
 func (r *Region) SetDefaultNfs(id string, force bool) error {
@@ -440,9 +438,7 @@ func (r *Region) SetDefaultNfs(id string, force bool) error {
 	if force || r.Defaults.NfsID == "" {
 		r.Defaults.NfsID = n.String()
 	}
-	r.Save()
-
-	return nil
+	return r.Save()
 }
 
 // DNS Records
@@ -455,16 +451,16 @@ func (r *Region) FindDnsRecordByID(id string) (*DnsRecord, error) {
 	return FindChildByID[DnsRecord](&r.RecordIDs, id, MongoCollectionDnsRecordName, ErrRegionNoSuchDnsRecord)
 }
 
-func (r *Region) AddDnsRecord(id string) {
+func (r *Region) AddDnsRecord(id string) error {
 	klog.Debugf("Adding DNS Record %s to region %s", id, r.String())
 	AddChildRef(&r.RecordIDs, id)
-	r.Save()
+	return r.Save()
 }
 
-func (r *Region) RemoveDnsRecord(id string) {
+func (r *Region) RemoveDnsRecord(id string) error {
 	klog.Debugf("Removing DNS Record %s from region %s", id, r.String())
 	RemoveChildRef(&r.RecordIDs, id)
-	r.Save()
+	return r.Save()
 }
 
 // Cost
@@ -492,7 +488,11 @@ func (r *Region) UpdateCapabilities() error {
 	klog.Debugf("Region %s vStorage GB average price: %f %s", r, res.Storage.Price, res.Storage.Currency)
 
 	r.VirtualResources = res
-	r.Save()
+
+	err := r.Save()
+	if err != nil {
+		return err
+	}
 
 	// triggers cost recomputation of all of region's storage pools
 	for _, poolId := range r.StoragePoolIDs {

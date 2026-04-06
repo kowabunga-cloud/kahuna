@@ -778,7 +778,11 @@ func (s *ProjectService) ReadProjectCost(ctx context.Context, projectId string) 
 	}
 
 	// get project cost model
-	payload := p.GetCost()
+	payload, err := p.GetCost()
+	if err != nil {
+		return HttpServerError(err)
+	}
+	LogHttpResponse(payload)
 	return HttpOK(payload)
 }
 
@@ -814,7 +818,10 @@ func (s *ProjectService) UpdateProject(ctx context.Context, projectId string, pr
 	for _, m := range project.Metadatas {
 		metas[m.Key] = m.Value
 	}
-	p.Update(project.Name, project.Description, project.RootPassword, project.BootstrapUser, project.BootstrapPubkey, project.Teams, project.Regions, project.Tags, metas, project.Quotas)
+	err = p.Update(project.Name, project.Description, project.RootPassword, project.BootstrapUser, project.BootstrapPubkey, project.Teams, project.Regions, project.Tags, metas, project.Quotas)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := p.Model()
 	LogHttpResponse(payload)

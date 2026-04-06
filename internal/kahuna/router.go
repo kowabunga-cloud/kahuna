@@ -127,10 +127,17 @@ func userRegistrationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = user.Enable()
+	if err != nil {
+		klog.Error(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		_, _ = w.Write([]byte(htmlResponse("Unable to enable user")))
+		return
+	}
+
 	// all good, verified
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write([]byte(htmlResponse("User is now fully registered")))
-	user.Enable()
 }
 
 func userPasswordRenewalHandler(w http.ResponseWriter, r *http.Request) {

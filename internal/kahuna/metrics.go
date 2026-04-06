@@ -405,15 +405,19 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 
 	projects := FindProjects()
 	for _, p := range projects {
-		_ = p.GetCost()
+		cost, err := p.GetCost()
+		if err != nil {
+			continue
+		}
+
 		pm := KowabungaProjectMetrics{
 			VCPUs:     float64(p.Usage.VCPUs),
 			Memory:    float64(p.Usage.MemorySize),
 			Storage:   float64(p.Usage.StorageSize),
 			Instances: float64(len(p.Instances())),
 			Volumes:   float64(len(p.Volumes())),
-			Cost:      float64(p.Cost.Price),
-			Currency:  p.Cost.Currency,
+			Cost:      float64(cost.Price),
+			Currency:  cost.Currency,
 		}
 
 		m.Projects[p.Name] = pm

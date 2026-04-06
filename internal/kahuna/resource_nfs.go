@@ -95,7 +95,10 @@ func NewNfs(regionId, poolId, name, desc, endpoint, fs string, backends []string
 	klog.Debugf("Created new NFS storage %s", n.String())
 
 	// add NFS storage to region
-	r.AddNfs(n.String())
+	err = r.AddNfs(n.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &n, nil
 }
@@ -173,7 +176,7 @@ func (n *NFS) FindKylo() ([]Kylo, error) {
 	return FindKyloByNfs(n.String())
 }
 
-func (n *NFS) Update(name, desc, endpoint, fs string, backends []string, port int) {
+func (n *NFS) Update(name, desc, endpoint, fs string, backends []string, port int) error {
 	n.UpdateResourceDefaults(name, desc)
 
 	SetFieldStr(&n.Endpoint, endpoint)
@@ -184,15 +187,12 @@ func (n *NFS) Update(name, desc, endpoint, fs string, backends []string, port in
 		n.Ganesha.Port = NfsBackendApiPort
 	}
 
-	n.Save()
+	return n.Save()
 }
 
-func (n *NFS) Save() {
+func (n *NFS) Save() error {
 	n.Updated()
-	_, err := GetDB().Update(MongoCollectionNfsName, n.ID, n)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionNfsName, n.ID, n)
 }
 
 func (n *NFS) Delete() error {
@@ -207,7 +207,10 @@ func (n *NFS) Delete() error {
 	if err != nil {
 		return err
 	}
-	r.RemoveNfs(n.String())
+	err = r.RemoveNfs(n.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionNfsName, n.ID)
 }
@@ -234,18 +237,18 @@ func (n *NFS) Kylo(id string) (*Kylo, error) {
 	return FindChildByID[Kylo](&n.KyloIDs, id, MongoCollectionKyloName, ErrNfsNoSuchKylo)
 }
 
-func (n *NFS) AddKylo(id, exportId string) {
+func (n *NFS) AddKylo(id, exportId string) error {
 	klog.Debugf("Adding Kylo %s to NFS storage %s", id, n.String())
 	AddChildRef(&n.KyloIDs, id)
 	AddChildRef(&n.Exports, exportId)
-	n.Save()
+	return n.Save()
 }
 
-func (n *NFS) RemoveKylo(id, exportId string) {
+func (n *NFS) RemoveKylo(id, exportId string) error {
 	klog.Debugf("Removing Kylo %s from NFS storage %s", id, n.String())
 	RemoveChildRef(&n.KyloIDs, id)
 	RemoveChildRef(&n.Exports, exportId)
-	n.Save()
+	return n.Save()
 }
 
 func (n *NFS) NewExportId() string {

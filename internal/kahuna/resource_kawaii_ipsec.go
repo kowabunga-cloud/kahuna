@@ -119,7 +119,10 @@ func NewKawaiiIPsecConnection(kawaiiId, name, desc, remotePeer, remoteSubnet, pr
 	}
 
 	// Ref inside kawaii + IP Sec ref to Kawaii ?
-	kawaii.AddIPsec(kawaiiIPsec.String())
+	err = kawaii.AddIPsec(kawaiiIPsec.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &kawaiiIPsec, nil
 }
@@ -161,12 +164,9 @@ func FindIPsecByID(id string) (*KawaiiIPsec, error) {
 	return FindResourceByID[KawaiiIPsec](MongoCollectionIPsecName, id)
 }
 
-func (k *KawaiiIPsec) Save() {
+func (k *KawaiiIPsec) Save() error {
 	k.Updated()
-	_, err := GetDB().Update(MongoCollectionIPsecName, k.ID, k)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionIPsecName, k.ID, k)
 }
 
 func (k *KawaiiIPsec) Update(name, desc, remotePeer, remoteSubnet, preSharedKey string,
@@ -192,7 +192,11 @@ func (k *KawaiiIPsec) Update(name, desc, remotePeer, remoteSubnet, preSharedKey 
 	k.Phase2DHGroupNumber = p2DHGroupNumber
 	k.Phase2IntegrityAlgorithm = p2IntegrityAlgorithm
 	k.Phase2EncryptionAlgorithm = p2EncryptionAlgorithm
-	k.Save()
+
+	err := k.Save()
+	if err != nil {
+		return err
+	}
 
 	parentKawaii, err := FindKawaiiByID(k.KawaiiID)
 	if err != nil {
@@ -235,7 +239,10 @@ func (k *KawaiiIPsec) Delete() error {
 	if err != nil {
 		klog.Errorf("Could Not find Kawaii Parent. Perhaps it was deleted ? Kawaii may have orphans")
 	}
-	parent.RemoveIPsec(k.String())
+	err = parent.RemoveIPsec(k.String())
+	if err != nil {
+		return err
+	}
 	return GetDB().Delete(MongoCollectionIPsecName, k.ID)
 }
 

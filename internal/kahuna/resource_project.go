@@ -334,7 +334,7 @@ func (p *Project) NotifiableUsers() []*User {
 	return users
 }
 
-func (p *Project) Update(name, desc, pwd, user, pubkey string, teams, regions, tags []string, meta map[string]string, quotas sdk.ProjectResources) {
+func (p *Project) Update(name, desc, pwd, user, pubkey string, teams, regions, tags []string, meta map[string]string, quotas sdk.ProjectResources) error {
 	p.UpdateResourceDefaults(name, desc)
 	SetFieldStr(&p.RootPassword, pwd)
 	SetFieldStr(&p.BootstrapUser, user)
@@ -347,8 +347,9 @@ func (p *Project) Update(name, desc, pwd, user, pubkey string, teams, regions, t
 	err := p.AssignZoneGatewayAddresses()
 	if err != nil {
 		klog.Error(err)
+		return err
 	}
-	p.Save()
+	return p.Save()
 }
 
 func (p *Project) AllocatePrivateSubnets(subnetSize int) error {
@@ -380,12 +381,13 @@ func (p *Project) FreePrivateSubnet() error {
 			return err
 		}
 
-		s.SetProject("")
+		err = s.SetProject("")
+		if err != nil {
+			return err
+		}
 		delete(p.PrivateSubnets, r)
 	}
-	p.Save()
-
-	return nil
+	return p.Save()
 }
 
 func (p *Project) GetPrivateSubnet(regionId string) (string, error) {
@@ -492,12 +494,9 @@ func (p *Project) DeleteDnsZone() error {
 	return nil
 }
 
-func (p *Project) Save() {
+func (p *Project) Save() error {
 	p.Updated()
-	_, err := GetDB().Update(MongoCollectionProjectName, p.ID, p)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionProjectName, p.ID, p)
 }
 
 func (p *Project) Delete() error {
@@ -559,15 +558,14 @@ func (p *Project) Model() sdk.Project {
 	}
 }
 
-func (p *Project) GetCost() sdk.Cost {
-
+func (p *Project) GetCost() (sdk.Cost, error) {
 	var price float32 = 0
 
 	// sum all project's instances costs
 	for _, instanceId := range p.InstanceIDs {
 		i, err := p.Instance(instanceId)
 		if err != nil {
-			continue
+			return sdk.Cost{}, err
 		}
 		price += i.Cost.Price
 		p.Cost.Currency = i.Cost.Currency
@@ -577,7 +575,7 @@ func (p *Project) GetCost() sdk.Cost {
 	for _, volumeId := range p.VolumeIDs {
 		v, err := p.Volume(volumeId)
 		if err != nil {
-			continue
+			return sdk.Cost{}, err
 		}
 		price += v.Cost.Price
 		p.Cost.Currency = v.Cost.Currency
@@ -586,13 +584,16 @@ func (p *Project) GetCost() sdk.Cost {
 	// save cost back to DB, if changed
 	if price != p.Cost.Price {
 		p.Cost.Price = price
-		p.Save()
+		err := p.Save()
+		if err != nil {
+			return sdk.Cost{}, err
+		}
 	}
 
 	return sdk.Cost{
 		Price:    p.Cost.Price,
 		Currency: p.Cost.Currency,
-	}
+	}, nil
 }
 
 func (p *Project) GetUsage() sdk.ProjectResources {
@@ -607,14 +608,19 @@ func (p *Project) AllocateVRID() (int, error) {
 		}
 		p.VrrpIDs = append(p.VrrpIDs, vrrpId)
 		sort.Ints(p.VrrpIDs)
-		p.Save()
+
+		err := p.Save()
+		if err != nil {
+			return 0, err
+		}
+
 		return vrrpId, nil
 	}
 
 	return 0, fmt.Errorf("exhausted pool of virtual router IDs")
 }
 
-func (p *Project) RemoveVRID(vrrpId int) {
+func (p *Project) RemoveVRID(vrrpId int) error {
 	klog.Debugf("Removing VRRP ID %d from project %s", vrrpId, p.String())
 	for idx, id := range p.VrrpIDs {
 		if id == vrrpId {
@@ -622,7 +628,7 @@ func (p *Project) RemoveVRID(vrrpId int) {
 			break
 		}
 	}
-	p.Save()
+	return p.Save()
 }
 
 // Instances
@@ -635,16 +641,19 @@ func (p *Project) Instance(id string) (*Instance, error) {
 	return FindChildByID[Instance](&p.InstanceIDs, id, MongoCollectionInstanceName, ErrProjectNoSuchInstance)
 }
 
-func (p *Project) AddInstance(id string) {
+func (p *Project) AddInstance(id string) error {
 	klog.Debugf("Adding instance %s to project %s", id, p.String())
 	AddChildRef(&p.InstanceIDs, id)
-	p.Save() // save DB before looking back
+	err := p.Save() // save DB before looking back
+	if err != nil {
+		return err
+	}
 
 	// find instance again
 	i, err := p.Instance(id)
 	if err != nil {
 		klog.Error(err)
-		return
+		return err
 	}
 
 	// increase usage counters
@@ -652,24 +661,24 @@ func (p *Project) AddInstance(id string) {
 	p.Usage.VCPUs += uint16(i.CPU)         // #nosec G115 -- vcpu count never overflows uint16
 	p.Usage.MemorySize += uint64(i.Memory) // #nosec G115 -- memory is always positive
 
-	p.Save()
+	return p.Save()
 }
 
-func (p *Project) UpdateInstanceUsage(cpu, mem int64) {
+func (p *Project) UpdateInstanceUsage(cpu, mem int64) error {
 	// increase usage counters
 	p.Usage.VCPUs += uint16(cpu)      // #nosec G115 -- vcpu count never overflows uint16
 	p.Usage.MemorySize += uint64(mem) // #nosec G115 -- memory is always positive
-	p.Save()
+	return p.Save()
 }
 
-func (p *Project) RemoveInstance(id string) {
+func (p *Project) RemoveInstance(id string) error {
 	klog.Debugf("Removing instance %s from project %s", id, p.String())
 
 	// ensure instance exists in project
 	ist, err := p.Instance(id)
 	if err != nil {
 		klog.Error(err)
-		return
+		return err
 	}
 
 	// decrease usage counters
@@ -678,7 +687,7 @@ func (p *Project) RemoveInstance(id string) {
 	p.Usage.MemorySize -= uint64(ist.Memory) // #nosec G115 -- memory is always positive
 
 	RemoveChildRef(&p.InstanceIDs, id)
-	p.Save()
+	return p.Save()
 }
 
 func (p *Project) AllowInstanceCreationOrUpdate(instances, cpu, mem int64) bool {
@@ -711,44 +720,47 @@ func (p *Project) Volume(id string) (*Volume, error) {
 	return FindChildByID[Volume](&p.VolumeIDs, id, MongoCollectionVolumeName, ErrProjectNoSuchVolume)
 }
 
-func (p *Project) AddVolume(id string) {
+func (p *Project) AddVolume(id string) error {
 	klog.Debugf("Adding volume %s to project %s", id, p.String())
 	AddChildRef(&p.VolumeIDs, id)
-	p.Save() // save DB before looking back
+	err := p.Save() // save DB before looking back
+	if err != nil {
+		return err
+	}
 
 	// find volume again
 	v, err := p.Volume(id)
 	if err != nil {
 		klog.Error(err)
-		return
+		return err
 	}
 
 	// increase usage counters
 	p.Usage.StorageSize += uint64(v.Size) // #nosec G115 -- volume size is always positive
 
-	p.Save()
+	return p.Save()
 }
 
-func (p *Project) UpdateVolumeUsage(size int64) {
+func (p *Project) UpdateVolumeUsage(size int64) error {
 	// increase usage counters
 	p.Usage.StorageSize += uint64(size) // #nosec G115 -- volume size is always positive
-	p.Save()
+	return p.Save()
 }
 
-func (p *Project) RemoveVolume(id string) {
+func (p *Project) RemoveVolume(id string) error {
 	klog.Debugf("Removing volume %s from project %s", id, p.String())
 
 	// ensure volume exists in project
 	vol, err := p.Volume(id)
 	if err != nil {
-		return
+		return err
 	}
 
 	// decrease usage counters
 	p.Usage.StorageSize -= uint64(vol.Size) // #nosec G115 -- volume size is always positive
 
 	RemoveChildRef(&p.VolumeIDs, id)
-	p.Save()
+	return p.Save()
 }
 
 func (p *Project) AllowVolumeCreationOrUpdate(vol int64) bool {
@@ -771,16 +783,16 @@ func (p *Project) FindKomputeByID(id string) (*Kompute, error) {
 	return FindChildByID[Kompute](&p.KomputeIDs, id, MongoCollectionKomputeName, ErrProjectNoSuchKompute)
 }
 
-func (p *Project) AddKompute(id string) {
+func (p *Project) AddKompute(id string) error {
 	klog.Debugf("Adding Kompute %s to project %s", id, p.String())
 	AddChildRef(&p.KomputeIDs, id)
-	p.Save()
+	return p.Save()
 }
 
-func (p *Project) RemoveKompute(id string) {
+func (p *Project) RemoveKompute(id string) error {
 	klog.Debugf("Removing Kompute %s from project %s", id, p.String())
 	RemoveChildRef(&p.KomputeIDs, id)
-	p.Save()
+	return p.Save()
 }
 
 // Kawaiis
@@ -793,16 +805,16 @@ func (p *Project) FindKawaiiByID(id string) (*Kawaii, error) {
 	return FindChildByID[Kawaii](&p.KawaiiIDs, id, MongoCollectionKawaiiName, ErrProjectNoSuchKawaii)
 }
 
-func (p *Project) AddKawaii(id string) {
+func (p *Project) AddKawaii(id string) error {
 	klog.Debugf("Adding Kawaii %s to project %s", id, p.String())
 	AddChildRef(&p.KawaiiIDs, id)
-	p.Save()
+	return p.Save()
 }
 
-func (p *Project) RemoveKawaii(id string) {
+func (p *Project) RemoveKawaii(id string) error {
 	klog.Debugf("Removing Kawaii %s from project %s", id, p.String())
 	RemoveChildRef(&p.KawaiiIDs, id)
-	p.Save()
+	return p.Save()
 }
 
 // Konvey
@@ -815,16 +827,16 @@ func (p *Project) FindKonveyByID(id string) (*Konvey, error) {
 	return FindChildByID[Konvey](&p.KonveyIDs, id, MongoCollectionKonveyName, ErrProjectNoSuchKonvey)
 }
 
-func (p *Project) AddKonvey(id string) {
+func (p *Project) AddKonvey(id string) error {
 	klog.Debugf("Adding Konvey %s to project %s", id, p.String())
 	AddChildRef(&p.KonveyIDs, id)
-	p.Save()
+	return p.Save()
 }
 
-func (p *Project) RemoveKonvey(id string) {
+func (p *Project) RemoveKonvey(id string) error {
 	klog.Debugf("Removing Konvey %s from project %s", id, p.String())
 	RemoveChildRef(&p.KonveyIDs, id)
-	p.Save()
+	return p.Save()
 }
 
 // Kylo
@@ -837,16 +849,16 @@ func (p *Project) FindKyloByID(id string) (*Kylo, error) {
 	return FindChildByID[Kylo](&p.KyloIDs, id, MongoCollectionKyloName, ErrProjectNoSuchKylo)
 }
 
-func (p *Project) AddKylo(id string) {
+func (p *Project) AddKylo(id string) error {
 	klog.Debugf("Adding Kylo %s to project %s", id, p.String())
 	AddChildRef(&p.KyloIDs, id)
-	p.Save()
+	return p.Save()
 }
 
-func (p *Project) RemoveKylo(id string) {
+func (p *Project) RemoveKylo(id string) error {
 	klog.Debugf("Removing Kylo %s from project %s", id, p.String())
 	RemoveChildRef(&p.KyloIDs, id)
-	p.Save()
+	return p.Save()
 }
 
 // DNS Records
@@ -859,14 +871,14 @@ func (p *Project) FindDnsRecordByID(id string) (*DnsRecord, error) {
 	return FindChildByID[DnsRecord](&p.RecordIDs, id, MongoCollectionDnsRecordName, ErrProjectNoSuchDnsRecord)
 }
 
-func (p *Project) AddDnsRecord(id string) {
+func (p *Project) AddDnsRecord(id string) error {
 	klog.Debugf("Adding DNS Record %s to project %s", id, p.String())
 	AddChildRef(&p.RecordIDs, id)
-	p.Save()
+	return p.Save()
 }
 
-func (p *Project) RemoveDnsRecord(id string) {
+func (p *Project) RemoveDnsRecord(id string) error {
 	klog.Debugf("Removing DNS Record %s from project %s", id, p.String())
 	RemoveChildRef(&p.RecordIDs, id)
-	p.Save()
+	return p.Save()
 }

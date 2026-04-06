@@ -123,11 +123,17 @@ func NewVolume(projectId, poolId, templateId, name, desc, tp string, size int64)
 		}
 
 		// add volume to project
-		prj.AddVolume(v.String())
+		err = prj.AddVolume(v.String())
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// add volume to pool
-	p.AddVolume(v.String())
+	err = p.AddVolume(v.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &v, nil
 }
@@ -312,9 +318,7 @@ func (v *Volume) ComputeCost(res *RegionVirtualResources) error {
 
 	v.Cost.Price = price
 	v.Cost.Currency = currency
-	v.Save()
-
-	return nil
+	return v.Save()
 }
 
 func (v *Volume) Exists() bool {
@@ -524,18 +528,17 @@ func (v *Volume) Update(name, desc string, size int64) error {
 		}
 
 		// update project usage counter
-		prj.UpdateVolumeUsage(sizeDelta)
+		err = prj.UpdateVolumeUsage(sizeDelta)
+		if err != nil {
+			return err
+		}
 	}
-	v.Save()
-	return nil
+	return v.Save()
 }
 
-func (v *Volume) Save() {
+func (v *Volume) Save() error {
 	v.Updated()
-	_, err := GetDB().Update(MongoCollectionVolumeName, v.ID, v)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionVolumeName, v.ID, v)
 }
 
 func (v *Volume) Delete() error {
@@ -568,14 +571,20 @@ func (v *Volume) Delete() error {
 		if err != nil {
 			return err
 		}
-		prj.RemoveVolume(v.String())
+		err = prj.RemoveVolume(v.String())
+		if err != nil {
+			return err
+		}
 	}
 
 	p, err := v.StoragePool()
 	if err != nil {
 		return err
 	}
-	p.RemoveVolume(v.String())
+	err = p.RemoveVolume(v.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionVolumeName, v.ID)
 }

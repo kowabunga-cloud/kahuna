@@ -100,11 +100,6 @@ func (db *KowabungaDB) Insert(collection string, obj interface{}) (interface{}, 
 }
 
 func (db *KowabungaDB) Update(collection string, id bson.ObjectID, obj interface{}) (interface{}, error) {
-	// cleanup cache data, if any
-	defer func() {
-		_ = GetCache().Delete(collection, id.Hex())
-	}()
-
 	c := db.DB.Collection(collection)
 	return c.ReplaceOne(context.TODO(), bson.D{bson.E{Key: "_id", Value: id}}, obj)
 }

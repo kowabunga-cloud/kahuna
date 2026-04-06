@@ -114,12 +114,18 @@ func NewDnsRecord(projectId, regionId, domain, name, desc string, addresses []st
 
 	// add record to project
 	if prj != nil {
-		prj.AddDnsRecord(r.String())
+		err = prj.AddDnsRecord(r.String())
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// add record to region
 	if region != nil {
-		region.AddDnsRecord(r.String())
+		err = region.AddDnsRecord(r.String())
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &r, nil
@@ -206,7 +212,7 @@ func (r *DnsRecord) DeleteDnsRecord() error {
 	return nil
 }
 
-func (r *DnsRecord) Update(name, desc string, addresses []string) {
+func (r *DnsRecord) Update(name, desc string, addresses []string) error {
 	r.UpdateResourceDefaults(name, desc)
 	r.Addresses = addresses
 
@@ -218,15 +224,12 @@ func (r *DnsRecord) Update(name, desc string, addresses []string) {
 		}
 	}
 
-	r.Save()
+	return r.Save()
 }
 
-func (r *DnsRecord) Save() {
+func (r *DnsRecord) Save() error {
 	r.Updated()
-	_, err := GetDB().Update(MongoCollectionDnsRecordName, r.ID, r)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionDnsRecordName, r.ID, r)
 }
 
 func (r *DnsRecord) Delete() error {
@@ -244,12 +247,18 @@ func (r *DnsRecord) Delete() error {
 	// remove record's reference from parents
 	prj, errP := r.Project()
 	if errP == nil {
-		prj.RemoveDnsRecord(r.String())
+		err = prj.RemoveDnsRecord(r.String())
+		if err != nil {
+			return err
+		}
 	}
 
 	region, errR := r.Region()
 	if errR == nil {
-		region.RemoveDnsRecord(r.String())
+		err = region.RemoveDnsRecord(r.String())
+		if err != nil {
+			return err
+		}
 	}
 
 	if errP != nil && errR != nil {

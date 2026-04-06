@@ -139,7 +139,10 @@ func (s *ZoneService) UpdateZone(ctx context.Context, zoneId string, zone sdk.Zo
 	}
 
 	// update zone
-	z.Update(zone.Name, zone.Description)
+	err = z.Update(zone.Name, zone.Description)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := z.Model()
 	LogHttpResponse(payload)

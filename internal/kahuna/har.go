@@ -315,7 +315,10 @@ func (har *HighlyAvailableResource) Delete() error {
 	if err != nil {
 		return err
 	}
-	prj.RemoveVRID(har.VirtualIP.VRRP)
+	err = prj.RemoveVRID(har.VirtualIP.VRRP)
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionHarName, har.ID)
 }

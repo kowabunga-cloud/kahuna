@@ -15,6 +15,17 @@ import (
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
 )
 
+// resourceUpdate writes obj to the database and invalidates its cache entry.
+// It is the single authoritative place that couples a DB write with cache invalidation,
+// keeping db.go free of cache knowledge.
+func resourceUpdate(collection string, id bson.ObjectID, obj interface{}) error {
+	_, err := GetDB().Update(collection, id, obj)
+	if err != nil {
+		return err
+	}
+	return GetCache().Delete(collection, id.Hex())
+}
+
 const (
 	CostCurrencyDefault = "EUR"
 	CostErrorUnknown    = "Unknown Cost"

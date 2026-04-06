@@ -90,7 +90,10 @@ func NewZone(regionId, name, desc string) (*Zone, error) {
 	klog.Debugf("Created new zone %s", z.String())
 
 	// add zone to region
-	r.AddZone(z.String())
+	err = r.AddZone(z.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &z, nil
 }
@@ -154,17 +157,14 @@ func (z *Zone) FindKaktus() ([]Kaktus, error) {
 	return FindKaktusByZone(z.String())
 }
 
-func (z *Zone) Update(name, desc string) {
+func (z *Zone) Update(name, desc string) error {
 	z.UpdateResourceDefaults(name, desc)
-	z.Save()
+	return z.Save()
 }
 
-func (z *Zone) Save() {
+func (z *Zone) Save() error {
 	z.Updated()
-	_, err := GetDB().Update(MongoCollectionZoneName, z.ID, z)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionZoneName, z.ID, z)
 }
 
 func (z *Zone) Delete() error {
@@ -179,7 +179,10 @@ func (z *Zone) Delete() error {
 	if err != nil {
 		return err
 	}
-	r.RemoveZone(z.String())
+	err = r.RemoveZone(z.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionZoneName, z.ID)
 }
@@ -286,20 +289,20 @@ func (z *Zone) Kaktus(id string) (*Kaktus, error) {
 	return FindChildByID[Kaktus](&z.KaktusIDs, id, MongoCollectionKaktusName, ErrZoneNoSuchKaktus)
 }
 
-func (z *Zone) AddKaktus(id string) {
+func (z *Zone) AddKaktus(id string) error {
 	klog.Debugf("Adding kaktus %s to zone %s", id, z.String())
 	AddChildRef(&z.KaktusIDs, id)
-	z.Save()
+	return z.Save()
 }
 
-func (z *Zone) RemoveKaktus(id string) {
+func (z *Zone) RemoveKaktus(id string) error {
 	klog.Debugf("Removing kaktus %s from zone %s", id, z.String())
 	RemoveChildRef(&z.KaktusIDs, id)
 	err := z.UpdateCapabilities()
 	if err != nil {
 		klog.Error(err.Error())
 	}
-	z.Save()
+	return z.Save()
 }
 
 // Cost
@@ -331,7 +334,11 @@ func (z *Zone) UpdateCapabilities() error {
 	klog.Debugf("Zone %s vMemory GB average price: %f %s", z, res.Memory.Price, res.Memory.Currency)
 
 	z.VirtualResources = res
-	z.Save()
+
+	err := z.Save()
+	if err != nil {
+		return err
+	}
 
 	// triggers cost recomputation of all of zone's instances
 	for _, kaktusId := range z.KaktusIDs {

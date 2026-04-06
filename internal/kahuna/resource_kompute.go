@@ -201,7 +201,10 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 	}
 
 	// add Kompute to project
-	prj.AddKompute(kompute.String())
+	err = prj.AddKompute(kompute.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &kompute, nil
 }
@@ -290,8 +293,7 @@ func (k *Kompute) Update(name, desc string, cpu, mem, disk, data int64) error {
 		return err
 	}
 
-	k.Save()
-	return nil
+	return k.Save()
 }
 
 func (k *Kompute) Project() (*Project, error) {
@@ -302,12 +304,9 @@ func (k *Kompute) Instance() (*Instance, error) {
 	return FindInstanceByID(k.InstanceID)
 }
 
-func (k *Kompute) Save() {
+func (k *Kompute) Save() error {
 	k.Updated()
-	_, err := GetDB().Update(MongoCollectionKomputeName, k.ID, k)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionKomputeName, k.ID, k)
 }
 
 func (k *Kompute) Delete() error {
@@ -375,7 +374,10 @@ func (k *Kompute) Delete() error {
 	if err != nil {
 		return err
 	}
-	prj.RemoveKompute(k.String())
+	err = prj.RemoveKompute(k.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionKomputeName, k.ID)
 }

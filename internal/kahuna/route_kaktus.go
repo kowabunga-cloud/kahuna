@@ -118,7 +118,10 @@ func (s *KaktusService) UpdateKaktus(ctx context.Context, kaktusId string, kaktu
 		overcommit_memory = kaktus.OvercommitMemoryRatio
 	}
 
-	h.Update(kaktus.Name, kaktus.Description, cpu_price, cpu_currency, memory_price, memory_currency, overcommit_cpu, overcommit_memory, kaktus.Agents)
+	err = h.Update(kaktus.Name, kaktus.Description, cpu_price, cpu_currency, memory_price, memory_currency, overcommit_cpu, overcommit_memory, kaktus.Agents)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := h.Model()
 	LogHttpResponse(payload)

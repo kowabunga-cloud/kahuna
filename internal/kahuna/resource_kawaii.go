@@ -262,7 +262,10 @@ func NewKawaii(projectId, regionId, name, desc string, fw KawaiiFirewall, dnat [
 	}
 
 	// add Kawaii to project
-	prj.AddKawaii(kawaii.String())
+	err = prj.AddKawaii(kawaii.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &kawaii, err
 }
@@ -330,7 +333,11 @@ func (k *Kawaii) Update(desc string, fw KawaiiFirewall, dnat []KawaiiDNatRule) e
 	k.Description = desc
 	k.Firewall = fw
 	k.DNatRules = dnat
-	k.Save()
+
+	err := k.Save()
+	if err != nil {
+		return err
+	}
 
 	mzr, err := k.MZR()
 	if err != nil {
@@ -359,12 +366,9 @@ func (k *Kawaii) Update(desc string, fw KawaiiFirewall, dnat []KawaiiDNatRule) e
 	return nil
 }
 
-func (k *Kawaii) Save() {
+func (k *Kawaii) Save() error {
 	k.Updated()
-	_, err := GetDB().Update(MongoCollectionKawaiiName, k.ID, k)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionKawaiiName, k.ID, k)
 }
 
 func (k *Kawaii) Delete() error {
@@ -401,7 +405,10 @@ func (k *Kawaii) Delete() error {
 	if err != nil {
 		return err
 	}
-	prj.RemoveKawaii(k.String())
+	err = prj.RemoveKawaii(k.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionKawaiiName, k.ID)
 }
@@ -732,16 +739,16 @@ func (k *Kawaii) Metadata(instanceId string) metadata.KawaiiMetadata {
 	return meta
 }
 
-func (k *Kawaii) AddIPsec(ipsecID string) {
+func (k *Kawaii) AddIPsec(ipsecID string) error {
 	klog.Debugf("Adding IPsec %s to pool %s", ipsecID, k.String())
 	AddChildRef(&k.IPsecIDs, ipsecID)
-	k.Save()
+	return k.Save()
 }
 
-func (k *Kawaii) RemoveIPsec(ipsecID string) {
+func (k *Kawaii) RemoveIPsec(ipsecID string) error {
 	klog.Debugf("Removing IPsec %s from pool %s", ipsecID, k.String())
 	RemoveChildRef(&k.IPsecIDs, ipsecID)
-	k.Save()
+	return k.Save()
 }
 
 func IPsecIngressRuleToMetadata(rule *KawaiiFirewallIngressRule) *metadata.KawaiiFirewallRuleMetadata {

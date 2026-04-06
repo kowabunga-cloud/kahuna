@@ -100,7 +100,10 @@ func (s *TeamService) UpdateTeam(ctx context.Context, teamId string, team sdk.Te
 	}
 
 	// update team
-	g.Update(team.Name, team.Description, team.Users)
+	err = g.Update(team.Name, team.Description, team.Users)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := g.Model()
 	LogHttpResponse(payload)

@@ -60,7 +60,10 @@ func (s *DnsRecordService) UpdateDnsRecord(ctx context.Context, recordId string,
 	}
 
 	// update record
-	r.Update(dnsRecord.Name, dnsRecord.Description, dnsRecord.Addresses)
+	err = r.Update(dnsRecord.Name, dnsRecord.Description, dnsRecord.Addresses)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := r.Model()
 	LogHttpResponse(payload)

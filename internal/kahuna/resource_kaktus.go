@@ -162,7 +162,10 @@ func NewKaktus(zoneId, name, desc string, cpu_price float32, cpu_currency string
 	klog.Debugf("Created new kaktus %s", h.String())
 
 	// add kaktus to zone
-	z.AddKaktus(h.String())
+	err = z.AddKaktus(h.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &h, nil
 }
@@ -244,7 +247,7 @@ func (k *Kaktus) AverageZoneResources() (*ZoneVirtualResources, error) {
 	return z.AverageVirtualResources(), nil
 }
 
-func (k *Kaktus) Scan() {
+func (k *Kaktus) Scan() error {
 	klog.Debugf("Scanning Kaktus %s", k)
 
 	args := proto.KaktusNodeCapabilitiesArgs{}
@@ -253,7 +256,7 @@ func (k *Kaktus) Scan() {
 	err := k.RPC(proto.RpcKaktusNodeCapabilities, args, &reply)
 	if err != nil {
 		klog.Errorf("Unable to get remote kaktus capabilities: %v", err)
-		return
+		return err
 	}
 
 	hc := KaktusCapabilities{
@@ -271,7 +274,7 @@ func (k *Kaktus) Scan() {
 	k.Capabilities = hc
 
 	k.VirtualResourcesComputation()
-	k.Save()
+	return k.Save()
 }
 
 func (k *Kaktus) VirtualResourcesComputation() {
@@ -319,7 +322,7 @@ func (k *Kaktus) VirtualResourcesComputation() {
 	}
 }
 
-func (k *Kaktus) Update(name, desc string, cpu_price float32, cpu_currency string, memory_price float32, memory_currency string, overcommit_cpu, overcommit_memory int64, agts []string) {
+func (k *Kaktus) Update(name, desc string, cpu_price float32, cpu_currency string, memory_price float32, memory_currency string, overcommit_cpu, overcommit_memory int64, agts []string) error {
 	k.UpdateResourceDefaults(name, desc)
 
 	k.Costs.CPU.Price = cpu_price
@@ -331,15 +334,12 @@ func (k *Kaktus) Update(name, desc string, cpu_price float32, cpu_currency strin
 	k.AgentIDs = VerifyAgents(agts, common.KowabungaKaktusAgent)
 	k.VirtualResourcesComputation()
 
-	k.Save()
+	return k.Save()
 }
 
-func (k *Kaktus) Save() {
+func (k *Kaktus) Save() error {
 	k.Updated()
-	_, err := GetDB().Update(MongoCollectionKaktusName, k.ID, k)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionKaktusName, k.ID, k)
 }
 
 func (k *Kaktus) Delete() error {
@@ -354,7 +354,10 @@ func (k *Kaktus) Delete() error {
 	if err != nil {
 		return err
 	}
-	z.RemoveKaktus(k.String())
+	err = z.RemoveKaktus(k.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionKaktusName, k.ID)
 }
@@ -392,16 +395,19 @@ func (k *Kaktus) Instance(id string) (*Instance, error) {
 	return FindChildByID[Instance](&k.InstanceIDs, id, MongoCollectionInstanceName, ErrKaktusNoSuchInstance)
 }
 
-func (k *Kaktus) AddInstance(id string) {
+func (k *Kaktus) AddInstance(id string) error {
 	klog.Debugf("Adding instance %s to kaktus %s", id, k.String())
 	AddChildRef(&k.InstanceIDs, id)
-	k.Save() // save DB before looking back
+	err := k.Save() // save DB before looking back
+	if err != nil {
+		return err
+	}
 
 	// find instance again
 	instance, err := k.Instance(id)
 	if err != nil {
 		klog.Error(err)
-		return
+		return err
 	}
 
 	// increase usage counters
@@ -409,24 +415,24 @@ func (k *Kaktus) AddInstance(id string) {
 	k.Usage.VCPUs += uint16(instance.CPU)         // #nosec G115 -- vcpu count never overflows uint16
 	k.Usage.MemorySize += uint64(instance.Memory) // #nosec G115 -- memory is always positive
 
-	k.Save()
+	return k.Save()
 }
 
-func (k *Kaktus) UpdateInstanceUsage(cpu, mem int64) {
+func (k *Kaktus) UpdateInstanceUsage(cpu, mem int64) error {
 	// increase usage counters
 	k.Usage.VCPUs += uint16(cpu)      // #nosec G115 -- vcpu count never overflows uint16
 	k.Usage.MemorySize += uint64(mem) // #nosec G115 -- memory is always positive
-	k.Save()
+	return k.Save()
 }
 
-func (k *Kaktus) RemoveInstance(id string) {
+func (k *Kaktus) RemoveInstance(id string) error {
 	klog.Debugf("Removing instance %s from kaktus %s", id, k.String())
 
 	// ensure instance exists in kaktus
 	ist, err := k.Instance(id)
 	if err != nil {
 		klog.Error(err)
-		return
+		return err
 	}
 
 	// decrease usage counters
@@ -435,5 +441,5 @@ func (k *Kaktus) RemoveInstance(id string) {
 	k.Usage.MemorySize -= uint64(ist.Memory) // #nosec G115 -- memory is always positive
 
 	RemoveChildRef(&k.InstanceIDs, id)
-	k.Save()
+	return k.Save()
 }

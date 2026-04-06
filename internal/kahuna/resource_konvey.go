@@ -138,7 +138,10 @@ func NewKonvey(projectId, regionId, name, desc string, endpoints []KonveyEndpoin
 	}
 
 	// add Konvey to project
-	prj.AddKonvey(k.String())
+	err = prj.AddKonvey(k.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &k, err
 }
@@ -201,7 +204,11 @@ func (k *Konvey) HAR() (*HighlyAvailableResource, error) {
 func (k *Konvey) Update(desc string, endpoints []KonveyEndpoint) error {
 	k.Description = desc
 	k.Endpoints = endpoints
-	k.Save()
+
+	err := k.Save()
+	if err != nil {
+		return err
+	}
 
 	har, err := k.HAR()
 	if err != nil {
@@ -230,12 +237,9 @@ func (k *Konvey) Update(desc string, endpoints []KonveyEndpoint) error {
 	return nil
 }
 
-func (k *Konvey) Save() {
+func (k *Konvey) Save() error {
 	k.Updated()
-	_, err := GetDB().Update(MongoCollectionKonveyName, k.ID, k)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionKonveyName, k.ID, k)
 }
 
 func (k *Konvey) Delete() error {
@@ -260,7 +264,10 @@ func (k *Konvey) Delete() error {
 	if err != nil {
 		return err
 	}
-	prj.RemoveKonvey(k.String())
+	err = prj.RemoveKonvey(k.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionKonveyName, k.ID)
 }

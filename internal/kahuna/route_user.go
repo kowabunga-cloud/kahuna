@@ -73,7 +73,12 @@ func (s *UserService) Logout(ctx context.Context) (sdk.ImplResponse, error) {
 
 	klog.Debugf("Invalidating JWTtoken for user %s", userId)
 	user.JWT = ""
-	user.Save()
+
+	err = user.Save()
+	if err != nil {
+		klog.Error(err)
+		// status already written as 200, so just log
+	}
 
 	return HttpCreatedNoContent()
 }
@@ -246,7 +251,10 @@ func (s *UserService) UpdateUser(ctx context.Context, userId string, user sdk.Us
 	}
 
 	// update user
-	u.Update(user.Name, user.Description, user.Email, user.Role, user.Notifications)
+	err = u.Update(user.Name, user.Description, user.Email, user.Role, user.Notifications)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := u.Model()
 	LogHttpResponse(payload)

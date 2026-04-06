@@ -70,7 +70,10 @@ func (s *TemplateService) UpdateTemplate(ctx context.Context, templateId string,
 	}
 
 	// update template
-	t.Update(template.Name, template.Description)
+	err = t.Update(template.Name, template.Description)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := t.Model()
 	LogHttpResponse(payload)

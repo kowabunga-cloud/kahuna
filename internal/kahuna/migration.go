@@ -89,7 +89,10 @@ func kawaiiCleanupDereferencedChildren() error {
 			for _, kyloId := range kyloToRemove {
 				RemoveChildRef(&prj.KyloIDs, kyloId)
 			}
-			prj.Save()
+			err := prj.Save()
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -111,7 +114,10 @@ func kawaiiCleanupDereferencedChildren() error {
 			for _, adapterId := range adaptersToRemove {
 				RemoveChildRef(&subnet.AdapterIDs, adapterId)
 			}
-			subnet.Save()
+			err := subnet.Save()
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -144,7 +150,10 @@ func migrateInstances() error {
 
 		if updated {
 			klog.Infof("DB Schema migration of instance %s done.", i.Name)
-			i.Save()
+			err := i.Save()
+			if err != nil {
+				return err
+			}
 		}
 	}
 

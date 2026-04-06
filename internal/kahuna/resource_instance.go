@@ -302,10 +302,16 @@ func NewInstance(projectId, kaktusId, name, desc, profile, profileId string, cpu
 	}
 
 	// add instance to project
-	prj.AddInstance(instance.String())
+	err = prj.AddInstance(instance.String())
+	if err != nil {
+		return nil, err
+	}
 
 	// add instance to kaktus node
-	k.AddInstance(instance.String())
+	err = k.AddInstance(instance.String())
+	if err != nil {
+		return nil, err
+	}
 
 	// notify project's users
 	for _, u := range prj.NotifiableUsers() {
@@ -480,7 +486,11 @@ func (i *Instance) CreateCloudInitVolume() error {
 			return err
 		}
 		i.CloudInitVolumeId = v.String()
-		i.Save()
+
+		err = i.Save()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -776,14 +786,19 @@ func (i *Instance) Update(name, desc string, cpu, mem int64, adapters, volumes [
 		}
 
 		// update project usage counter
-		prj.UpdateInstanceUsage(cpuDelta, memDelta)
+		err = prj.UpdateInstanceUsage(cpuDelta, memDelta)
+		if err != nil {
+			return err
+		}
 
 		// update host usage counter
-		k.UpdateInstanceUsage(cpuDelta, memDelta)
+		err = k.UpdateInstanceUsage(cpuDelta, memDelta)
+		if err != nil {
+			return err
+		}
 	}
 
-	i.Save()
-	return nil
+	return i.Save()
 }
 
 func (i *Instance) Project() (*Project, error) {
@@ -800,12 +815,9 @@ func (i *Instance) HasChildren() bool {
 	return false
 }
 
-func (i *Instance) Save() {
+func (i *Instance) Save() error {
 	i.Updated()
-	_, err := GetDB().Update(MongoCollectionInstanceName, i.ID, i)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionInstanceName, i.ID, i)
 }
 
 func (i *Instance) delete() error {
@@ -882,13 +894,19 @@ func (i *Instance) Delete() error {
 	if err != nil {
 		return err
 	}
-	prj.RemoveInstance(i.String())
+	err = prj.RemoveInstance(i.String())
+	if err != nil {
+		return err
+	}
 
 	k, err := i.Kaktus()
 	if err != nil {
 		return err
 	}
-	k.RemoveInstance(i.String())
+	err = k.RemoveInstance(i.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionInstanceName, i.ID)
 }
@@ -923,9 +941,7 @@ func (i *Instance) ComputeCost(res *ZoneVirtualResources) error {
 
 	i.Cost.Price = price
 	i.Cost.Currency = currency
-	i.Save()
-
-	return nil
+	return i.Save()
 }
 
 func (i *Instance) GetState() (sdk.InstanceState, error) {

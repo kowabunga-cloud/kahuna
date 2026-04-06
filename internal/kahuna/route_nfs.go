@@ -85,7 +85,10 @@ func (s *NfsService) UpdateStorageNFS(ctx context.Context, nfsId string, storage
 	}
 
 	// update NFS storage
-	n.Update(storageNfs.Name, storageNfs.Description, storageNfs.Endpoint, storageNfs.Fs, storageNfs.Backends, int(storageNfs.Port))
+	err = n.Update(storageNfs.Name, storageNfs.Description, storageNfs.Endpoint, storageNfs.Fs, storageNfs.Backends, int(storageNfs.Port))
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := n.Model()
 	LogHttpResponse(payload)

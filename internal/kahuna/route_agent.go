@@ -136,7 +136,10 @@ func (s *AgentService) UpdateAgent(ctx context.Context, agentId string, agent sd
 	}
 
 	// update agent
-	a.Update(agent.Name, agent.Description)
+	err = a.Update(agent.Name, agent.Description)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := a.Model()
 	LogHttpResponse(payload)

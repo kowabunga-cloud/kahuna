@@ -124,7 +124,10 @@ func (t *Team) SetUsers(users []string) {
 		if !slices.Contains(t.UserIDs, userId) {
 			// add team to user
 			klog.Infof("Adding user %s to team %s (%s) ...", userId, t.ID, t.Name)
-			u.AddTeam(t.String())
+			err = u.AddTeam(t.String())
+			if err != nil {
+				continue
+			}
 		}
 		newUsers = append(newUsers, userId)
 	}
@@ -144,25 +147,25 @@ func (t *Team) SetUsers(users []string) {
 				continue
 			}
 			klog.Infof("Removing user %s from team %s (%s) ...", userId, t.ID, t.Name)
-			u.RemoveTeam(t.String())
+			err = u.RemoveTeam(t.String())
+			if err != nil {
+				continue
+			}
 		}
 	}
 
 	t.UserIDs = newUsers
 }
 
-func (t *Team) Update(name, desc string, users []string) {
+func (t *Team) Update(name, desc string, users []string) error {
 	t.UpdateResourceDefaults(name, desc)
 	t.SetUsers(users)
-	t.Save()
+	return t.Save()
 }
 
-func (t *Team) Save() {
+func (t *Team) Save() error {
 	t.Updated()
-	_, err := GetDB().Update(MongoCollectionTeamName, t.ID, t)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionTeamName, t.ID, t)
 }
 
 func (t *Team) Delete() error {

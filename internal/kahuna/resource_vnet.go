@@ -83,7 +83,10 @@ func NewVNet(regionId, name, desc string, vlan int, itf string, private bool) (*
 	klog.Debugf("Created new virtual network %s", v.String())
 
 	// add vnet to region
-	r.AddVNet(v.String())
+	err = r.AddVNet(v.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &v, nil
 }
@@ -148,20 +151,17 @@ func (v *VNet) FindSubnets() ([]Subnet, error) {
 	return FindSubnetsByVNet(v.String())
 }
 
-func (v *VNet) Update(name, desc string, vlan int, itf string) {
+func (v *VNet) Update(name, desc string, vlan int, itf string) error {
 	v.UpdateResourceDefaults(name, desc)
 	v.VLAN = vlan
 	SetFieldStr(&v.Interface, itf)
 	// we forbid change on privacy
-	v.Save()
+	return v.Save()
 }
 
-func (v *VNet) Save() {
+func (v *VNet) Save() error {
 	v.Updated()
-	_, err := GetDB().Update(MongoCollectionVNetName, v.ID, v)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionVNetName, v.ID, v)
 }
 
 func (v *VNet) Delete() error {
@@ -176,7 +176,10 @@ func (v *VNet) Delete() error {
 	if err != nil {
 		return err
 	}
-	r.RemoveVNet(v.String())
+	err = r.RemoveVNet(v.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionVNetName, v.ID)
 }
@@ -202,7 +205,7 @@ func (v *VNet) Subnet(id string) (*Subnet, error) {
 	return FindChildByID[Subnet](&v.SubnetIDs, id, MongoCollectionSubnetName, ErrVNetNoSuchSubnet)
 }
 
-func (v *VNet) AddSubnet(id string) {
+func (v *VNet) AddSubnet(id string) error {
 	klog.Debugf("Adding subnet %s to virtual network %s", id, v.String())
 	AddChildRef(&v.SubnetIDs, id)
 	// set subnet as default one if none exists
@@ -210,17 +213,17 @@ func (v *VNet) AddSubnet(id string) {
 	if err != nil {
 		klog.Error(err)
 	}
-	v.Save()
+	return v.Save()
 }
 
-func (v *VNet) RemoveSubnet(id string) {
+func (v *VNet) RemoveSubnet(id string) error {
 	klog.Debugf("Removing subnet %s from virtual network %s", id, v.String())
 	RemoveChildRef(&v.SubnetIDs, id)
 	// possibly unset default pool
 	if v.Defaults.SubnetID == id {
 		v.Defaults.SubnetID = ""
 	}
-	v.Save()
+	return v.Save()
 }
 
 func (v *VNet) SetDefaultSubnet(subnetId string, force bool) error {
@@ -233,9 +236,7 @@ func (v *VNet) SetDefaultSubnet(subnetId string, force bool) error {
 	if force || v.Defaults.SubnetID == "" {
 		v.Defaults.SubnetID = s.String()
 	}
-	v.Save()
-
-	return nil
+	return v.Save()
 }
 
 func (v *VNet) FindFreeSubnet(requestedIps int) (*Subnet, error) {

@@ -214,10 +214,10 @@ func (u *User) hashPassword(password string) (string, error) {
 	return string(hash), nil
 }
 
-func (u *User) Enable() {
+func (u *User) Enable() error {
 	u.RegistrationToken = ""
 	u.Enabled = true
-	u.Save()
+	return u.Save()
 }
 
 func (u *User) JwtSession() (string, error) {
@@ -252,7 +252,11 @@ func (u *User) JwtSession() (string, error) {
 
 	// save up generated token
 	u.JWT = tokenString
-	u.Save()
+
+	err = u.Save()
+	if err != nil {
+		return "", err
+	}
 
 	return tokenString, nil
 }
@@ -294,8 +298,7 @@ func (u *User) UpdatePassword(password string) error {
 	}
 
 	u.PasswordHash = hp
-	u.Save()
-	return nil
+	return u.Save()
 }
 
 func (u *User) ResetPasswordRequest() error {
@@ -307,7 +310,11 @@ func (u *User) ResetPasswordRequest() error {
 		return fmt.Errorf("unable to generate new user password renewal token: %v", err)
 	}
 	u.PasswordRenewalToken = passwordRenewalToken
-	u.Save()
+
+	err = u.Save()
+	if err != nil {
+		return err
+	}
 
 	return NewEmailUserPasswordConfirmation(u)
 }
@@ -337,12 +344,10 @@ func (u *User) ResetPassword() error {
 	}
 
 	u.PasswordHash = hp
-	u.Save()
-
-	return nil
+	return u.Save()
 }
 
-func (u *User) Update(name, desc, email, role string, notifications bool) {
+func (u *User) Update(name, desc, email, role string, notifications bool) error {
 	u.UpdateResourceDefaults(name, desc)
 
 	if email != "" {
@@ -359,15 +364,12 @@ func (u *User) Update(name, desc, email, role string, notifications bool) {
 	}
 
 	u.NotificationsEnabled = notifications
-	u.Save()
+	return u.Save()
 }
 
-func (u *User) Save() {
+func (u *User) Save() error {
 	u.Updated()
-	_, err := GetDB().Update(MongoCollectionUserName, u.ID, u)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionUserName, u.ID, u)
 }
 
 func (u *User) Delete() error {
@@ -401,27 +403,27 @@ func (u *User) Model() sdk.User {
 
 // Tokens
 
-func (u *User) AddToken(id string) {
+func (u *User) AddToken(id string) error {
 	klog.Debugf("Adding token %s to agent %s", id, u.String())
 	u.TokenID = id
-	u.Save()
+	return u.Save()
 }
 
-func (u *User) RemoveToken(id string) {
+func (u *User) RemoveToken(id string) error {
 	klog.Debugf("Removing token %s from agent %s", id, u.String())
 	u.TokenID = ""
-	u.Save()
+	return u.Save()
 }
 
 // Teams
-func (u *User) AddTeam(id string) {
+func (u *User) AddTeam(id string) error {
 	klog.Debugf("Adding team %s to user %s", id, u.String())
 	AddChildRef(&u.TeamIDs, id)
-	u.Save() // save DB before looking back
+	return u.Save() // save DB before looking back
 }
 
-func (u *User) RemoveTeam(id string) {
+func (u *User) RemoveTeam(id string) error {
 	klog.Debugf("Removing team %s from user %s", id, u.String())
 	RemoveChildRef(&u.TeamIDs, id)
-	u.Save()
+	return u.Save()
 }

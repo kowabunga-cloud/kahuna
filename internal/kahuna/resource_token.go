@@ -102,7 +102,10 @@ func NewAgentToken(agentId, name, desc string, expire bool, expirationDate strin
 	klog.Debugf("Created new agent token %s", t.String())
 
 	// add token to agent
-	a.AddToken(t.String())
+	err = a.AddToken(t.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return t, nil
 }
@@ -128,7 +131,10 @@ func NewUserToken(userId, name, desc string, expire bool, expirationDate string)
 	klog.Debugf("Created new user token %s", t.String())
 
 	// add token to agent
-	u.AddToken(t.String())
+	err = u.AddToken(t.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return t, nil
 }
@@ -240,7 +246,11 @@ func (t *Token) SetNewApiKey(notify bool) (string, error) {
 	}
 
 	t.ApiKeyHash = string(hash)
-	t.Save()
+
+	err = t.Save()
+	if err != nil {
+		return apiKey, err
+	}
 
 	if notify {
 		// send plain-text API key by email, will only happen once, there's no way to recover from it
@@ -274,16 +284,12 @@ func (t *Token) Update(name, desc string, expire bool, expirationDate string) er
 		return err
 	}
 
-	t.Save()
-	return nil
+	return t.Save()
 }
 
-func (t *Token) Save() {
+func (t *Token) Save() error {
 	t.Updated()
-	_, err := GetDB().Update(MongoCollectionTokenName, t.ID, t)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionTokenName, t.ID, t)
 }
 
 func (t *Token) Delete() error {
@@ -300,7 +306,10 @@ func (t *Token) Delete() error {
 		if err != nil {
 			return err
 		}
-		a.RemoveToken(t.String())
+		err = a.RemoveToken(t.String())
+		if err != nil {
+			return err
+		}
 	default:
 	}
 

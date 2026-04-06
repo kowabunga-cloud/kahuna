@@ -70,7 +70,10 @@ func (s *KiwiService) UpdateKiwi(ctx context.Context, kiwiId string, kiwi sdk.Ki
 	}
 
 	// update kiwi
-	gw.Update(kiwi.Name, kiwi.Description, kiwi.Agents)
+	err = gw.Update(kiwi.Name, kiwi.Description, kiwi.Agents)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := gw.Model()
 	LogHttpResponse(payload)

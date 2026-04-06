@@ -99,7 +99,10 @@ func StoragePoolMigrateSchema() error {
 			}
 
 			poolReloaded.AgentIDs = agents
-			poolReloaded.Save()
+			err = poolReloaded.Save()
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -137,7 +140,10 @@ func NewStoragePool(regionId, name, desc, pool, address string, port int, secret
 	klog.Debugf("Created new storage pool %s", p.String())
 
 	// add storage pool to region
-	r.AddStoragePool(p.String())
+	err = r.AddStoragePool(p.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &p, nil
 }
@@ -233,7 +239,7 @@ func (p *StoragePool) AverageRegionResources() (*RegionVirtualResources, error) 
 	return r.AverageVirtualResources(), nil
 }
 
-func (p *StoragePool) Scan() {
+func (p *StoragePool) Scan() error {
 	klog.Debugf("Scanning Storage Pool %s", p)
 	updated := false
 
@@ -245,7 +251,7 @@ func (p *StoragePool) Scan() {
 	err := p.RPC(proto.RpcKaktusGetStoragePoolStats, args, &reply)
 	if err != nil {
 		klog.Errorf("Unable to get remote storage pool statistics: %v", err)
-		return
+		return err
 	}
 
 	p.Allocation = reply.Allocated
@@ -257,13 +263,16 @@ func (p *StoragePool) Scan() {
 
 	klog.Debugf("Storage pool %s (%s used / %s)", p.String(), byteCountIEC(reply.Allocated), byteCountIEC(reply.Capacity))
 
-	p.Save()
+	err = p.Save()
+	if err != nil {
+		return err
+	}
 
 	// if pool settings have changed, trigger a region capability update
 	if updated {
 		r, err := p.Region()
 		if err != nil {
-			return
+			return err
 		}
 
 		go func() {
@@ -273,9 +282,11 @@ func (p *StoragePool) Scan() {
 			}
 		}()
 	}
+
+	return nil
 }
 
-func (p *StoragePool) Update(name, desc, pool, address string, port int, secret string, price float32, currency string, agts []string) {
+func (p *StoragePool) Update(name, desc, pool, address string, port int, secret string, price float32, currency string, agts []string) error {
 	p.UpdateResourceDefaults(name, desc)
 
 	SetFieldStr(&p.Pool, pool)
@@ -289,15 +300,12 @@ func (p *StoragePool) Update(name, desc, pool, address string, port int, secret 
 	SetFieldStr(&p.Cost.Currency, currency)
 	p.AgentIDs = VerifyAgents(agts, common.KowabungaKaktusAgent)
 
-	p.Save()
+	return p.Save()
 }
 
-func (p *StoragePool) Save() {
+func (p *StoragePool) Save() error {
 	p.Updated()
-	_, err := GetDB().Update(MongoCollectionStoragePoolName, p.ID, p)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionStoragePoolName, p.ID, p)
 }
 
 func (p *StoragePool) Delete() error {
@@ -312,7 +320,10 @@ func (p *StoragePool) Delete() error {
 	if err != nil {
 		return err
 	}
-	r.RemoveStoragePool(p.String())
+	err = r.RemoveStoragePool(p.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionStoragePoolName, p.ID)
 }
@@ -342,25 +353,26 @@ func (p *StoragePool) Template(id string) (*Template, error) {
 	return FindChildByID[Template](&p.TemplateIDs, id, MongoCollectionTemplateName, ErrStoragePoolNoSuchTemplate)
 }
 
-func (p *StoragePool) AddTemplate(id string) {
+func (p *StoragePool) AddTemplate(id string) error {
 	klog.Debugf("Adding template %s to pool %s", id, p.String())
 	AddChildRef(&p.TemplateIDs, id)
 	// set template as default one if none exists
 	err := p.SetDefaultTemplate(id, false)
 	if err != nil {
 		klog.Error(err)
+		return err
 	}
-	p.Save()
+	return p.Save()
 }
 
-func (p *StoragePool) RemoveTemplate(id string) {
+func (p *StoragePool) RemoveTemplate(id string) error {
 	klog.Debugf("Removing template %s from pool %s", id, p.String())
 	RemoveChildRef(&p.TemplateIDs, id)
 	// possibly unset default template
 	if p.Defaults.TemplateIDs.OS == id {
 		p.Defaults.TemplateIDs.OS = ""
 	}
-	p.Save()
+	return p.Save()
 }
 
 func (p *StoragePool) SetDefaultTemplate(id string, force bool) error {
@@ -373,9 +385,7 @@ func (p *StoragePool) SetDefaultTemplate(id string, force bool) error {
 	if force || p.Defaults.TemplateIDs.OS == "" {
 		p.Defaults.TemplateIDs.OS = t.String()
 	}
-	p.Save()
-
-	return nil
+	return p.Save()
 }
 
 // Volumes
@@ -387,14 +397,14 @@ func (p *StoragePool) Volume(id string) (*Volume, error) {
 	return FindChildByID[Volume](&p.VolumeIDs, id, MongoCollectionVolumeName, ErrStoragePoolNoSuchVolume)
 }
 
-func (p *StoragePool) AddVolume(id string) {
+func (p *StoragePool) AddVolume(id string) error {
 	klog.Debugf("Adding volume %s to pool %s", id, p.String())
 	AddChildRef(&p.VolumeIDs, id)
-	p.Save()
+	return p.Save()
 }
 
-func (p *StoragePool) RemoveVolume(id string) {
+func (p *StoragePool) RemoveVolume(id string) error {
 	klog.Debugf("Removing volume %s from pool %s", id, p.String())
 	RemoveChildRef(&p.VolumeIDs, id)
-	p.Save()
+	return p.Save()
 }

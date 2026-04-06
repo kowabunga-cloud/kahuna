@@ -228,7 +228,10 @@ func NewAdapter(subnetId, name, desc, mac string, addresses []string, reserved, 
 	klog.Debugf("Created new adapter %s", a.String())
 
 	// add adapter to subnet
-	s.AddAdapter(a.String())
+	err = s.AddAdapter(a.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &a, nil
 }
@@ -283,27 +286,24 @@ func (a *Adapter) Subnet() (*Subnet, error) {
 	return FindSubnetByID(a.SubnetID)
 }
 
-func (a *Adapter) Update(name, desc, mac string, addresses []string, reserved bool) {
+func (a *Adapter) Update(name, desc, mac string, addresses []string, reserved bool) error {
 	// ensure the requested adapter is correctly flagged
 	err := verifyAdapterSettings(a.SubnetID, mac, addresses, true)
 	if err != nil {
 		klog.Error(err)
-		return
+		return err
 	}
 
 	a.UpdateResourceDefaults(name, desc)
 	SetFieldStr(&a.MAC, mac)
 	a.Addresses = addresses
 	a.Reserved = reserved
-	a.Save()
+	return a.Save()
 }
 
-func (a *Adapter) Save() {
+func (a *Adapter) Save() error {
 	a.Updated()
-	_, err := GetDB().Update(MongoCollectionAdapterName, a.ID, a)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionAdapterName, a.ID, a)
 }
 
 func (a *Adapter) Delete() error {
@@ -318,7 +318,10 @@ func (a *Adapter) Delete() error {
 	if err != nil {
 		return err
 	}
-	s.RemoveAdapter(a.String())
+	err = s.RemoveAdapter(a.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionAdapterName, a.ID)
 }

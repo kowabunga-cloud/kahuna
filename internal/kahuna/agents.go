@@ -158,7 +158,12 @@ func RegisterAgent(agentType, agentId string, client *wsrpc.WsRpcClient) error {
 		kaktuses := FindKaktuses()
 		for _, k := range kaktuses {
 			if slices.Contains(k.Agents(), agentId) {
-				go k.Scan()
+				go func() {
+					err := k.Scan()
+					if err != nil {
+						klog.Error(err)
+					}
+				}()
 				break
 			}
 		}
@@ -166,7 +171,12 @@ func RegisterAgent(agentType, agentId string, client *wsrpc.WsRpcClient) error {
 		pools := FindStoragePools()
 		for _, p := range pools {
 			if slices.Contains(p.Agents(), agentId) {
-				go p.Scan()
+				go func() {
+					err := p.Scan()
+					if err != nil {
+						klog.Error(err)
+					}
+				}()
 				break
 			}
 		}

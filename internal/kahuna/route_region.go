@@ -141,7 +141,10 @@ func (s *RegionService) UpdateRegion(ctx context.Context, regionId string, regio
 	}
 
 	// update region
-	r.Update(region.Name, region.Description, region.Domain)
+	err = r.Update(region.Name, region.Description, region.Domain)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := r.Model()
 	LogHttpResponse(payload)

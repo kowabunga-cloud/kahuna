@@ -62,10 +62,16 @@ func AgentMigrateSchema() error {
 				continue
 			case "KCA":
 				agentReloaded.Type = common.KowabungaKaktusAgent
-				agentReloaded.Save()
+				err := agentReloaded.Save()
+				if err != nil {
+					return err
+				}
 			case "KNA":
 				agentReloaded.Type = common.KowabungaKiwiAgent
-				agentReloaded.Save()
+				err := agentReloaded.Save()
+				if err != nil {
+					return err
+				}
 			}
 
 		}
@@ -128,17 +134,14 @@ func (a *Agent) Token() (*Token, error) {
 	return FindTokenByID(a.TokenID)
 }
 
-func (a *Agent) Update(name, desc string) {
+func (a *Agent) Update(name, desc string) error {
 	a.UpdateResourceDefaults(name, desc)
-	a.Save()
+	return a.Save()
 }
 
-func (a *Agent) Save() {
+func (a *Agent) Save() error {
 	a.Updated()
-	_, err := GetDB().Update(MongoCollectionAgentName, a.ID, a)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionAgentName, a.ID, a)
 }
 
 func (a *Agent) Delete() error {
@@ -172,14 +175,14 @@ func (a *Agent) Model() sdk.Agent {
 
 // Tokens
 
-func (a *Agent) AddToken(id string) {
+func (a *Agent) AddToken(id string) error {
 	klog.Debugf("Adding token %s to agent %s", id, a.String())
 	a.TokenID = id
-	a.Save()
+	return a.Save()
 }
 
-func (a *Agent) RemoveToken(id string) {
+func (a *Agent) RemoveToken(id string) error {
 	klog.Debugf("Removing token %s from agent %s", id, a.String())
 	a.TokenID = ""
-	a.Save()
+	return a.Save()
 }

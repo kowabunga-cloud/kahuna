@@ -177,7 +177,10 @@ func NewSubnet(vnetId, name, desc, cidr, gw, dns string, private bool, reserved,
 	klog.Debugf("Created new subnet %s", s.String())
 
 	// add subnet to virtual network
-	v.AddSubnet(s.String())
+	err = v.AddSubnet(s.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &s, nil
 }
@@ -225,7 +228,11 @@ func ReservePrivateSubnet(regionId, projectId string, subnetSize int) (string, e
 				}
 
 				// DONE: link project and subnet
-				s.SetProject(projectId)
+				err = s.SetProject(projectId)
+				if err != nil {
+					continue
+				}
+
 				return s.String(), nil
 			}
 		}
@@ -304,9 +311,9 @@ func (s *Subnet) FindAdapters() ([]Adapter, error) {
 	return FindAdaptersBySubnet(s.String())
 }
 
-func (s *Subnet) SetProject(id string) {
+func (s *Subnet) SetProject(id string) error {
 	s.ProjectID = id
-	s.Save()
+	return s.Save()
 }
 
 func (s *Subnet) Size() int {
@@ -500,17 +507,12 @@ func (s *Subnet) Update(name, desc, gw, dns string, reserved, gwPool []sdk.IpRan
 	s.Routes = routes
 	s.Application = app
 	// we forbid change of CIDR or privacy, makes no sense
-	s.Save()
-
-	return nil
+	return s.Save()
 }
 
-func (s *Subnet) Save() {
+func (s *Subnet) Save() error {
 	s.Updated()
-	_, err := GetDB().Update(MongoCollectionSubnetName, s.ID, s)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionSubnetName, s.ID, s)
 }
 
 func (s *Subnet) Delete() error {
@@ -525,7 +527,11 @@ func (s *Subnet) Delete() error {
 	if err != nil {
 		return err
 	}
-	v.RemoveSubnet(s.String())
+
+	err = v.RemoveSubnet(s.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionSubnetName, s.ID)
 }
@@ -570,14 +576,14 @@ func (s *Subnet) Adapter(id string) (*Adapter, error) {
 	return FindChildByID[Adapter](&s.AdapterIDs, id, MongoCollectionAdapterName, ErrSubnetNoSuchAdapter)
 }
 
-func (s *Subnet) AddAdapter(id string) {
+func (s *Subnet) AddAdapter(id string) error {
 	klog.Debugf("Adding adapter %s to subnet %s", id, s.String())
 	AddChildRef(&s.AdapterIDs, id)
-	s.Save()
+	return s.Save()
 }
 
-func (s *Subnet) RemoveAdapter(id string) {
+func (s *Subnet) RemoveAdapter(id string) error {
 	klog.Debugf("Removing adapter %s from subnet %s", id, s.String())
 	RemoveChildRef(&s.AdapterIDs, id)
-	s.Save()
+	return s.Save()
 }

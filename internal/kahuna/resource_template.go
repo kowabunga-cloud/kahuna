@@ -107,7 +107,10 @@ func NewTemplate(poolId, name, desc, os, source string) (*Template, error) {
 	klog.Debugf("Created new template %s", t.String())
 
 	// add template to pool
-	p.AddTemplate(t.String())
+	err = p.AddTemplate(t.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &t, nil
 }
@@ -159,17 +162,14 @@ func (t *Template) Volume() (*Volume, error) {
 	return FindVolumeByID(t.VolumeID)
 }
 
-func (t *Template) Update(name, desc string) {
+func (t *Template) Update(name, desc string) error {
 	t.UpdateResourceDefaults(name, desc)
-	t.Save()
+	return t.Save()
 }
 
-func (t *Template) Save() {
+func (t *Template) Save() error {
 	t.Updated()
-	_, err := GetDB().Update(MongoCollectionTemplateName, t.ID, t)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionTemplateName, t.ID, t)
 }
 
 func (t *Template) Delete() error {
@@ -198,7 +198,10 @@ func (t *Template) Delete() error {
 		}
 	}
 
-	p.RemoveTemplate(t.String())
+	err = p.RemoveTemplate(t.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionTemplateName, t.ID)
 }

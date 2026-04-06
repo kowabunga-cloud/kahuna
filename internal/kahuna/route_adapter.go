@@ -70,7 +70,10 @@ func (s *AdapterService) UpdateAdapter(ctx context.Context, adapterId string, ad
 	}
 
 	// update adapter
-	a.Update(adapter.Name, adapter.Description, adapter.Mac, adapter.Addresses, adapter.Reserved)
+	err = a.Update(adapter.Name, adapter.Description, adapter.Mac, adapter.Addresses, adapter.Reserved)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := a.Model()
 	LogHttpResponse(payload)

@@ -65,7 +65,10 @@ func MzrMigrateSchema() error {
 			}
 			if mzrReloaded.Profile == "kgw" {
 				mzrReloaded.Profile = CloudinitProfileKawaii
-				mzrReloaded.Save()
+				err = mzrReloaded.Save()
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -445,12 +448,9 @@ func (mzr *MultiZonesResource) GetVirtualIPs() error {
 	return nil
 }
 
-func (mzr *MultiZonesResource) Save() {
+func (mzr *MultiZonesResource) Save() error {
 	mzr.Updated()
-	_, err := GetDB().Update(MongoCollectionMzrName, mzr.ID, mzr)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionMzrName, mzr.ID, mzr)
 }
 
 func (mzr *MultiZonesResource) Delete() error {
@@ -497,7 +497,10 @@ func (mzr *MultiZonesResource) Delete() error {
 			return err
 		}
 
-		prj.RemoveVRID(vip.VRRP)
+		err = prj.RemoveVRID(vip.VRRP)
+		if err != nil {
+			return err
+		}
 	}
 
 	return GetDB().Delete(MongoCollectionMzrName, mzr.ID)

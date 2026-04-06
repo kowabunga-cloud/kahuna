@@ -234,10 +234,16 @@ func NewKylo(projectId, regionId, nfsId, name, desc, access string, protocols []
 	klog.Debugf("Created new Kylo storage %s", kylo.String())
 
 	// add Kylo to project
-	prj.AddKylo(kylo.String())
+	err = prj.AddKylo(kylo.String())
+	if err != nil {
+		return nil, err
+	}
 
 	// add Kylo to NFS storage
-	n.AddKylo(kylo.String(), kylo.ExportID)
+	err = n.AddKylo(kylo.String(), kylo.ExportID)
+	if err != nil {
+		return nil, err
+	}
 
 	return &kylo, nil
 }
@@ -297,10 +303,10 @@ func (k *Kylo) Update(name, desc, access string, protocols []int32) error {
 	err = k.updateNfsBackends(nfs, k.ExportID, k.SubVolume.Name, k.SubVolume.Path, k.Clients)
 	if err != nil {
 		klog.Error(err)
+		return err
 	}
 
-	k.Save()
-	return nil
+	return k.Save()
 }
 
 func (k *Kylo) Project() (*Project, error) {
@@ -320,12 +326,9 @@ func (k *Kylo) RPC(method string, args, reply any) error {
 	return nfs.RPC(method, args, reply)
 }
 
-func (k *Kylo) Save() {
+func (k *Kylo) Save() error {
 	k.Updated()
-	_, err := GetDB().Update(MongoCollectionKyloName, k.ID, k)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionKyloName, k.ID, k)
 }
 
 func (k *Kylo) delete(fs, vol string) error {
@@ -385,8 +388,14 @@ func (k *Kylo) Delete() error {
 	if err != nil {
 		return err
 	}
-	prj.RemoveKylo(k.String())
-	nfs.RemoveKylo(k.String(), k.ExportID)
+	err = prj.RemoveKylo(k.String())
+	if err != nil {
+		return err
+	}
+	err = nfs.RemoveKylo(k.String(), k.ExportID)
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionKyloName, k.ID)
 }

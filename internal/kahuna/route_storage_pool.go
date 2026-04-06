@@ -162,7 +162,10 @@ func (s *StoragePoolService) UpdateStoragePool(ctx context.Context, poolId strin
 	}
 
 	// update pool
-	p.Update(storagePool.Name, storagePool.Description, storagePool.Pool, storagePool.CephAddress, int(storagePool.CephPort), storagePool.CephSecretUuid, price, currency, storagePool.Agents)
+	err = p.Update(storagePool.Name, storagePool.Description, storagePool.Pool, storagePool.CephAddress, int(storagePool.CephPort), storagePool.CephSecretUuid, price, currency, storagePool.Agents)
+	if err != nil {
+		return HttpServerError(err)
+	}
 
 	payload := p.Model()
 	LogHttpResponse(payload)

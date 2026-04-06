@@ -70,7 +70,10 @@ func NewKiwi(regionId, name, desc string, agts []string) (*Kiwi, error) {
 	klog.Debugf("Created new network gateway %s", gw.String())
 
 	// add network gateway to region
-	r.AddKiwi(gw.String())
+	err = r.AddKiwi(gw.String())
+	if err != nil {
+		return nil, err
+	}
 
 	return &gw, nil
 }
@@ -126,20 +129,17 @@ func (k *Kiwi) RPC(method string, args, reply any) error {
 	return RPC(k.AgentIDs, method, args, reply)
 }
 
-func (k *Kiwi) Update(name, desc string, agts []string) {
+func (k *Kiwi) Update(name, desc string, agts []string) error {
 	k.UpdateResourceDefaults(name, desc)
 
 	k.AgentIDs = VerifyAgents(agts, common.KowabungaKiwiAgent)
 
-	k.Save()
+	return k.Save()
 }
 
-func (k *Kiwi) Save() {
+func (k *Kiwi) Save() error {
 	k.Updated()
-	_, err := GetDB().Update(MongoCollectionKiwiName, k.ID, k)
-	if err != nil {
-		klog.Error(err)
-	}
+	return resourceUpdate(MongoCollectionKiwiName, k.ID, k)
 }
 
 func (k *Kiwi) Delete() error {
@@ -154,7 +154,10 @@ func (k *Kiwi) Delete() error {
 	if err != nil {
 		return err
 	}
-	r.RemoveKiwi(k.String())
+	err = r.RemoveKiwi(k.String())
+	if err != nil {
+		return err
+	}
 
 	return GetDB().Delete(MongoCollectionKiwiName, k.ID)
 }
