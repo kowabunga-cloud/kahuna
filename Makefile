@@ -108,7 +108,7 @@ deb: ; $(info $(M) building Debian package…) @
 
 .PHONY: get-lint
 get-lint: ; $(info $(M) downloading go-lint…) @
-	$Q test -x $(GOLINT) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s
+	$Q test -x $(GOLINT) || GOBIN="$(PWD)/$(BINDIR)/" go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 
 .PHONY: lint
 lint: get-lint ; $(info $(M) running go-lint…) @
