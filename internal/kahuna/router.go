@@ -15,6 +15,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/kowabunga-cloud/common"
@@ -52,6 +53,19 @@ func buildApiOperations(ops []ApiOperation) []ApiOperation {
 
 // userIdInPath extracts the ObjectID hex string from a /user/<id> URL segment.
 var userIdInPath = regexp.MustCompile(`/user/([0-9a-f]{24})`)
+var objectIdPattern = regexp.MustCompile(`[0-9a-fA-F]{24}`)
+
+type cachedTokenAuth struct {
+	userId       string
+	superAdmin   bool
+	projectAdmin bool
+	expiresAt    time.Time
+}
+
+var (
+	tokenAuthCacheLock sync.RWMutex
+	tokenAuthCache     = make(map[string]cachedTokenAuth)
+)
 
 var noAuthApiOperations = []string{
 	"Login",
@@ -265,6 +279,23 @@ func reqIsAuthenticated(r *http.Request) (*http.Request, bool) {
 			return r.WithContext(ctx), true
 		}
 
+		// check in-memory cache for validated API key
+		tokenAuthCacheLock.RLock()
+		cached, found := tokenAuthCache[apikey]
+		tokenAuthCacheLock.RUnlock()
+		if found && time.Now().Before(cached.expiresAt) {
+			ctx = ctxSetAuthMethod(ctx, HttpHeaderAuthApiKey)
+			ctx = ctxSetUserId(ctx, cached.userId)
+			if cached.superAdmin {
+				ctx = ctxSetSuperAdminRole(ctx)
+			}
+			if cached.projectAdmin {
+				ctx = ctxSetProjectAdminRole(ctx)
+			}
+			klog.Debugf("API-key based authentication (cached)")
+			return r.WithContext(ctx), true
+		}
+
 		// check for regular user API key
 		tokens, err := FindTokensAllUsers()
 		if err != nil {
@@ -294,6 +325,16 @@ func reqIsAuthenticated(r *http.Request) (*http.Request, bool) {
 			if u.IsProjectAdmin() {
 				ctx = ctxSetProjectAdminRole(ctx)
 			}
+
+			tokenAuthCacheLock.Lock()
+			tokenAuthCache[apikey] = cachedTokenAuth{
+				userId:       u.String(),
+				superAdmin:   u.IsSuperAdmin(),
+				projectAdmin: u.IsProjectAdmin(),
+				expiresAt:    time.Now().Add(5 * time.Minute),
+			}
+			tokenAuthCacheLock.Unlock()
+
 			klog.Debugf("API-key based authentication")
 			return r.WithContext(ctx), true
 		}
@@ -402,13 +443,26 @@ func reqIsAuthorized(r *http.Request) bool {
 		if err != nil {
 			return false
 		}
+		uTeams := u.Teams()
+		seenResources := make(map[string]struct{})
 		for _, prj := range FindProjects() {
-			for _, teamId := range u.Teams() {
-				if !slices.Contains(prj.TeamIDs, teamId) {
-					continue
+			hasTeam := false
+			for _, teamId := range uTeams {
+				if slices.Contains(prj.TeamIDs, teamId) {
+					hasTeam = true
+					break
 				}
-				userAllowedResources = append(userAllowedResources, prj.Resources()...)
 			}
+			if hasTeam {
+				for _, res := range prj.Resources() {
+					seenResources[res] = struct{}{}
+				}
+			}
+		}
+
+		userAllowedResources = make([]string, 0, len(seenResources))
+		for res := range seenResources {
+			userAllowedResources = append(userAllowedResources, res)
 		}
 
 		// store in cache
@@ -416,6 +470,15 @@ func reqIsAuthorized(r *http.Request) bool {
 	}
 
 	// Check if request url contains one of the resource IDs from the projects user's part of
+	allowedSet := make(map[string]struct{}, len(userAllowedResources))
+	for _, res := range userAllowedResources {
+		allowedSet[res] = struct{}{}
+	}
+	for _, id := range objectIdPattern.FindAllString(r.RequestURI, -1) {
+		if _, ok := allowedSet[id]; ok {
+			return true
+		}
+	}
 	for _, res := range userAllowedResources {
 		if strings.Contains(r.RequestURI, res) {
 			return true
