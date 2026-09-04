@@ -7,9 +7,8 @@
 package kahuna
 
 import (
-	"crypto/rand"
 	"fmt"
-	"math/big"
+	"math/rand/v2"
 	"slices"
 	"sync"
 
@@ -37,16 +36,15 @@ func (agent *KowabungaAgent) WatchKeepalive() {
 }
 
 // agents singleton
-var agentsLock = &sync.Mutex{}
+var agentsLock = &sync.RWMutex{}
+var agentsOnce sync.Once
 var kAgents map[string]*KowabungaAgent
 
 func GetAgents() map[string]*KowabungaAgent {
-	if kAgents == nil {
-		agentsLock.Lock()
-		defer agentsLock.Unlock()
+	agentsOnce.Do(func() {
 		klog.Debugf("Creating Kowabunga Agents map")
 		kAgents = map[string]*KowabungaAgent{}
-	}
+	})
 
 	return kAgents
 }
@@ -61,6 +59,8 @@ func DisconnectAgent(agentId string) {
 }
 
 func GetAgent(agentId string) *KowabungaAgent {
+	agentsLock.RLock()
+	defer agentsLock.RUnlock()
 	return GetAgents()[agentId]
 }
 
@@ -68,6 +68,7 @@ func GetEligibleAgent(candidateAgents []string, method string) *KowabungaAgent {
 	candidates := []*KowabungaAgent{}
 
 	// build list of agents capable of addressing requested method
+	agentsLock.RLock()
 	for _, ag := range GetAgents() {
 		// discard agents not associated with the RPC caller
 		if !slices.Contains(candidateAgents, ag.ID) {
@@ -86,18 +87,14 @@ func GetEligibleAgent(candidateAgents []string, method string) *KowabungaAgent {
 
 		candidates = append(candidates, ag)
 	}
+	agentsLock.RUnlock()
 
 	if len(candidates) == 0 {
 		return nil
 	}
 
 	// randomly address one agent
-	n, err := rand.Int(rand.Reader, big.NewInt(int64(len(candidates))))
-	if err != nil {
-		return nil
-	}
-
-	return candidates[n.Int64()]
+	return candidates[rand.N(len(candidates))]
 }
 
 func RegisterAgent(agentType, agentId string, client *wsrpc.WsRpcClient) error {
