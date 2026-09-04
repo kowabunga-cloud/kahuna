@@ -8,7 +8,7 @@ package kahuna
 
 import (
 	"fmt"
-	"sort"
+	"slices"
 
 	"github.com/kowabunga-cloud/common"
 	"github.com/kowabunga-cloud/common/agents"
@@ -79,12 +79,12 @@ type KawaiiFirewall struct {
 }
 
 func (fw *KawaiiFirewall) Model() sdk.KawaiiFirewall {
-	ingress := []sdk.KawaiiFirewallIngressRule{}
+	ingress := make([]sdk.KawaiiFirewallIngressRule, 0, len(fw.Ingress))
 	for _, rule := range fw.Ingress {
 		ingress = append(ingress, rule.Model())
 	}
 
-	egress := []sdk.KawaiiFirewallEgressRule{}
+	egress := make([]sdk.KawaiiFirewallEgressRule, 0, len(fw.Egress))
 	for _, rule := range fw.Egress {
 		egress = append(egress, rule.Model())
 	}
@@ -458,15 +458,15 @@ func (k *Kawaii) Model() sdk.Kawaii {
 
 		netIP.Zones = append(netIP.Zones, zs)
 	}
-	sort.Strings(netIP.Public)
-	sort.Strings(netIP.Private)
+	slices.Sort(netIP.Public)
+	slices.Sort(netIP.Private)
 	kawaii.Netip = netIP
 
 	// Firewall Settings
 	kawaii.Firewall = k.Firewall.Model()
 
 	// DNAT Settings
-	dnat := []sdk.KawaiiDNatRule{}
+	dnat := make([]sdk.KawaiiDNatRule, 0, len(k.DNatRules))
 	for _, nr := range k.DNatRules {
 		dnat = append(dnat, nr.Model())
 	}

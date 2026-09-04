@@ -9,7 +9,6 @@ package kahuna
 import (
 	"fmt"
 	"slices"
-	"sort"
 
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
@@ -92,7 +91,7 @@ type ProjectCost struct {
 }
 
 func getMetadatas(meta map[string]string) []ResourceMetadata {
-	metas := []ResourceMetadata{}
+	metas := make([]ResourceMetadata, 0, len(meta))
 	for k, v := range meta {
 		m := ResourceMetadata{k, v}
 		metas = append(metas, m)
@@ -434,7 +433,7 @@ func (p *Project) AssignZoneGatewayAddresses() error {
 			}
 			zones = append(zones, z.Name)
 		}
-		sort.Strings(zones)
+		slices.Sort(zones)
 
 		gwId := 0
 		for _, z := range zones {
@@ -607,7 +606,7 @@ func (p *Project) AllocateVRID() (int, error) {
 			continue
 		}
 		p.VrrpIDs = append(p.VrrpIDs, vrrpId)
-		sort.Ints(p.VrrpIDs)
+		slices.Sort(p.VrrpIDs)
 
 		err := p.Save()
 		if err != nil {
@@ -622,12 +621,11 @@ func (p *Project) AllocateVRID() (int, error) {
 
 func (p *Project) RemoveVRID(vrrpId int) error {
 	klog.Debugf("Removing VRRP ID %d from project %s", vrrpId, p.String())
-	for idx, id := range p.VrrpIDs {
-		if id == vrrpId {
-			p.VrrpIDs = append((p.VrrpIDs)[:idx], (p.VrrpIDs)[idx+1:]...)
-			break
-		}
+	idx := slices.Index(p.VrrpIDs, vrrpId)
+	if idx == -1 {
+		return nil
 	}
+	p.VrrpIDs = slices.Delete(p.VrrpIDs, idx, idx+1)
 	return p.Save()
 }
 

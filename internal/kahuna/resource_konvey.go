@@ -8,7 +8,7 @@ package kahuna
 
 import (
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/kowabunga-cloud/common"
@@ -315,7 +315,7 @@ func (k *Konvey) Metadata(instanceId string) metadata.KonveyMetadata {
 	meta.VirtualIPs = append(meta.VirtualIPs, har.VirtualIP.Metadata())
 
 	// tune-in VRRP priority
-	sort.Strings(har.KomputeIDs)
+	slices.Sort(har.KomputeIDs)
 	if len(har.KomputeIDs) > 0 {
 		for id := range meta.VirtualIPs {
 			meta.VirtualIPs[id].Priority = VrrpPriorityBackup

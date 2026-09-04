@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"net"
 	"regexp"
@@ -112,16 +113,11 @@ func HasChildRef(children *[]string, childId string) bool {
 
 func FindChildByID[T any](children *[]string, childId, collection, msg string) (*T, error) {
 	var res T
-	child, err := FindResourceByID[T](collection, childId)
-	if err != nil {
-		return &res, err
-	}
-
 	if !HasChildRef(children, childId) {
-		return &res, fmt.Errorf("%s", msg)
+		return &res, errors.New(msg)
 	}
 
-	return child, nil
+	return FindResourceByID[T](collection, childId)
 }
 
 func AddChildRef(children *[]string, childId string) {
@@ -131,11 +127,8 @@ func AddChildRef(children *[]string, childId string) {
 }
 
 func RemoveChildRef(children *[]string, childId string) {
-	for idx, id := range *children {
-		if id == childId {
-			*children = append((*children)[:idx], (*children)[idx+1:]...)
-			break
-		}
+	if idx := slices.Index(*children, childId); idx != -1 {
+		*children = slices.Delete(*children, idx, idx+1)
 	}
 }
 

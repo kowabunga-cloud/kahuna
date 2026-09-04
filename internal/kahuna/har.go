@@ -118,6 +118,11 @@ func NewHighAvailableResource(projectId, regionId, namePrefix, desc, profile, pr
 	har.GetVirtualIP()
 
 	// find how many zones we're spread one (defines naming convention)
+	type kaktusZone struct {
+		kaktus *Kaktus
+		zone   *Zone
+	}
+	resolved := make([]kaktusZone, 0, len(kaktusIds))
 	zones := []string{}
 	for _, kaktusId := range kaktusIds {
 		h, err := FindKaktusByID(kaktusId)
@@ -130,24 +135,18 @@ func NewHighAvailableResource(projectId, regionId, namePrefix, desc, profile, pr
 			return nil, err
 		}
 
+		resolved = append(resolved, kaktusZone{kaktus: h, zone: z})
 		if !slices.Contains(zones, z.Name) {
 			zones = append(zones, z.Name)
 		}
 	}
 
 	// create a Kompute instance on each specified kaktus
-	komputes := []string{}
+	komputes := make([]string, 0, len(resolved))
 	count := 1
-	for _, kaktusId := range kaktusIds {
-		h, err := FindKaktusByID(kaktusId)
-		if err != nil {
-			return nil, err
-		}
-
-		z, err := h.Zone()
-		if err != nil {
-			return nil, err
-		}
+	for _, kz := range resolved {
+		h := kz.kaktus
+		z := kz.zone
 
 		harName := fmt.Sprintf("%s-%s", namePrefix, z.Name)
 		name := fmt.Sprintf("%s-%d", harName, count)

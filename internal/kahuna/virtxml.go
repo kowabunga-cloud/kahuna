@@ -8,7 +8,7 @@ package kahuna
 
 import (
 	"fmt"
-	"sort"
+	"slices"
 
 	virtxml "libvirt.org/go/libvirtxml"
 )
@@ -409,14 +409,14 @@ func virtInterface(address, iface string) virtxml.DomainInterface {
 }
 
 func newVirtualInterfaces(interfaces map[string]string) []virtxml.DomainInterface {
-	ifaces := []virtxml.DomainInterface{}
+	ifaces := make([]virtxml.DomainInterface, 0, len(interfaces))
 
 	// ensure we sort out interfaces by name, reflecting correct insertion order and appropriate XML generation
 	keys := make([]string, 0, len(interfaces))
 	for k := range interfaces {
 		keys = append(keys, k)
 	}
-	sort.Strings(keys)
+	slices.Sort(keys)
 
 	// process adapters, if any
 	for _, k := range keys {
@@ -448,10 +448,12 @@ func newVirtualInterfaces(interfaces map[string]string) []virtxml.DomainInterfac
 }
 
 func newVirtualDisks(disks map[string]string, cloudInitVolumeId string) []virtxml.DomainDisk {
-	disksList := []virtxml.DomainDisk{}
-
 	// copy existing disks map
-	disksMap := make(map[string]string)
+	extraCap := 0
+	if cloudInitVolumeId != "" {
+		extraCap = 1
+	}
+	disksMap := make(map[string]string, len(disks)+extraCap)
 	for dev, volumeId := range disks {
 		disksMap[dev] = volumeId
 	}
@@ -461,12 +463,14 @@ func newVirtualDisks(disks map[string]string, cloudInitVolumeId string) []virtxm
 		disksMap[VolumeCloudInitDisk] = cloudInitVolumeId
 	}
 
+	disksList := make([]virtxml.DomainDisk, 0, len(disksMap))
+
 	// ensure we sort out disks by name, reflecting correct insertion order and appropriate XML generation
 	keys := make([]string, 0, len(disksMap))
 	for k := range disksMap {
 		keys = append(keys, k)
 	}
-	sort.Strings(keys)
+	slices.Sort(keys)
 
 	for _, dev := range keys {
 		volumeId, ok := disksMap[dev]

@@ -16,7 +16,6 @@ package kahuna
 import (
 	"fmt"
 	"slices"
-	"sort"
 
 	"github.com/kowabunga-cloud/common/klog"
 )
@@ -348,7 +347,7 @@ func (mzr *MultiZonesResource) GetVirtualIPs() error {
 	}
 
 	// public VIPs, if any ...
-	sort.Strings(mzr.PublicVIPs)
+	slices.Sort(mzr.PublicVIPs)
 
 	// Reserving [zoneName]vrIDs for kawaii private/public map
 	vrIDs := map[string]int{}
@@ -384,7 +383,7 @@ func (mzr *MultiZonesResource) GetVirtualIPs() error {
 		}
 	}
 	// private VIPs
-	sort.Strings(mzr.PrivateVIPs)
+	slices.Sort(mzr.PrivateVIPs)
 	for _, v := range mzr.PrivateVIPs {
 		// project will be updated at each iteration so we need updated object
 		prj, err := mzr.Project()
@@ -427,7 +426,7 @@ func (mzr *MultiZonesResource) GetVirtualIPs() error {
 		for k := range prj.ZoneGateways {
 			keys = append(keys, k)
 		}
-		sort.Strings(keys)
+		slices.Sort(keys)
 		for _, k := range keys {
 			gw, ok := prj.ZoneGateways[k]
 			if !ok {
