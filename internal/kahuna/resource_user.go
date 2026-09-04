@@ -278,10 +278,15 @@ func VerifyJwt(tokenString string) (string, string, error) {
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", "", err
+		return "", "", fmt.Errorf("invalid token claims")
 	}
 
-	return token.Raw, claims["uid"].(string), nil
+	uid, ok := claims["uid"].(string)
+	if !ok {
+		return "", "", fmt.Errorf("invalid or missing uid claim")
+	}
+
+	return token.Raw, uid, nil
 }
 
 func (u *User) Verify(password string) error {

@@ -7,9 +7,8 @@
 package kahuna
 
 import (
-	"crypto/rand"
 	"fmt"
-	"math/big"
+	"math/rand/v2"
 
 	"github.com/kowabunga-cloud/common"
 	"github.com/kowabunga-cloud/common/agents"
@@ -65,28 +64,27 @@ func NewKawaiiIPsecConnection(kawaiiId, name, desc, remotePeer, remoteSubnet, pr
 	if err != nil {
 		return nil, fmt.Errorf("%s", ErrorIPsecUnderlyingMZRNotFound)
 	}
-	n, err := rand.Int(rand.Reader, big.NewInt(int64(len(mzr.PublicVIPs))))
-	if err != nil {
-		return nil, err
+	if len(mzr.PublicVIPs) == 0 {
+		return nil, fmt.Errorf("%s", ErrorIPsecUnderlyingMZRNotFound)
 	}
-	ipSecIP := mzr.PublicVIPs[n.Int64()]
+	n := rand.N(len(mzr.PublicVIPs))
+	ipSecIP := mzr.PublicVIPs[n]
 
 	ipsecs, err := FindIPsecByKawaii(kawaiiId)
 	if err != nil {
 		return nil, err
 	}
 
+	usedXfrmIDs := make(map[uint8]bool, len(ipsecs))
+	for _, ipsec := range ipsecs {
+		usedXfrmIDs[ipsec.XfrmID] = true
+	}
 	var xfrmId uint8 = 1
-	xfrmIdfound := true
-	for xfrmIdfound {
-		xfrmIdfound = false
-		for _, ipsec := range ipsecs {
-			if ipsec.XfrmID == xfrmId {
-				xfrmIdfound = true
-				xfrmId++
-				break
-			}
+	for usedXfrmIDs[xfrmId] {
+		if xfrmId == 255 {
+			return nil, fmt.Errorf("exhausted pool of XFRM IDs for kawaii %s", kawaiiId)
 		}
+		xfrmId++
 	}
 
 	kawaiiIPsec := KawaiiIPsec{

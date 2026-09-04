@@ -192,9 +192,12 @@ func metadataHandler(w http.ResponseWriter, r *http.Request) {
 	meta, err := GetInstanceMetadata(src[0], r.Header.Get(common.HttpHeaderKowabungaInstanceID))
 	if err != nil {
 		klog.Error(err)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(meta)
 	if err != nil {
 		klog.Error(err)

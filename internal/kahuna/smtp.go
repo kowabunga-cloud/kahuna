@@ -17,7 +17,7 @@ import (
 
 const (
 	EmailProductName      = "Kowabunga"
-	EmailProductLink      = "htps://github.com/kowabunga-cloud/kowabunga"
+	EmailProductLink      = "https://github.com/kowabunga-cloud/kowabunga"
 	EmailProductLogoURL   = "https://raw.githubusercontent.com/kowabunga-cloud/infographics/master/art/kowabunga-title-white.png"
 	EmailProductCopyright = "Copyright (c) The Kowabunga Project. All rights reserved."
 

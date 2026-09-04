@@ -113,11 +113,11 @@ func getMZRPeers(mzrObject MZR, instance *Instance) ([]string, error) {
 	var peers []string
 	mzr, err := mzrObject.MZR()
 	if err != nil {
-		return peers, fmt.Errorf("Metadata MZR %d : %w", mzr.ID, err)
+		return peers, fmt.Errorf("Metadata MZR: %w", err)
 	}
 	ips, err := mzr.FindLocalPrivateIPs()
 	if err != nil {
-		return peers, fmt.Errorf("Metadata MZR %d : %w", mzr.ID, err)
+		return peers, fmt.Errorf("Metadata MZR %s: %w", mzr.String(), err)
 	}
 	for _, ip := range ips {
 		if ip != instance.LocalIP {

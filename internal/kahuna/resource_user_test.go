@@ -61,3 +61,10 @@ func TestUserVerifyWrongPassword(t *testing.T) {
 		t.Error("expected error for wrong password")
 	}
 }
+
+func TestVerifyJwtInvalid(t *testing.T) {
+	_, _, err := VerifyJwt("invalid.token.here")
+	if err == nil {
+		t.Error("expected error for invalid token string")
+	}
+}
