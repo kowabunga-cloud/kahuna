@@ -7,8 +7,9 @@
 package kahuna
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand/v2"
+	"math/big"
 	"slices"
 	"sync"
 
@@ -94,7 +95,11 @@ func GetEligibleAgent(candidateAgents []string, method string) *KowabungaAgent {
 	}
 
 	// randomly address one agent
-	return candidates[rand.N(len(candidates))]
+	n, err := rand.Int(rand.Reader, big.NewInt(int64(len(candidates))))
+	if err != nil {
+		return candidates[0]
+	}
+	return candidates[n.Int64()]
 }
 
 func RegisterAgent(agentType, agentId string, client *wsrpc.WsRpcClient) error {

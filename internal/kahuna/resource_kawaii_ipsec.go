@@ -7,8 +7,9 @@
 package kahuna
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand/v2"
+	"math/big"
 
 	"github.com/kowabunga-cloud/common"
 	"github.com/kowabunga-cloud/common/agents"
@@ -67,8 +68,11 @@ func NewKawaiiIPsecConnection(kawaiiId, name, desc, remotePeer, remoteSubnet, pr
 	if len(mzr.PublicVIPs) == 0 {
 		return nil, fmt.Errorf("%s", ErrorIPsecUnderlyingMZRNotFound)
 	}
-	n := rand.N(len(mzr.PublicVIPs))
-	ipSecIP := mzr.PublicVIPs[n]
+	n, err := rand.Int(rand.Reader, big.NewInt(int64(len(mzr.PublicVIPs))))
+	if err != nil {
+		return nil, err
+	}
+	ipSecIP := mzr.PublicVIPs[n.Int64()]
 
 	ipsecs, err := FindIPsecByKawaii(kawaiiId)
 	if err != nil {

@@ -388,7 +388,9 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 
 					var reserved uint64 = 0
 					for _, res := range s.Reserved {
-						reserved += uint64(res.Size())
+						if size := res.Size(); size > 0 {
+							reserved += uint64(size) // #nosec G115 -- range size is verified positive
+						}
 					}
 					rm.PublicSubnets[mask].Reserved += float64(reserved)
 

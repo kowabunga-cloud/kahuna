@@ -451,8 +451,13 @@ func (s *Subnet) FreeIPsCount() int {
 		return 0
 	}
 
+	diff := bits - ones
+	if diff <= 0 || diff >= 31 {
+		return 0
+	}
+
 	// sum of CIDR eligible addresses, minus network and broadcast addresses
-	total := int(uint64(1) << (bits - ones))
+	total := 1 << diff
 	count := 0
 	if total > 2 {
 		count = total - 2

@@ -152,7 +152,7 @@ func FindNextBitIp(ipnet net.IPNet, bit int) (net.IP, error) {
 
 	ip4 := ipnet.IP.To4()
 	if ip4 != nil {
-		targetVal := binary.BigEndian.Uint32(ip4) + uint32(bit)
+		targetVal := binary.BigEndian.Uint32(ip4) + uint32(bit) // #nosec G115 -- bit is verified non-negative and fits in uint32
 		target := make(net.IP, 4)
 		binary.BigEndian.PutUint32(target, targetVal)
 		if ipnet.Contains(target) {
