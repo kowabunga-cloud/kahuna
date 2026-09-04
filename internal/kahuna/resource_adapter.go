@@ -112,27 +112,31 @@ func RandomIpAddress(subnetId string) (string, error) {
 
 	// find all subnet IPs
 	registeredIPs := s.FindIPs()
+	registeredSet := make(map[string]struct{}, len(registeredIPs))
+	for _, rip := range registeredIPs {
+		registeredSet[rip] = struct{}{}
+	}
 
+	bcastStr := bcast.String()
 	addr := p.Addr()
 	addr = addr.Next() // skip the first IP from the range (.0)
 	for p.Contains(addr) {
+		// ensure it's not part of the subnet's reserved pool ranges or zone-local gateway pool ranges
+		if s.IsInReservedPoolAddr(addr) || s.IsInGwPoolAddr(addr) {
+			addr = addr.Next()
+			continue
+		}
+
 		ip = addr.String()
 
 		// ensure it's not gateway or broadcast address
-		if ip == s.Gateway || ip == bcast.String() {
-			// loop over
+		if ip == s.Gateway || ip == bcastStr {
 			addr = addr.Next()
 			continue
 		}
-		// ensure it's not part of the subnet's reserved pool ranges or zone-local gateway pool ranges
-		if s.IsInReservedPool(ip) || s.IsInGwPool(ip) {
-			// loop over
-			addr = addr.Next()
-			continue
-		}
+
 		// ensure it's not already assigned to other adapters in the subnet
-		if slices.Contains(registeredIPs, ip) {
-			// loop over
+		if _, exists := registeredSet[ip]; exists {
 			addr = addr.Next()
 			continue
 		}

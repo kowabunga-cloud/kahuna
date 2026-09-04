@@ -7,7 +7,6 @@
 package kahuna
 
 import (
-	"bytes"
 	"fmt"
 	"net"
 	"net/netip"
@@ -79,6 +78,18 @@ func (ipr *IPRange) Size() int {
 	}
 
 	return int(size.Int64())
+}
+
+func (ipr *IPRange) Contains(addr netip.Addr) bool {
+	first, err := netip.ParseAddr(ipr.First)
+	if err != nil {
+		return false
+	}
+	last, err := netip.ParseAddr(ipr.Last)
+	if err != nil {
+		return false
+	}
+	return addr.Compare(first) >= 0 && addr.Compare(last) <= 0
 }
 
 func SubnetMigrateSchema() error {
@@ -354,12 +365,26 @@ func (s *Subnet) IsValid(ip string) bool {
 	return network.Contains(_ip)
 }
 
-func (s *Subnet) IsInReservedPool(ip string) bool {
-	ipaddr := net.ParseIP(ip)
+func (s *Subnet) IsInReservedPoolAddr(addr netip.Addr) bool {
 	for _, r := range s.Reserved {
-		first := net.ParseIP(r.First)
-		last := net.ParseIP(r.Last)
-		if bytes.Compare(ipaddr, first) >= 0 && bytes.Compare(ipaddr, last) <= 0 {
+		if r.Contains(addr) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Subnet) IsInReservedPool(ip string) bool {
+	addr, err := netip.ParseAddr(ip)
+	if err != nil {
+		return false
+	}
+	return s.IsInReservedPoolAddr(addr)
+}
+
+func (s *Subnet) IsInGwPoolAddr(addr netip.Addr) bool {
+	for _, r := range s.GwPool {
+		if r.Contains(addr) {
 			return true
 		}
 	}
@@ -367,15 +392,11 @@ func (s *Subnet) IsInReservedPool(ip string) bool {
 }
 
 func (s *Subnet) IsInGwPool(ip string) bool {
-	ipaddr := net.ParseIP(ip)
-	for _, r := range s.GwPool {
-		first := net.ParseIP(r.First)
-		last := net.ParseIP(r.Last)
-		if bytes.Compare(ipaddr, first) >= 0 && bytes.Compare(ipaddr, last) <= 0 {
-			return true
-		}
+	addr, err := netip.ParseAddr(ip)
+	if err != nil {
+		return false
 	}
-	return false
+	return s.IsInGwPoolAddr(addr)
 }
 
 func (s *Subnet) IsValidGwPool() error {
