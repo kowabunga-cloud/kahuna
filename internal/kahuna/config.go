@@ -16,15 +16,12 @@ import (
 )
 
 // config singleton
-var cfgLock = &sync.Mutex{}
+var cfgLock = &sync.RWMutex{}
 var kCFG *KowabungaConfig
 
 func GetCfg() *KowabungaConfig {
-	if kCFG == nil {
-		cfgLock.Lock()
-		defer cfgLock.Unlock()
-	}
-
+	cfgLock.RLock()
+	defer cfgLock.RUnlock()
 	return kCFG
 }
 
@@ -102,11 +99,14 @@ func ParseConfig(f *os.File) (KowabungaConfig, error) {
 	var config KowabungaConfig
 
 	// unmarshal configuration
-	contents, _ := io.ReadAll(f)
 	defer func() {
 		_ = f.Close()
 	}()
-	err := yaml.Unmarshal(contents, &config)
+	contents, err := io.ReadAll(f)
+	if err != nil {
+		return config, fmt.Errorf("failed to read config file: %w", err)
+	}
+	err = yaml.Unmarshal(contents, &config)
 	if err != nil {
 		return config, err
 	}

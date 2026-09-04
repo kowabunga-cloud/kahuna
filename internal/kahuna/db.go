@@ -34,16 +34,14 @@ type KowabungaDocumentKey struct {
 }
 
 // database singleton
-var dbLock = &sync.Mutex{}
+var dbOnce sync.Once
 var kDB *KowabungaDB
 
 func GetDB() *KowabungaDB {
-	if kDB == nil {
-		dbLock.Lock()
-		defer dbLock.Unlock()
+	dbOnce.Do(func() {
 		klog.Debugf("Creating Kowabunga DB instance")
 		kDB = &KowabungaDB{}
-	}
+	})
 
 	return kDB
 }

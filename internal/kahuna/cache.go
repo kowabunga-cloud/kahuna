@@ -36,16 +36,14 @@ type KowabungaCache struct {
 }
 
 // cache singleton
-var cacheLock = &sync.Mutex{}
+var cacheOnce sync.Once
 var kCache *KowabungaCache
 
 func GetCache() *KowabungaCache {
-	if kCache == nil {
-		cacheLock.Lock()
-		defer cacheLock.Unlock()
+	cacheOnce.Do(func() {
 		klog.Debugf("Creating Kowabunga Cache instance")
 		kCache = &KowabungaCache{}
-	}
+	})
 
 	return kCache
 }
