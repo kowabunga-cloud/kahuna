@@ -35,13 +35,7 @@ func (s *TemplateService) DeleteTemplate(ctx context.Context, templateId string)
 }
 
 func (s *TemplateService) ListTemplates(ctx context.Context) (sdk.ImplResponse, error) {
-	templates := FindTemplates()
-	var payload []string
-	for _, t := range templates {
-		payload = append(payload, t.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionTemplateName))
 }
 
 func (s *TemplateService) ReadTemplate(ctx context.Context, templateId string) (sdk.ImplResponse, error) {

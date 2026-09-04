@@ -80,6 +80,11 @@ func (ke *KahunaEngine) Run(cfg KowabungaConfig) {
 	// cache initialization
 	GetCache().Init(cfg.Global.Cache.Enabled, cfg.Global.Cache.Type, cfg.Global.Cache.Size, cfg.Global.Cache.TTL)
 
+	// ensure database indexes
+	if err := GetDB().EnsureIndexes(); err != nil {
+		klog.Errorf("Unable to ensure database indexes: %s", err)
+	}
+
 	// register prometheus exporter
 	ke.Exporter = NewExporter()
 

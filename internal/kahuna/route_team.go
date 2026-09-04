@@ -65,13 +65,7 @@ func (s *TeamService) DeleteTeam(ctx context.Context, teamId string) (sdk.ImplRe
 }
 
 func (s *TeamService) ListTeams(ctx context.Context) (sdk.ImplResponse, error) {
-	teams := FindTeams()
-	var payload []string
-	for _, g := range teams {
-		payload = append(payload, g.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionTeamName))
 }
 
 func (s *TeamService) ReadTeam(ctx context.Context, teamId string) (sdk.ImplResponse, error) {

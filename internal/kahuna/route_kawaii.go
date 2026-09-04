@@ -39,13 +39,7 @@ func (s *KawaiiService) DeleteKawaii(ctx context.Context, kawaiiId string) (sdk.
 }
 
 func (s *KawaiiService) ListKawaiis(ctx context.Context) (sdk.ImplResponse, error) {
-	kawaiis := FindKawaiis()
-	var payload []string
-	for _, k := range kawaiis {
-		payload = append(payload, k.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionKawaiiName))
 }
 
 func (s *KawaiiService) ReadKawaii(ctx context.Context, kawaiiId string) (sdk.ImplResponse, error) {

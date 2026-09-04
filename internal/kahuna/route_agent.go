@@ -64,13 +64,7 @@ func (s *AgentService) DeleteAgent(ctx context.Context, agentId string) (sdk.Imp
 }
 
 func (s *AgentService) ListAgents(ctx context.Context) (sdk.ImplResponse, error) {
-	agents := FindAgents()
-	var payload []string
-	for _, a := range agents {
-		payload = append(payload, a.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionAgentName))
 }
 
 func (s *AgentService) ReadAgent(ctx context.Context, agentId string) (sdk.ImplResponse, error) {

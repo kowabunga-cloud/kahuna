@@ -40,13 +40,7 @@ func (s *InstanceService) DeleteInstance(ctx context.Context, instanceId string)
 }
 
 func (s *InstanceService) ListInstances(ctx context.Context) (sdk.ImplResponse, error) {
-	instances := FindInstances()
-	var payload []string
-	for _, i := range instances {
-		payload = append(payload, i.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionInstanceName))
 }
 
 func (s *InstanceService) ReadInstance(ctx context.Context, instanceId string) (sdk.ImplResponse, error) {

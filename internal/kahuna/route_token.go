@@ -35,13 +35,7 @@ func (s *TokenService) DeleteApiToken(ctx context.Context, tokenId string) (sdk.
 }
 
 func (s *TokenService) ListApiTokens(ctx context.Context) (sdk.ImplResponse, error) {
-	tokens := FindTokens()
-	var payload []string
-	for _, t := range tokens {
-		payload = append(payload, t.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionTokenName))
 }
 
 func (s *TokenService) ReadApiToken(ctx context.Context, tokenId string) (sdk.ImplResponse, error) {

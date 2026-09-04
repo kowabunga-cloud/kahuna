@@ -98,13 +98,7 @@ func (s *StoragePoolService) ListStoragePoolVolumes(ctx context.Context, poolId 
 }
 
 func (s *StoragePoolService) ListStoragePools(ctx context.Context) (sdk.ImplResponse, error) {
-	pools := FindStoragePools()
-	var payload []string
-	for _, p := range pools {
-		payload = append(payload, p.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionStoragePoolName))
 }
 
 func (s *StoragePoolService) ReadStoragePool(ctx context.Context, poolId string) (sdk.ImplResponse, error) {

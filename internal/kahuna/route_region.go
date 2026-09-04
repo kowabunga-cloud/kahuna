@@ -106,13 +106,7 @@ func (s *RegionService) ListRegionZones(ctx context.Context, regionId string) (s
 }
 
 func (s *RegionService) ListRegions(ctx context.Context) (sdk.ImplResponse, error) {
-	regions := FindRegions()
-	var payload []string
-	for _, r := range regions {
-		payload = append(payload, r.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionRegionName))
 }
 
 func (s *RegionService) ReadRegion(ctx context.Context, regionId string) (sdk.ImplResponse, error) {

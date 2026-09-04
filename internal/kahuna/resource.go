@@ -81,6 +81,15 @@ func FindResources[T any](collection string) []T {
 	return res
 }
 
+func FindResourceIDs(collection string) []string {
+	ids, err := GetDB().FindAllIDs(collection)
+	if err != nil {
+		klog.Error(err)
+		return []string{}
+	}
+	return ids
+}
+
 func FindResourceByID[T any](collection, id string) (*T, error) {
 	var res T
 	err := GetDB().FindByID(collection, id, &res)

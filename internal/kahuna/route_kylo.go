@@ -35,13 +35,7 @@ func (s *KyloService) DeleteKylo(ctx context.Context, kyloId string) (sdk.ImplRe
 }
 
 func (s *KyloService) ListKylos(ctx context.Context) (sdk.ImplResponse, error) {
-	kylos := FindKylos()
-	var payload []string
-	for _, k := range kylos {
-		payload = append(payload, k.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionKyloName))
 }
 
 func (s *KyloService) ReadKylo(ctx context.Context, kyloId string) (sdk.ImplResponse, error) {

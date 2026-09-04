@@ -104,13 +104,7 @@ func (s *ZoneService) ListZoneKaktuses(ctx context.Context, zoneId string) (sdk.
 }
 
 func (s *ZoneService) ListZones(ctx context.Context) (sdk.ImplResponse, error) {
-	zones := FindZones()
-	var payload []string
-	for _, z := range zones {
-		payload = append(payload, z.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionZoneName))
 }
 
 func (s *ZoneService) ReadZone(ctx context.Context, zoneId string) (sdk.ImplResponse, error) {

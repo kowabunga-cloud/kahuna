@@ -750,13 +750,7 @@ func (s *ProjectService) ListProjectRegionVolumes(ctx context.Context, projectId
 }
 
 func (s *ProjectService) ListProjects(ctx context.Context, subnetSize int32) (sdk.ImplResponse, error) {
-	projects := FindProjects()
-	var payload []string
-	for _, t := range projects {
-		payload = append(payload, t.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionProjectName))
 }
 
 func (s *ProjectService) ReadProject(ctx context.Context, projectId string) (sdk.ImplResponse, error) {

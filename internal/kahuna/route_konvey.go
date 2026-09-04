@@ -36,13 +36,7 @@ func (s *KonveyService) DeleteKonvey(ctx context.Context, konveyId string) (sdk.
 }
 
 func (s *KonveyService) ListKonveys(ctx context.Context) (sdk.ImplResponse, error) {
-	konveys := FindKonveys()
-	var payload []string
-	for _, k := range konveys {
-		payload = append(payload, k.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionKonveyName))
 }
 
 func (s *KonveyService) ReadKonvey(ctx context.Context, konveyId string) (sdk.ImplResponse, error) {

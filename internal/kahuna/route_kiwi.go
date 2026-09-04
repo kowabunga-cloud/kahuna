@@ -35,13 +35,7 @@ func (s *KiwiService) DeleteKiwi(ctx context.Context, kiwiId string) (sdk.ImplRe
 }
 
 func (s *KiwiService) ListKiwis(ctx context.Context) (sdk.ImplResponse, error) {
-	kiwis := FindKiwis()
-	var payload []string
-	for _, gw := range kiwis {
-		payload = append(payload, gw.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionKiwiName))
 }
 
 func (s *KiwiService) ReadKiwi(ctx context.Context, kiwiId string) (sdk.ImplResponse, error) {

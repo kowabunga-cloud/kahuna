@@ -35,13 +35,7 @@ func (s *KomputeService) DeleteKompute(ctx context.Context, komputeId string) (s
 }
 
 func (s *KomputeService) ListKomputes(ctx context.Context) (sdk.ImplResponse, error) {
-	komputes := FindKomputes()
-	var payload []string
-	for _, k := range komputes {
-		payload = append(payload, k.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionKomputeName))
 }
 
 func (s *KomputeService) ReadKompute(ctx context.Context, komputeId string) (sdk.ImplResponse, error) {

@@ -125,13 +125,7 @@ func (s *UserService) DeleteUser(ctx context.Context, userId string) (sdk.ImplRe
 }
 
 func (s *UserService) ListUsers(ctx context.Context) (sdk.ImplResponse, error) {
-	users := FindUsers()
-	var payload []string
-	for _, u := range users {
-		payload = append(payload, u.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionUserName))
 }
 
 func (s *UserService) ReadUser(ctx context.Context, userId string) (sdk.ImplResponse, error) {

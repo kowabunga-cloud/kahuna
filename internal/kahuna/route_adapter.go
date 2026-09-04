@@ -35,13 +35,7 @@ func (s *AdapterService) DeleteAdapter(ctx context.Context, adapterId string) (s
 }
 
 func (s *AdapterService) ListAdapters(ctx context.Context) (sdk.ImplResponse, error) {
-	adapters := FindAdapters()
-	var payload []string
-	for _, a := range adapters {
-		payload = append(payload, a.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionAdapterName))
 }
 
 func (s *AdapterService) ReadAdapter(ctx context.Context, adapterId string) (sdk.ImplResponse, error) {

@@ -80,13 +80,7 @@ func (s *SubnetService) ListSubnetAdapters(ctx context.Context, subnetId string)
 }
 
 func (s *SubnetService) ListSubnets(ctx context.Context) (sdk.ImplResponse, error) {
-	subnets := FindSubnets()
-	var payload []string
-	for _, s := range subnets {
-		payload = append(payload, s.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionSubnetName))
 }
 
 func (s *SubnetService) ReadSubnet(ctx context.Context, subnetId string) (sdk.ImplResponse, error) {

@@ -35,13 +35,7 @@ func (s *VolumeService) DeleteVolume(ctx context.Context, volumeId string) (sdk.
 }
 
 func (s *VolumeService) ListVolumes(ctx context.Context) (sdk.ImplResponse, error) {
-	volumes := FindVolumes()
-	var payload []string
-	for _, v := range volumes {
-		payload = append(payload, v.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionVolumeName))
 }
 
 func (s *VolumeService) ReadVolume(ctx context.Context, volumeId string) (sdk.ImplResponse, error) {

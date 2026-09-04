@@ -50,13 +50,7 @@ func (s *NfsService) ListStorageNFSKylos(ctx context.Context, nfsId string) (sdk
 }
 
 func (s *NfsService) ListStorageNFSs(ctx context.Context) (sdk.ImplResponse, error) {
-	storages := FindNFSes()
-	var payload []string
-	for _, s := range storages {
-		payload = append(payload, s.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionNfsName))
 }
 
 func (s *NfsService) ReadStorageNFS(ctx context.Context, nfsId string) (sdk.ImplResponse, error) {

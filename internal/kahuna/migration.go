@@ -304,5 +304,10 @@ func MigrateDatabaseSchema() error {
 		return err
 	}
 
+	err = GetDB().EnsureIndexes()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

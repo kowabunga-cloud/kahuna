@@ -248,3 +248,137 @@ func (db *KowabungaDB) Delete(collection string, id bson.ObjectID) error {
 	_, err := c.DeleteOne(context.TODO(), bson.D{bson.E{Key: "_id", Value: id}})
 	return err
 }
+
+type resourceIDOnly struct {
+	ID bson.ObjectID `bson:"_id"`
+}
+
+func (db *KowabungaDB) FindAllIDs(collection string) ([]string, error) {
+	if db.DB == nil {
+		return nil, ErrDbNotConnected
+	}
+	c := db.DB.Collection(collection)
+	opts := options.Find().SetProjection(bson.D{bson.E{Key: "_id", Value: 1}})
+	cursor, err := c.Find(context.TODO(), bson.D{}, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	var docs []resourceIDOnly
+	if err := cursor.All(context.TODO(), &docs); err != nil {
+		return nil, err
+	}
+
+	ids := make([]string, len(docs))
+	for i, d := range docs {
+		ids[i] = d.ID.Hex()
+	}
+	return ids, nil
+}
+
+func (db *KowabungaDB) EnsureIndexes() error {
+	if db.DB == nil {
+		return ErrDbNotConnected
+	}
+
+	collectionIndexes := map[string][]mongo.IndexModel{
+		MongoCollectionInstanceName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "kaktus_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "local_ip", Value: 1}}},
+		},
+		MongoCollectionVolumeName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "pool_id", Value: 1}}},
+		},
+		MongoCollectionSubnetName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "vnet_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
+		},
+		MongoCollectionAdapterName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "subnet_id", Value: 1}}},
+		},
+		MongoCollectionTokenName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "parent_type", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "agent_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "user_id", Value: 1}}},
+		},
+		MongoCollectionUserName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "email", Value: 1}}},
+		},
+		MongoCollectionProjectName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+		},
+		MongoCollectionRegionName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+		},
+		MongoCollectionZoneName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "region_id", Value: 1}}},
+		},
+		MongoCollectionKaktusName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "zone_id", Value: 1}}},
+		},
+		MongoCollectionStoragePoolName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "region_id", Value: 1}}},
+		},
+		MongoCollectionKomputeName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
+		},
+		MongoCollectionKawaiiName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
+		},
+		MongoCollectionKyloName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
+		},
+		MongoCollectionKonveyName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
+		},
+		MongoCollectionNfsName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "region_id", Value: 1}}},
+		},
+		MongoCollectionKiwiName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "region_id", Value: 1}}},
+		},
+		MongoCollectionVNetName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "region_id", Value: 1}}},
+		},
+		MongoCollectionTemplateName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+		},
+		MongoCollectionTeamName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+		},
+		MongoCollectionAgentName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+		},
+		MongoCollectionDnsRecordName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+		},
+	}
+
+	for collName, indexes := range collectionIndexes {
+		coll := db.DB.Collection(collName)
+		_, err := coll.Indexes().CreateMany(context.Background(), indexes)
+		if err != nil {
+			klog.Errorf("Failed to ensure indexes for collection %s: %v", collName, err)
+		}
+	}
+
+	return nil
+}

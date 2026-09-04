@@ -50,13 +50,7 @@ func (s *KaktusService) ListKaktusInstances(ctx context.Context, kaktusId string
 }
 
 func (s *KaktusService) ListKaktuss(ctx context.Context) (sdk.ImplResponse, error) {
-	kaktuss := FindKaktuses()
-	var payload []string
-	for _, h := range kaktuss {
-		payload = append(payload, h.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionKaktusName))
 }
 
 func (s *KaktusService) ReadKaktus(ctx context.Context, kaktusId string) (sdk.ImplResponse, error) {

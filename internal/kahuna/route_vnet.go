@@ -81,13 +81,7 @@ func (s *VNetService) ListVNetSubnets(ctx context.Context, vnetId string) (sdk.I
 }
 
 func (s *VNetService) ListVNets(ctx context.Context) (sdk.ImplResponse, error) {
-	vnets := FindVNets()
-	var payload []string
-	for _, v := range vnets {
-		payload = append(payload, v.String())
-	}
-
-	return HttpOK(payload)
+	return HttpOK(FindResourceIDs(MongoCollectionVNetName))
 }
 
 func (s *VNetService) ReadVNet(ctx context.Context, vnetId string) (sdk.ImplResponse, error) {
