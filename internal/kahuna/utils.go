@@ -8,6 +8,7 @@ package kahuna
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/xml"
 	"fmt"
 	"net"
@@ -152,6 +153,21 @@ func bytesToGB(val int64) int64 {
 }
 
 func FindNextBitIp(ipnet net.IPNet, bit int) (net.IP, error) {
+	if bit < 0 {
+		return ipnet.IP, fmt.Errorf("IP incrementation is outside of subnet %s", ipnet.String())
+	}
+
+	ip4 := ipnet.IP.To4()
+	if ip4 != nil {
+		targetVal := binary.BigEndian.Uint32(ip4) + uint32(bit)
+		target := make(net.IP, 4)
+		binary.BigEndian.PutUint32(target, targetVal)
+		if ipnet.Contains(target) {
+			return target, nil
+		}
+		return target, fmt.Errorf("IP incrementation is outside of subnet %s", ipnet.String())
+	}
+
 	netcidr_first_ip := ipnet.IP
 	for i := 0; i < bit; i++ {
 		netcidr_first_ip = cidr.Inc(netcidr_first_ip)

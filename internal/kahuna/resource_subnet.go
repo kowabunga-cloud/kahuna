@@ -430,28 +430,23 @@ func (s *Subnet) FindGwPoolIPs() []string {
 	return ips
 }
 
-func inc(ip net.IP) {
-	for j := len(ip) - 1; j >= 0; j-- {
-		ip[j]++
-		if ip[j] > 0 {
-			break
-		}
-	}
-}
-
 func (s *Subnet) FreeIPsCount() int {
-	ip, ipnet, err := net.ParseCIDR(s.CIDR)
+	_, ipnet, err := net.ParseCIDR(s.CIDR)
 	if err != nil {
 		return 0
 	}
 
-	var ips []string
-	for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); inc(ip) {
-		ips = append(ips, ip.String())
+	ones, bits := ipnet.Mask.Size()
+	if bits == 0 {
+		return 0
 	}
 
-	// sum of CIDR elligible addresses, minus network and broadcast addresses
-	count := len(ips[1 : len(ips)-1])
+	// sum of CIDR eligible addresses, minus network and broadcast addresses
+	total := int(uint64(1) << (bits - ones))
+	count := 0
+	if total > 2 {
+		count = total - 2
+	}
 
 	// minus reserved ranges
 	for _, r := range s.Reserved {

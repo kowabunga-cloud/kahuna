@@ -167,3 +167,16 @@ func TestSubnetIsInGwPoolEmpty(t *testing.T) {
 		t.Error("should return false when no gw pool ranges")
 	}
 }
+
+func TestSubnetFreeIPsCount(t *testing.T) {
+	reserved := []*IPRange{{First: "10.0.0.1", Last: "10.0.0.10"}} // 10 IPs
+	gw := []*IPRange{{First: "10.0.0.250", Last: "10.0.0.254"}}    // 5 IPs
+	s := newTestSubnet("10.0.0.0/24", reserved, gw)
+	// /24 has 256 addresses, minus network and broadcast = 254
+	// minus 10 reserved - 5 gw pool = 239
+	got := s.FreeIPsCount()
+	expected := 254 - 10 - 5
+	if got != expected {
+		t.Errorf("FreeIPsCount() = %d, want %d", got, expected)
+	}
+}

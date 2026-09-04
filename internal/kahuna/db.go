@@ -8,6 +8,7 @@ package kahuna
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -19,6 +20,8 @@ import (
 
 	"github.com/kowabunga-cloud/common/klog"
 )
+
+var ErrDbNotConnected = errors.New("database not connected")
 
 type KowabungaDB struct {
 	Client *mongo.Client
@@ -156,6 +159,9 @@ func (db *KowabungaDB) SetSchemaVersion(collection string, id bson.ObjectID, sch
 }
 
 func (db *KowabungaDB) FindAll(collection string, results interface{}) error {
+	if db.DB == nil {
+		return ErrDbNotConnected
+	}
 	c := db.DB.Collection(collection)
 	cursor, err := c.Find(context.TODO(), bson.D{})
 	if err != nil {
@@ -166,6 +172,9 @@ func (db *KowabungaDB) FindAll(collection string, results interface{}) error {
 }
 
 func (db *KowabungaDB) FindAllByKey(collection, key, value string, results interface{}) error {
+	if db.DB == nil {
+		return ErrDbNotConnected
+	}
 	c := db.DB.Collection(collection)
 	cursor, err := c.Find(context.TODO(), bson.D{bson.E{Key: key, Value: value}})
 	if err != nil {
@@ -176,11 +185,17 @@ func (db *KowabungaDB) FindAllByKey(collection, key, value string, results inter
 }
 
 func (db *KowabungaDB) Find(collection, k, v string, result interface{}) error {
+	if db.DB == nil {
+		return ErrDbNotConnected
+	}
 	c := db.DB.Collection(collection)
 	return c.FindOne(context.TODO(), bson.D{bson.E{Key: k, Value: v}}, nil).Decode(result)
 }
 
 func (db *KowabungaDB) FindByArrayContains(collection, k, v string, result interface{}) error {
+	if db.DB == nil {
+		return ErrDbNotConnected
+	}
 	c := db.DB.Collection(collection)
 	return c.FindOne(context.TODO(), bson.D{bson.E{Key: k, Value: "{$all: [" + v + "]}"}}, nil).Decode(result)
 }
@@ -190,6 +205,10 @@ func (db *KowabungaDB) FindByID(collection, id string, result interface{}) error
 	err := GetCache().Get(collection, id, result)
 	if err == nil {
 		return nil
+	}
+
+	if db.DB == nil {
+		return ErrDbNotConnected
 	}
 
 	// failover: look into DB

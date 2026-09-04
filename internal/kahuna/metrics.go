@@ -327,17 +327,7 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 
 					var reserved uint64 = 0
 					for _, r := range s.Reserved {
-						first := net.ParseIP(r.First)
-						last := net.ParseIP(r.Last)
-						loop_over := true
-						ip := first
-						for loop_over {
-							if ip.Equal(last) {
-								loop_over = false
-							}
-							reserved += 1
-							ip = cidr.Inc(ip)
-						}
+						reserved += uint64(r.Size())
 					}
 					rm.PublicSubnets[mask].Reserved += float64(reserved)
 
