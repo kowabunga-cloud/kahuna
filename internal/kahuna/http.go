@@ -64,19 +64,10 @@ func (s *HTTPServer) handleShutdown(wg *sync.WaitGroup) {
 	ctx, cancel := context.WithTimeout(context.TODO(), HttpGraceTimeoutSeconds*time.Second)
 	defer cancel()
 
-	shutdownChan := make(chan bool)
-	go func() {
-		var success bool
-		defer func() {
-			shutdownChan <- success
-		}()
-		if err := s.httpServer.Shutdown(ctx); err != nil {
-			// Error from closing listeners, or context timeout:
-			klog.Errorf("HTTP server Shutdown: %v", err)
-		} else {
-			success = true
-		}
-	}()
+	if err := s.httpServer.Shutdown(ctx); err != nil {
+		// Error from closing listeners, or context timeout:
+		klog.Errorf("HTTP server Shutdown: %v", err)
+	}
 }
 
 func handleInterrupt(once *sync.Once, s *HTTPServer) {
