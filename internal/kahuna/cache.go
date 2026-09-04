@@ -8,7 +8,7 @@ package kahuna
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"sync"
 	"time"
 
@@ -29,6 +29,8 @@ const (
 
 	CacheNsUserResources = "userResources"
 )
+
+var ErrCacheDisabled = errors.New(CacheErrDisabled)
 
 type KowabungaCache struct {
 	enabled bool
@@ -69,7 +71,7 @@ func (kc *KowabungaCache) Init(enabled bool, tp string, size, ttl int) {
 }
 
 func (kc *KowabungaCache) key(ns, key string) string {
-	return fmt.Sprintf("%s/%s", ns, key)
+	return ns + "/" + key
 }
 
 func (kc *KowabungaCache) Set(ns, key string, value any) {
@@ -85,7 +87,7 @@ func (kc *KowabungaCache) Set(ns, key string, value any) {
 
 func (kc *KowabungaCache) Get(ns, key string, result interface{}) error {
 	if !kc.enabled {
-		return fmt.Errorf("%s", CacheErrDisabled)
+		return ErrCacheDisabled
 	}
 
 	_, err := kc.ms.Get(context.TODO(), kc.key(ns, key), result)
@@ -94,7 +96,7 @@ func (kc *KowabungaCache) Get(ns, key string, result interface{}) error {
 
 func (kc *KowabungaCache) Delete(ns, key string) error {
 	if !kc.enabled {
-		return fmt.Errorf("%s", CacheErrDisabled)
+		return ErrCacheDisabled
 	}
 
 	return kc.ms.Delete(context.TODO(), kc.key(ns, key))

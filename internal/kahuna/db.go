@@ -187,7 +187,7 @@ func (db *KowabungaDB) FindByArrayContains(collection, k, v string, result inter
 
 func (db *KowabungaDB) FindByID(collection, id string, result interface{}) error {
 	// look into cache first
-	err := GetCache().Get(collection, id, &result)
+	err := GetCache().Get(collection, id, result)
 	if err == nil {
 		return nil
 	}
@@ -205,7 +205,7 @@ func (db *KowabungaDB) FindByID(collection, id string, result interface{}) error
 		GetCache().Set(collection, id, result)
 	}
 
-	return nil
+	return err
 }
 
 func (db *KowabungaDB) FindByName(collection, name string, result interface{}) error {
