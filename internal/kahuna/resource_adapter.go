@@ -8,12 +8,11 @@ package kahuna
 
 import (
 	"crypto/rand"
+	"encoding/binary"
 	"fmt"
 	"net"
 	"net/netip"
 	"slices"
-
-	"github.com/seancfoley/ipaddress-go/ipaddr"
 
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
@@ -92,23 +91,28 @@ func RandomAdapterMAC() string {
 	}
 }
 
-func RandomIpAddress(subnetId string) (string, error) {
-	var ip string
-
-	s, err := FindSubnetByID(subnetId)
-	if err != nil {
-		return ip, err
+func broadcastAddr(p netip.Prefix) netip.Addr {
+	if !p.Addr().Is4() {
+		return netip.Addr{}
 	}
+	b := p.Addr().As4()
+	ones := p.Bits()
+	mask := ^uint32(0) >> ones
+	val := binary.BigEndian.Uint32(b[:]) | mask
+	binary.BigEndian.PutUint32(b[:], val)
+	return netip.AddrFrom4(b)
+}
 
+func findFreeIP(s *Subnet) (string, error) {
 	p, err := netip.ParsePrefix(s.CIDR)
 	if err != nil {
-		return ip, err
+		return "", err
 	}
 	p = p.Masked() // a.b.c.d/mask => a.b.c.0/mask
 
-	// broadcast address
-	cidr := ipaddr.NewIPAddressString(s.CIDR).GetAddress()
-	bcast, _ := cidr.ToIPv4().ToBroadcastAddress()
+	// broadcast and gateway addresses
+	bcastAddr := broadcastAddr(p)
+	gwAddr, _ := netip.ParseAddr(s.Gateway)
 
 	// find all subnet IPs
 	registeredIPs := s.FindIPs()
@@ -117,7 +121,6 @@ func RandomIpAddress(subnetId string) (string, error) {
 		registeredSet[rip] = struct{}{}
 	}
 
-	bcastStr := bcast.String()
 	addr := p.Addr()
 	addr = addr.Next() // skip the first IP from the range (.0)
 	for p.Contains(addr) {
@@ -127,13 +130,13 @@ func RandomIpAddress(subnetId string) (string, error) {
 			continue
 		}
 
-		ip = addr.String()
-
 		// ensure it's not gateway or broadcast address
-		if ip == s.Gateway || ip == bcastStr {
+		if addr == gwAddr || addr == bcastAddr {
 			addr = addr.Next()
 			continue
 		}
+
+		ip := addr.String()
 
 		// ensure it's not already assigned to other adapters in the subnet
 		if _, exists := registeredSet[ip]; exists {
@@ -145,7 +148,23 @@ func RandomIpAddress(subnetId string) (string, error) {
 		return ip, nil
 	}
 
-	return ip, fmt.Errorf("no IP can be assigned")
+	return "", fmt.Errorf("no IP can be assigned")
+}
+
+func (a *Adapter) AssignIP() (string, error) {
+	s, err := a.Subnet()
+	if err != nil {
+		return "", err
+	}
+	return findFreeIP(s)
+}
+
+func RandomIpAddress(subnetId string) (string, error) {
+	s, err := FindSubnetByID(subnetId)
+	if err != nil {
+		return "", err
+	}
+	return findFreeIP(s)
 }
 
 func verifyAdapterSettings(subnetId, mac string, addresses []string, update bool) error {

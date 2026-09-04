@@ -12,7 +12,6 @@ import (
 	"net/netip"
 
 	"github.com/netdata/go.d.plugin/pkg/iprange"
-	ipa "github.com/seancfoley/ipaddress-go/ipaddr"
 
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
@@ -427,24 +426,14 @@ func (s *Subnet) FindGwPoolIPs() []string {
 	ips := []string{}
 
 	for _, p := range s.GwPool {
-		first := ipa.NewIPAddressString(p.First).GetAddress()
-		if first == nil {
-			return ips
+		start, err1 := netip.ParseAddr(p.First)
+		end, err2 := netip.ParseAddr(p.Last)
+		if err1 != nil || err2 != nil {
+			continue
 		}
 
-		last := ipa.NewIPAddressString(p.Last).GetAddress()
-		if last == nil {
-			return ips
-		}
-
-		rg := ipa.NewIPSeqRange(first, last)
-		if rg == nil {
-			return ips
-		}
-
-		it := rg.Iterator()
-		for addr := it.Next(); addr != nil; addr = it.Next() {
-			ips = append(ips, addr.String())
+		for curr := start; curr.Compare(end) <= 0; curr = curr.Next() {
+			ips = append(ips, curr.String())
 		}
 	}
 

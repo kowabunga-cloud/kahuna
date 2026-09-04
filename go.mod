@@ -19,7 +19,6 @@ require (
 	github.com/matcornic/hermes v1.3.0
 	github.com/netdata/go.d.plugin v0.58.1
 	github.com/prometheus/client_golang v1.23.2
-	github.com/seancfoley/ipaddress-go v1.7.1
 	github.com/sethvargo/go-password v0.3.1
 	github.com/wagslane/go-password-validator v0.3.0
 	go.mongodb.org/mongo-driver/v2 v2.5.0
@@ -71,7 +70,6 @@ require (
 	github.com/prometheus/common v0.67.5 // indirect
 	github.com/prometheus/procfs v0.20.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/seancfoley/bintree v1.3.1 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/tredoe/osutil v1.5.0 // indirect
 	github.com/vanng822/css v1.0.1 // indirect
