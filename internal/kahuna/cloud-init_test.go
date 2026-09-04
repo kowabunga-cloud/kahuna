@@ -134,3 +134,49 @@ func TestWindowsUserDataTemplate(t *testing.T) {
 		t.Errorf("%s", err.Error())
 	}
 }
+
+func TestCloudInitTemplateCacheAndWriteISO(t *testing.T) {
+	ci, err := NewCloudInit("test-vm", CloudinitProfileLinux)
+	if err != nil {
+		t.Fatalf("NewCloudInit failed: %v", err)
+	}
+	defer func() {
+		_ = ci.Delete()
+	}()
+
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("os.Getwd failed: %v", err)
+	}
+	tplPath := filepath.Join(dir, "/../../config/templates/windows/user_data.yml")
+
+	// Verify template caching
+	tpl1, err := getCloudInitTemplate(tplPath)
+	if err != nil {
+		t.Fatalf("first getCloudInitTemplate failed: %v", err)
+	}
+	tpl2, err := getCloudInitTemplate(tplPath)
+	if err != nil {
+		t.Fatalf("second getCloudInitTemplate failed: %v", err)
+	}
+	if tpl1 != tpl2 {
+		t.Errorf("expected cached template pointer to be identical")
+	}
+
+	// Write a test file in TmpDir and test WriteISO
+	testFile := filepath.Join(ci.TmpDir, "test.txt")
+	if err := os.WriteFile(testFile, []byte("hello"), 0644); err != nil {
+		t.Fatalf("WriteFile failed: %v", err)
+	}
+
+	err = ci.WriteISO()
+	if err != nil {
+		t.Fatalf("WriteISO failed: %v", err)
+	}
+	if ci.IsoSize <= 0 {
+		t.Errorf("expected non-zero ISO size, got %d", ci.IsoSize)
+	}
+	if _, err := os.Stat(ci.IsoImage); err != nil {
+		t.Errorf("expected ISO image to exist: %v", err)
+	}
+}

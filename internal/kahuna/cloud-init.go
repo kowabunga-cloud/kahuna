@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"text/template"
 
 	"github.com/kdomanski/iso9660"
@@ -57,12 +58,38 @@ func NewCloudInit(name, osType string) (*CloudInit, error) {
 	}, nil
 }
 
+var (
+	ciTemplatesLock sync.RWMutex
+	ciTemplates     = make(map[string]*template.Template)
+)
+
+func getCloudInitTemplate(src string) (*template.Template, error) {
+	ciTemplatesLock.RLock()
+	tpl, ok := ciTemplates[src]
+	ciTemplatesLock.RUnlock()
+	if ok {
+		return tpl, nil
+	}
+
+	ciTemplatesLock.Lock()
+	defer ciTemplatesLock.Unlock()
+
+	if tpl, ok := ciTemplates[src]; ok {
+		return tpl, nil
+	}
+
+	t := template.New(filepath.Base(src))
+	common.LoadTemplateFunctions(t)
+	parsedTpl, err := t.ParseFiles(src)
+	if err != nil {
+		return nil, err
+	}
+	ciTemplates[src] = parsedTpl
+	return parsedTpl, nil
+}
+
 func (ci *CloudInit) SetData(src, dst string, values any) error {
-
-	tpl := template.New(filepath.Base(src))
-	common.LoadTemplateFunctions(tpl)
-
-	tpl, err := tpl.ParseFiles(src)
+	tpl, err := getCloudInitTemplate(src)
 	if err != nil {
 		return err
 	}
@@ -342,6 +369,9 @@ func (ci *CloudInit) WriteISO() error {
 		return err
 	}
 	ci.IsoImage = f.Name()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	klog.Debugf("Saving cloud-init ISO image into %s", ci.IsoImage)
 	err = wr.WriteTo(f, "cidata")
@@ -354,11 +384,6 @@ func (ci *CloudInit) WriteISO() error {
 		return err
 	}
 	ci.IsoSize = infos.Size()
-
-	err = f.Close()
-	if err != nil {
-		return err
-	}
 
 	return nil
 }

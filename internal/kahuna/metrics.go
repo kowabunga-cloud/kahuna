@@ -269,6 +269,55 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 	}
 
 	regions := FindRegions()
+	vnets := FindVNets()
+	vnetMap := make(map[string]*VNet, len(vnets))
+	for i := range vnets {
+		vnetMap[vnets[i].ID.Hex()] = &vnets[i]
+	}
+
+	subnets := FindSubnets()
+	subnetMap := make(map[string]*Subnet, len(subnets))
+	for i := range subnets {
+		subnetMap[subnets[i].ID.Hex()] = &subnets[i]
+	}
+
+	adapters := FindAdapters()
+	adapterMap := make(map[string]*Adapter, len(adapters))
+	for i := range adapters {
+		adapterMap[adapters[i].ID.Hex()] = &adapters[i]
+	}
+
+	pools := FindStoragePools()
+	poolMap := make(map[string]*StoragePool, len(pools))
+	for i := range pools {
+		poolMap[pools[i].ID.Hex()] = &pools[i]
+	}
+
+	zones := FindZones()
+	kaktuses := FindKaktuses()
+	kaktusMap := make(map[string]*Kaktus, len(kaktuses))
+	for i := range kaktuses {
+		kaktusMap[kaktuses[i].ID.Hex()] = &kaktuses[i]
+	}
+
+	projects := FindProjects()
+	projectMap := make(map[string]*Project, len(projects))
+	for i := range projects {
+		projectMap[projects[i].ID.Hex()] = &projects[i]
+	}
+
+	instances := FindInstances()
+	instanceMap := make(map[string]*Instance, len(instances))
+	for i := range instances {
+		instanceMap[instances[i].ID.Hex()] = &instances[i]
+	}
+
+	volumes := FindVolumes()
+	volumeMap := make(map[string]*Volume, len(volumes))
+	for i := range volumes {
+		volumeMap[volumes[i].ID.Hex()] = &volumes[i]
+	}
+
 	for _, r := range regions {
 		rm := KowabungaRegionMetrics{
 			Pools:          map[string]*KowabungaRegionPools{},
@@ -277,16 +326,24 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 		}
 
 		for _, id := range r.VNets() {
-			v, err := r.VNet(id)
-			if err != nil {
-				continue
+			v, ok := vnetMap[id]
+			if !ok {
+				var err error
+				v, err = r.VNet(id)
+				if err != nil {
+					continue
+				}
 			}
 			if v.Private {
 				rm.PrivateVNets += 1
 				for _, sid := range v.Subnets() {
-					s, err := v.Subnet(sid)
-					if err != nil {
-						continue
+					s, ok := subnetMap[sid]
+					if !ok {
+						var err error
+						s, err = v.Subnet(sid)
+						if err != nil {
+							continue
+						}
 					}
 
 					_, ipnet, err := net.ParseCIDR(s.CIDR)
@@ -309,9 +366,13 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 			} else {
 				rm.PublicVNets += 1
 				for _, sid := range v.Subnets() {
-					s, err := v.Subnet(sid)
-					if err != nil {
-						continue
+					s, ok := subnetMap[sid]
+					if !ok {
+						var err error
+						s, err = v.Subnet(sid)
+						if err != nil {
+							continue
+						}
 					}
 
 					_, ipnet, err := net.ParseCIDR(s.CIDR)
@@ -326,16 +387,20 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 					}
 
 					var reserved uint64 = 0
-					for _, r := range s.Reserved {
-						reserved += uint64(r.Size())
+					for _, res := range s.Reserved {
+						reserved += uint64(res.Size())
 					}
 					rm.PublicSubnets[mask].Reserved += float64(reserved)
 
 					var allocated uint64 = 0
 					for _, aid := range s.Adapters() {
-						a, err := s.Adapter(aid)
-						if err != nil {
-							continue
+						a, ok := adapterMap[aid]
+						if !ok {
+							var err error
+							a, err = s.Adapter(aid)
+							if err != nil {
+								continue
+							}
 						}
 						allocated += uint64(len(a.Addresses))
 					}
@@ -349,9 +414,13 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 		}
 
 		for _, id := range r.StoragePools() {
-			p, err := FindStoragePoolByID(id)
-			if err != nil {
-				continue
+			p, ok := poolMap[id]
+			if !ok {
+				var err error
+				p, err = FindStoragePoolByID(id)
+				if err != nil {
+					continue
+				}
 			}
 
 			_, exists := rm.Pools[p.Name]
@@ -369,16 +438,19 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 		m.Regions[r.Name] = rm
 	}
 
-	zones := FindZones()
 	for _, z := range zones {
 		zm := KowabungaZoneMetrics{
 			Kaktuses: map[string]*KowabungaZoneKaktus{},
 		}
 
 		for _, id := range z.Kaktuses() {
-			h, err := z.Kaktus(id)
-			if err != nil {
-				continue
+			h, ok := kaktusMap[id]
+			if !ok {
+				var err error
+				h, err = z.Kaktus(id)
+				if err != nil {
+					continue
+				}
 			}
 
 			zm.Kaktuses[h.Name] = &KowabungaZoneKaktus{
@@ -393,11 +465,39 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 		m.Zones[z.Name] = zm
 	}
 
-	projects := FindProjects()
 	for _, p := range projects {
-		cost, err := p.GetCost()
-		if err != nil {
-			continue
+		var projectPrice float32 = 0
+		projectCurrency := p.Cost.Currency
+		for _, iid := range p.InstanceIDs {
+			if inst, ok := instanceMap[iid]; ok {
+				projectPrice += inst.Cost.Price
+				if inst.Cost.Currency != "" {
+					projectCurrency = inst.Cost.Currency
+				}
+			} else if i, err := p.Instance(iid); err == nil {
+				projectPrice += i.Cost.Price
+				if i.Cost.Currency != "" {
+					projectCurrency = i.Cost.Currency
+				}
+			}
+		}
+		for _, vid := range p.VolumeIDs {
+			if vol, ok := volumeMap[vid]; ok {
+				projectPrice += vol.Cost.Price
+				if vol.Cost.Currency != "" {
+					projectCurrency = vol.Cost.Currency
+				}
+			} else if v, err := p.Volume(vid); err == nil {
+				projectPrice += v.Cost.Price
+				if v.Cost.Currency != "" {
+					projectCurrency = v.Cost.Currency
+				}
+			}
+		}
+		if projectPrice != p.Cost.Price || (projectCurrency != "" && projectCurrency != p.Cost.Currency) {
+			p.Cost.Price = projectPrice
+			p.Cost.Currency = projectCurrency
+			_ = p.Save()
 		}
 
 		pm := KowabungaProjectMetrics{
@@ -406,18 +506,21 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 			Storage:   float64(p.Usage.StorageSize),
 			Instances: float64(len(p.Instances())),
 			Volumes:   float64(len(p.Volumes())),
-			Cost:      float64(cost.Price),
-			Currency:  cost.Currency,
+			Cost:      float64(projectPrice),
+			Currency:  projectCurrency,
 		}
 
 		m.Projects[p.Name] = pm
 	}
 
-	instances := FindInstances()
 	for _, i := range instances {
-		p, err := i.Project()
-		if err != nil {
-			continue
+		p, ok := projectMap[i.ProjectID]
+		if !ok {
+			var err error
+			p, err = i.Project()
+			if err != nil {
+				continue
+			}
 		}
 		im := KowabungaInstanceMetrics{
 			Project:  p.Name,
