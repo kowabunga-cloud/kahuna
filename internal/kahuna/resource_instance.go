@@ -9,7 +9,7 @@ package kahuna
 import (
 	"fmt"
 	"reflect"
-	"sort"
+	"slices"
 
 	"github.com/kowabunga-cloud/common"
 	"github.com/kowabunga-cloud/common/klog"
@@ -416,11 +416,11 @@ func diskLetterForIndex(i int) string {
 }
 
 func (i *Instance) DeviceIDs(m map[string]string) []string {
-	devices := []string{}
+	devices := make([]string, 0, len(m))
 	for _, v := range m {
 		devices = append(devices, v)
 	}
-	sort.Strings(devices)
+	slices.Sort(devices)
 	return devices
 }
 

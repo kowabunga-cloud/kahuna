@@ -36,7 +36,19 @@ func RA(name string, value interface{}) RequestArg {
 	}
 }
 
+func isDebug() bool {
+	cfg := GetCfg()
+	if cfg == nil {
+		return false
+	}
+	return strings.EqualFold(cfg.Global.LogLevel, "DEBUG")
+}
+
 func LogHttpRequest(args ...RequestArg) {
+	if !isDebug() {
+		return
+	}
+
 	pc, _, _, ok := runtime.Caller(1)
 	if !ok {
 		return
@@ -44,15 +56,20 @@ func LogHttpRequest(args ...RequestArg) {
 
 	funcname := runtime.FuncForPC(pc).Name()
 	fn := funcname[strings.LastIndex(funcname, ".")+1:]
-	var params string
+	var params strings.Builder
 	for _, a := range args {
-		params += fmt.Sprintf("%s ", a.String())
+		params.WriteString(a.String())
+		params.WriteString(" ")
 	}
-	msg := fmt.Sprintf("%s() request params - %s", fn, params)
+	msg := fmt.Sprintf("%s() request params - %s", fn, params.String())
 	klog.Debug(msg)
 }
 
 func LogHttpResponse(body interface{}) {
+	if !isDebug() {
+		return
+	}
+
 	pc, _, _, ok := runtime.Caller(1)
 	if !ok {
 		return

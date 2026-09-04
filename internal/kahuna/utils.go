@@ -83,13 +83,15 @@ func byteCountIEC(b uint64) string {
 	return fmt.Sprintf("%.1f %ciB", float64(b)/float64(div), "KMGTPE"[exp])
 }
 
+var (
+	emailVerifier = emailverifier.NewVerifier()
+	domainRegex   = regexp.MustCompile(`^(?i)[a-z0-9-]+(\.[a-z0-9-]+)+\.?$`)
+	hostnameRegex = regexp.MustCompile(HostnameRegexStringRFC1123)
+)
+
 func VerifyEmail(email string) error {
-	verifier := emailverifier.NewVerifier()
-	ret, err := verifier.Verify(email)
-	if err != nil {
-		return err
-	}
-	if !ret.Syntax.Valid {
+	syntax := emailVerifier.ParseAddress(email)
+	if !syntax.Valid {
 		return fmt.Errorf("email address %s syntax is invalid", email)
 	}
 
@@ -97,13 +99,11 @@ func VerifyEmail(email string) error {
 }
 
 func VerifyDomain(name string) bool {
-	r := regexp.MustCompile(`^(?i)[a-z0-9-]+(\.[a-z0-9-]+)+\.?$`)
-	return r.MatchString(name)
+	return domainRegex.MatchString(name)
 }
 
 func VerifyHostname(name string) bool {
-	r := regexp.MustCompile(HostnameRegexStringRFC1123)
-	return r.MatchString(name)
+	return hostnameRegex.MatchString(name)
 }
 
 func HasChildRef(children *[]string, childId string) bool {
