@@ -20,7 +20,7 @@ const (
 	MongoCollectionVolumeName          = "volume"
 
 	VolumeOsDiskPrefix  = "vd"
-	VolumeCloudInitDisk = "hdd"
+	VolumeCloudInitDisk = "sda"
 	VolumeTypeOs        = "os"
 	VolumeTypeRaw       = "raw"
 	VolumeTypeIso       = "iso"

@@ -333,6 +333,10 @@ func virtWindowsPM() *virtxml.DomainPM {
 }
 
 func NewVirtualInstanceDescription(os, name, desc, arch, machine, emulator string, memory, vcpus int64) *VirtualInstanceDescription {
+	if arch == "x86_64" || arch == "amd64" {
+		machine = "q35"
+	}
+
 	d := &virtxml.Domain{
 		Name:        name,
 		Description: desc,
@@ -543,7 +547,7 @@ func NewVirtualDisk(vType, pool, device, name, address, auth string, port int) v
 	switch vType {
 	case VolumeTypeIso:
 		disk.Device = "cdrom"
-		disk.Target.Bus = "ide"
+		disk.Target.Bus = "sata"
 		disk.ReadOnly = &virtxml.DomainDiskReadOnly{}
 		disk.Serial = "cloudinit"
 	default:
