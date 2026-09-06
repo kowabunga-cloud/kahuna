@@ -114,7 +114,51 @@ func virtWindowsFeatureHyperV() *virtxml.DomainFeatureHyperV {
 			State: "on",
 		},
 		Spinlocks: &virtxml.DomainFeatureHyperVSpinlocks{
+			DomainFeatureState: virtxml.DomainFeatureState{
+				State: "on",
+			},
 			Retries: 8191,
+		},
+		VPIndex: &virtxml.DomainFeatureState{
+			State: "on",
+		},
+		Runtime: &virtxml.DomainFeatureState{
+			State: "on",
+		},
+		Synic: &virtxml.DomainFeatureState{
+			State: "on",
+		},
+		STimer: &virtxml.DomainFeatureHyperVSTimer{
+			DomainFeatureState: virtxml.DomainFeatureState{
+				State: "on",
+			},
+		},
+		Reset: &virtxml.DomainFeatureState{
+			State: "on",
+		},
+		Frequencies: &virtxml.DomainFeatureState{
+			State: "on",
+		},
+		TLBFlush: &virtxml.DomainFeatureHyperVTLBFlush{
+			DomainFeatureState: virtxml.DomainFeatureState{
+				State: "on",
+			},
+		},
+		IPI: &virtxml.DomainFeatureState{
+			State: "on",
+		},
+	}
+}
+
+func virtWindowsTPMDevice() []virtxml.DomainTPM {
+	return []virtxml.DomainTPM{
+		{
+			Model: "tpm-crb",
+			Backend: &virtxml.DomainTPMBackend{
+				Emulator: &virtxml.DomainTPMBackendEmulator{
+					Version: "2.0",
+				},
+			},
 		},
 	}
 }
@@ -366,13 +410,36 @@ func NewVirtualInstanceDescription(os, name, desc, arch, machine, emulator strin
 	case TemplateOsWindows:
 		// Windows-instance specifics
 		d.Features.HyperV = virtWindowsFeatureHyperV()
-		d.Features.HyperV.Spinlocks.State = "on"
+		d.Clock.Offset = "localtime"
 		d.Clock.Timer = virtWindowsTimers()
 		d.PM = virtWindowsPM()
+		d.Devices.Inputs = append(d.Devices.Inputs, virtxml.DomainInput{
+			Type: "tablet",
+			Bus:  "usb",
+		})
 		d.Devices.Channels = virtWindowsChannelDevices()
 		d.Devices.Sounds = virtWindowsSoundDevices()
 		d.Devices.Videos = virtWindowsVideoDevices()
 		d.Devices.RedirDevs = virtRedirDevices()
+
+		if uefi {
+			d.OS.FirmwareInfo = &virtxml.DomainOSFirmwareInfo{
+				Features: []virtxml.DomainOSFirmwareFeature{
+					{
+						Enabled: "yes",
+						Name:    "enrolled-keys",
+					},
+					{
+						Enabled: "yes",
+						Name:    "secure-boot",
+					},
+				},
+			}
+			d.Features.SMM = &virtxml.DomainFeatureSMM{
+				State: "on",
+			}
+			d.Devices.TPMs = virtWindowsTPMDevice()
+		}
 	}
 
 	instance := VirtualInstanceDescription{
