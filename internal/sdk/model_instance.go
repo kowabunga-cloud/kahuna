@@ -97,7 +97,9 @@ func (o *Instance) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	var decoded Instance
+	decoded := Instance{
+		Uefi: true,
+	}
 
 	if value, exists := allProperties["id"]; exists {
 		if err = json.Unmarshal(value, &decoded.Id); err != nil {

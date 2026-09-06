@@ -120,7 +120,7 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	}
 
 	// create instance
-	i, err := NewInstance(prj.String(), h.String(), instance.Name, instance.Description, "", "", instance.Vcpus, instance.Memory, instance.Adapters, instance.Volumes)
+	i, err := NewInstance(prj.String(), h.String(), instance.Name, instance.Description, "", "", instance.Vcpus, instance.Memory, instance.Adapters, instance.Volumes, instance.Uefi)
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -206,7 +206,7 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	//
 
 	// create Kompute
-	k, err := NewKompute(prj.String(), zone.String(), h.String(), p.String(), t.String(), kompute.Name, kompute.Description, "", "", kompute.Vcpus, kompute.Memory, kompute.Disk, kompute.DataDisk, public, []string{})
+	k, err := NewKompute(prj.String(), zone.String(), h.String(), p.String(), t.String(), kompute.Name, kompute.Description, "", "", kompute.Vcpus, kompute.Memory, kompute.Disk, kompute.DataDisk, public, []string{}, kompute.Uefi)
 	if err != nil {
 		return HttpServerError(err)
 	}

@@ -44,6 +44,7 @@ type Instance struct {
 	Profile           string       `bson:"profile"`
 	Cost              InstanceCost `bson:"cost"`
 	LocalIP           string       `bson:"local_ip"`
+	Uefi              bool         `bson:"uefi"`
 
 	// children references
 	Interfaces map[string]string `bson:"interfaces"`
@@ -186,7 +187,7 @@ func (i *Instance) NewDiskMap(volumes []string) (map[string]string, error) {
 	return disks, nil
 }
 
-func NewInstance(projectId, kaktusId, name, desc, profile, profileId string, cpu, mem int64, adapters, volumes []string) (*Instance, error) {
+func NewInstance(projectId, kaktusId, name, desc, profile, profileId string, cpu, mem int64, adapters, volumes []string, uefi bool) (*Instance, error) {
 	// ensure we have a rightful hostname, if any
 	if !VerifyHostname(name) {
 		err := fmt.Errorf("invalid host name: %s", name)
@@ -203,6 +204,7 @@ func NewInstance(projectId, kaktusId, name, desc, profile, profileId string, cpu
 		CPU:       cpu,
 		Memory:    mem,
 		Cost:      InstanceCost{},
+		Uefi:      uefi,
 	}
 
 	// find associated OS
@@ -518,7 +520,7 @@ func (i *Instance) CreateInstance() error {
 
 	d := NewVirtualInstanceDescription(i.OS, i.Name, i.Description,
 		reply.Arch, reply.GuestMachineName,
-		reply.GuestEmulator, i.Memory, i.CPU)
+		reply.GuestEmulator, i.Memory, i.CPU, i.Uefi)
 
 	// discover and attach disks/volumes
 	d.SetDisks(i.Disks, i.CloudInitVolumeId)
@@ -920,6 +922,7 @@ func (i *Instance) Model() sdk.Instance {
 		Memory:      i.Memory,
 		Adapters:    i.Adapters(),
 		Volumes:     i.Volumes(),
+		Uefi:        i.Uefi,
 	}
 }
 

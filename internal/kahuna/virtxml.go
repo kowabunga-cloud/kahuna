@@ -332,7 +332,7 @@ func virtWindowsPM() *virtxml.DomainPM {
 	}
 }
 
-func NewVirtualInstanceDescription(os, name, desc, arch, machine, emulator string, memory, vcpus int64) *VirtualInstanceDescription {
+func NewVirtualInstanceDescription(os, name, desc, arch, machine, emulator string, memory, vcpus int64, uefi bool) *VirtualInstanceDescription {
 	if arch == "x86_64" || arch == "amd64" {
 		machine = "q35"
 	}
@@ -351,6 +351,10 @@ func NewVirtualInstanceDescription(os, name, desc, arch, machine, emulator strin
 		OnCrash:     "destroy",
 		Features:    virtFeatures(),
 		Devices:     virtDevice(emulator),
+	}
+
+	if uefi {
+		d.OS.Firmware = "efi"
 	}
 
 	switch os {

@@ -13,19 +13,19 @@ import (
 
 func TestVirtualInstanceDescription_Q35Upgrade(t *testing.T) {
 	// x86_64 must be upgraded to q35 regardless of input machine
-	descX86 := NewVirtualInstanceDescription(TemplateOsLinux, "test-vm-x86", "description", "x86_64", "pc", "/usr/bin/qemu-system-x86_64", 2147483648, 2)
+	descX86 := NewVirtualInstanceDescription(TemplateOsLinux, "test-vm-x86", "description", "x86_64", "pc", "/usr/bin/qemu-system-x86_64", 2147483648, 2, true)
 	if descX86.domain.OS.Type.Machine != "q35" {
 		t.Errorf("expected machine 'q35' for x86_64, got %q", descX86.domain.OS.Type.Machine)
 	}
 
 	// amd64 must also be upgraded to q35
-	descAmd64 := NewVirtualInstanceDescription(TemplateOsLinux, "test-vm-amd64", "description", "amd64", "pc-i440fx-7.0", "/usr/bin/qemu-system-x86_64", 2147483648, 2)
+	descAmd64 := NewVirtualInstanceDescription(TemplateOsLinux, "test-vm-amd64", "description", "amd64", "pc-i440fx-7.0", "/usr/bin/qemu-system-x86_64", 2147483648, 2, true)
 	if descAmd64.domain.OS.Type.Machine != "q35" {
 		t.Errorf("expected machine 'q35' for amd64, got %q", descAmd64.domain.OS.Type.Machine)
 	}
 
 	// non-x86 (e.g. aarch64) should retain its designated machine
-	descArm := NewVirtualInstanceDescription(TemplateOsLinux, "test-vm-arm", "description", "aarch64", "virt", "/usr/bin/qemu-system-aarch64", 2147483648, 2)
+	descArm := NewVirtualInstanceDescription(TemplateOsLinux, "test-vm-arm", "description", "aarch64", "virt", "/usr/bin/qemu-system-aarch64", 2147483648, 2, false)
 	if descArm.domain.OS.Type.Machine != "virt" {
 		t.Errorf("expected machine 'virt' for aarch64, got %q", descArm.domain.OS.Type.Machine)
 	}
@@ -50,12 +50,40 @@ func TestNewVirtualDisk_IsoSata(t *testing.T) {
 }
 
 func TestVirtualInstanceDescription_XMLGeneration(t *testing.T) {
-	desc := NewVirtualInstanceDescription(TemplateOsLinux, "test-vm", "test description", "x86_64", "pc", "/usr/bin/qemu-system-x86_64", 1073741824, 1)
+	desc := NewVirtualInstanceDescription(TemplateOsLinux, "test-vm", "test description", "x86_64", "pc", "/usr/bin/qemu-system-x86_64", 1073741824, 1, false)
 	xmlStr, err := desc.XML()
 	if err != nil {
 		t.Fatalf("unexpected error generating XML: %v", err)
 	}
 	if !strings.Contains(xmlStr, "machine='q35'") && !strings.Contains(xmlStr, `machine="q35"`) {
 		t.Errorf("expected XML to contain machine='q35', got: %s", xmlStr)
+	}
+}
+
+func TestVirtualInstanceDescription_UefiFirmware(t *testing.T) {
+	// uefi = true should set firmware='efi'
+	descUefi := NewVirtualInstanceDescription(TemplateOsLinux, "test-uefi", "description", "x86_64", "q35", "/usr/bin/qemu-system-x86_64", 1073741824, 1, true)
+	if descUefi.domain.OS.Firmware != "efi" {
+		t.Errorf("expected OS firmware 'efi', got %q", descUefi.domain.OS.Firmware)
+	}
+	xmlUefi, err := descUefi.XML()
+	if err != nil {
+		t.Fatalf("unexpected error generating XML: %v", err)
+	}
+	if !strings.Contains(xmlUefi, "firmware='efi'") && !strings.Contains(xmlUefi, `firmware="efi"`) {
+		t.Errorf("expected XML to contain firmware='efi', got: %s", xmlUefi)
+	}
+
+	// uefi = false should not set firmware
+	descBios := NewVirtualInstanceDescription(TemplateOsLinux, "test-bios", "description", "x86_64", "q35", "/usr/bin/qemu-system-x86_64", 1073741824, 1, false)
+	if descBios.domain.OS.Firmware != "" {
+		t.Errorf("expected empty OS firmware for legacy BIOS, got %q", descBios.domain.OS.Firmware)
+	}
+	xmlBios, err := descBios.XML()
+	if err != nil {
+		t.Fatalf("unexpected error generating XML: %v", err)
+	}
+	if strings.Contains(xmlBios, "firmware=") {
+		t.Errorf("expected XML to not contain firmware attribute, got: %s", xmlBios)
 	}
 }

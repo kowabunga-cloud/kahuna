@@ -103,7 +103,9 @@ func (o *Kompute) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	var decoded Kompute
+	decoded := Kompute{
+		Uefi: true,
+	}
 
 	if value, exists := allProperties["id"]; exists {
 		if err = json.Unmarshal(value, &decoded.Id); err != nil {
