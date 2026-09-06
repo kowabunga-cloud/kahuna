@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -26,19 +31,76 @@ type UserCredentials struct {
 	// The resulting server-generated JWT token for Bearer Authentication (read-only).
 	Jwt string `json:"jwt,omitempty"`
 }
-
-// AssertUserCredentialsRequired checks if the required fields are not zero-ed
-func AssertUserCredentialsRequired(obj UserCredentials) error {
-	elements := map[string]interface{}{
-		"email": obj.Email,
-		"password": obj.Password,
+// UnmarshalJSON validates required property keys then unmarshals into UserCredentials
+func (o *UserCredentials) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"email",
+		"password",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"email": false,
+		"password": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"email": {},
+		"password": {},
+		"jwt": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded UserCredentials
+
+	if value, exists := allProperties["email"]; exists {
+		if err = json.Unmarshal(value, &decoded.Email); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["password"]; exists {
+		if err = json.Unmarshal(value, &decoded.Password); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["jwt"]; exists {
+		if err = json.Unmarshal(value, &decoded.Jwt); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertUserCredentialsRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertUserCredentialsRequired(obj UserCredentials) error {
 	return nil
 }
 

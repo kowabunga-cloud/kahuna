@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -35,8 +40,91 @@ type Konvey struct {
 	// The Konvey (Kowabunga Network Load-Balancer) list of load-balanced endpoints.
 	Endpoints []KonveyEndpoint `json:"endpoints"`
 }
+// UnmarshalJSON validates required property keys then unmarshals into Konvey
+func (o *Konvey) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"endpoints",
+	}
 
-// AssertKonveyRequired checks if the required fields are not zero-ed
+	requiredNullableProperties := map[string]bool{
+		"endpoints": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"id": {},
+		"name": {},
+		"description": {},
+		"vip": {},
+		"failover": {},
+		"endpoints": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
+		}
+	}
+
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded Konvey
+
+	if value, exists := allProperties["id"]; exists {
+		if err = json.Unmarshal(value, &decoded.Id); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["name"]; exists {
+		if err = json.Unmarshal(value, &decoded.Name); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["description"]; exists {
+		if err = json.Unmarshal(value, &decoded.Description); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["vip"]; exists {
+		if err = json.Unmarshal(value, &decoded.Vip); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["failover"]; exists {
+		if err = json.Unmarshal(value, &decoded.Failover); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["endpoints"]; exists {
+		if err = json.Unmarshal(value, &decoded.Endpoints); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertKonveyRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKonveyRequired(obj Konvey) error {
 	elements := map[string]interface{}{
 		"endpoints": obj.Endpoints,

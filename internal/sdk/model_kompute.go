@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -40,22 +45,120 @@ type Kompute struct {
 
 	// The Kompute assigned private IPv4 address (read-only).
 	Ip string `json:"ip,omitempty"`
-}
 
-// AssertKomputeRequired checks if the required fields are not zero-ed
-func AssertKomputeRequired(obj Kompute) error {
-	elements := map[string]interface{}{
-		"name": obj.Name,
-		"memory": obj.Memory,
-		"vcpus": obj.Vcpus,
-		"disk": obj.Disk,
+	// enable UEFI secure firmware (vs. legacy BIOS).
+	Uefi bool `json:"uefi,omitempty"`
+}
+// UnmarshalJSON validates required property keys then unmarshals into Kompute
+func (o *Kompute) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"name",
+		"memory",
+		"vcpus",
+		"disk",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"name": false,
+		"memory": false,
+		"vcpus": false,
+		"disk": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"id": {},
+		"name": {},
+		"description": {},
+		"memory": {},
+		"vcpus": {},
+		"disk": {},
+		"data_disk": {},
+		"ip": {},
+		"uefi": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded Kompute
+
+	if value, exists := allProperties["id"]; exists {
+		if err = json.Unmarshal(value, &decoded.Id); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["name"]; exists {
+		if err = json.Unmarshal(value, &decoded.Name); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["description"]; exists {
+		if err = json.Unmarshal(value, &decoded.Description); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["memory"]; exists {
+		if err = json.Unmarshal(value, &decoded.Memory); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["vcpus"]; exists {
+		if err = json.Unmarshal(value, &decoded.Vcpus); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["disk"]; exists {
+		if err = json.Unmarshal(value, &decoded.Disk); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["data_disk"]; exists {
+		if err = json.Unmarshal(value, &decoded.DataDisk); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["ip"]; exists {
+		if err = json.Unmarshal(value, &decoded.Ip); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["uefi"]; exists {
+		if err = json.Unmarshal(value, &decoded.Uefi); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertKomputeRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertKomputeRequired(obj Kompute) error {
 	return nil
 }
 

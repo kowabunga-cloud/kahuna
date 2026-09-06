@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -38,17 +43,121 @@ type StoragePool struct {
 	// The libvirt secret UUID for CephX authentication.
 	CephSecretUuid string `json:"ceph_secret_uuid,omitempty"`
 
+	// Cost associated to the storage pool.
 	Cost Cost `json:"cost,omitempty"`
 
 	// a list of existing remote agents managing the storage pool.
 	Agents []string `json:"agents"`
 }
+// UnmarshalJSON validates required property keys then unmarshals into StoragePool
+func (o *StoragePool) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"name",
+		"pool",
+		"agents",
+	}
 
-// AssertStoragePoolRequired checks if the required fields are not zero-ed
+	requiredNullableProperties := map[string]bool{
+		"name": false,
+		"pool": false,
+		"agents": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"id": {},
+		"name": {},
+		"description": {},
+		"pool": {},
+		"ceph_address": {},
+		"ceph_port": {},
+		"ceph_secret_uuid": {},
+		"cost": {},
+		"agents": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
+		}
+	}
+
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded StoragePool
+
+	if value, exists := allProperties["id"]; exists {
+		if err = json.Unmarshal(value, &decoded.Id); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["name"]; exists {
+		if err = json.Unmarshal(value, &decoded.Name); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["description"]; exists {
+		if err = json.Unmarshal(value, &decoded.Description); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["pool"]; exists {
+		if err = json.Unmarshal(value, &decoded.Pool); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["ceph_address"]; exists {
+		if err = json.Unmarshal(value, &decoded.CephAddress); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["ceph_port"]; exists {
+		if err = json.Unmarshal(value, &decoded.CephPort); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["ceph_secret_uuid"]; exists {
+		if err = json.Unmarshal(value, &decoded.CephSecretUuid); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["cost"]; exists {
+		if err = json.Unmarshal(value, &decoded.Cost); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["agents"]; exists {
+		if err = json.Unmarshal(value, &decoded.Agents); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertStoragePoolRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertStoragePoolRequired(obj StoragePool) error {
 	elements := map[string]interface{}{
-		"name": obj.Name,
-		"pool": obj.Pool,
 		"agents": obj.Agents,
 	}
 	for name, el := range elements {

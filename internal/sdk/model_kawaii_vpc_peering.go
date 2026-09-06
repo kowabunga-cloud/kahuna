@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -32,18 +37,86 @@ type KawaiiVpcPeering struct {
 	// The per-zone auto-assigned private IPs in peered subnet (read-only).
 	Netip []KawaiiVpcNetIpZone `json:"netip,omitempty"`
 }
-
-// AssertKawaiiVpcPeeringRequired checks if the required fields are not zero-ed
-func AssertKawaiiVpcPeeringRequired(obj KawaiiVpcPeering) error {
-	elements := map[string]interface{}{
-		"subnet": obj.Subnet,
+// UnmarshalJSON validates required property keys then unmarshals into KawaiiVpcPeering
+func (o *KawaiiVpcPeering) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"subnet",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"subnet": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"subnet": {},
+		"policy": {},
+		"ingress": {},
+		"egress": {},
+		"netip": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded KawaiiVpcPeering
+
+	if value, exists := allProperties["subnet"]; exists {
+		if err = json.Unmarshal(value, &decoded.Subnet); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["policy"]; exists {
+		if err = json.Unmarshal(value, &decoded.Policy); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["ingress"]; exists {
+		if err = json.Unmarshal(value, &decoded.Ingress); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["egress"]; exists {
+		if err = json.Unmarshal(value, &decoded.Egress); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["netip"]; exists {
+		if err = json.Unmarshal(value, &decoded.Netip); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertKawaiiVpcPeeringRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertKawaiiVpcPeeringRequired(obj KawaiiVpcPeering) error {
 	for _, el := range obj.Ingress {
 		if err := AssertKawaiiVpcForwardRuleRequired(el); err != nil {
 			return err

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -26,8 +26,10 @@ type Kawaii struct {
 	// The Kawaii description.
 	Description string `json:"description,omitempty"`
 
+	// The Kawaii list of assigned virtual IPs per-zone addresses (read-only).
 	Netip KawaiiNetIp `json:"netip,omitempty"`
 
+	// The Kawaii firewall settings from/to public Internet).
 	Firewall KawaiiFirewall `json:"firewall,omitempty"`
 
 	// The Kawaii list of NAT forwarding entries. Kawaii will forward public Internet traffic from all public virtual IPs to requested private subnet IP addresses.
@@ -40,7 +42,8 @@ type Kawaii struct {
 	IpsecConnections []KawaiiIpSec `json:"ipsec_connections,omitempty"`
 }
 
-// AssertKawaiiRequired checks if the required fields are not zero-ed
+// AssertKawaiiRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKawaiiRequired(obj Kawaii) error {
 	if err := AssertKawaiiNetIpRequired(obj.Netip); err != nil {
 		return err

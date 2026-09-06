@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -37,21 +42,112 @@ type Instance struct {
 
 	// volumes list of existing storage volumes (i.e. disks) to be connected to the instance.
 	Volumes []string `json:"volumes,omitempty"`
-}
 
-// AssertInstanceRequired checks if the required fields are not zero-ed
-func AssertInstanceRequired(obj Instance) error {
-	elements := map[string]interface{}{
-		"name": obj.Name,
-		"memory": obj.Memory,
-		"vcpus": obj.Vcpus,
+	// enable UEFI secure firmware (vs. legacy BIOS).
+	Uefi bool `json:"uefi,omitempty"`
+}
+// UnmarshalJSON validates required property keys then unmarshals into Instance
+func (o *Instance) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"name",
+		"memory",
+		"vcpus",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"name": false,
+		"memory": false,
+		"vcpus": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"id": {},
+		"name": {},
+		"description": {},
+		"memory": {},
+		"vcpus": {},
+		"adapters": {},
+		"volumes": {},
+		"uefi": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded Instance
+
+	if value, exists := allProperties["id"]; exists {
+		if err = json.Unmarshal(value, &decoded.Id); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["name"]; exists {
+		if err = json.Unmarshal(value, &decoded.Name); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["description"]; exists {
+		if err = json.Unmarshal(value, &decoded.Description); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["memory"]; exists {
+		if err = json.Unmarshal(value, &decoded.Memory); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["vcpus"]; exists {
+		if err = json.Unmarshal(value, &decoded.Vcpus); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["adapters"]; exists {
+		if err = json.Unmarshal(value, &decoded.Adapters); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["volumes"]; exists {
+		if err = json.Unmarshal(value, &decoded.Volumes); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["uefi"]; exists {
+		if err = json.Unmarshal(value, &decoded.Uefi); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertInstanceRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertInstanceRequired(obj Instance) error {
 	return nil
 }
 

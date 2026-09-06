@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -26,8 +31,10 @@ type Kaktus struct {
 	// The Kaktus computing node description.
 	Description string `json:"description,omitempty"`
 
+	// Cost associated to the Kaktus node's CPU resources.
 	CpuCost Cost `json:"cpu_cost,omitempty"`
 
+	// Cost associated to the Kaktus node's memory resources.
 	MemoryCost Cost `json:"memory_cost,omitempty"`
 
 	// The Kaktus node CPU resource over-commit ratio. Overcommitting CPU resources for VMs means allocating more virtual CPUs (vCPUs) to the virtual machines (VMs) than the physical cores available on the node. This can help optimize the utilization of the node CPU and increase the density of VMs per node.
@@ -39,11 +46,107 @@ type Kaktus struct {
 	// a list of existing remote agents managing the Kaktus node.
 	Agents []string `json:"agents"`
 }
+// UnmarshalJSON validates required property keys then unmarshals into Kaktus
+func (o *Kaktus) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"name",
+		"agents",
+	}
 
-// AssertKaktusRequired checks if the required fields are not zero-ed
+	requiredNullableProperties := map[string]bool{
+		"name": false,
+		"agents": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"id": {},
+		"name": {},
+		"description": {},
+		"cpu_cost": {},
+		"memory_cost": {},
+		"overcommit_cpu_ratio": {},
+		"overcommit_memory_ratio": {},
+		"agents": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
+		}
+	}
+
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded Kaktus
+
+	if value, exists := allProperties["id"]; exists {
+		if err = json.Unmarshal(value, &decoded.Id); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["name"]; exists {
+		if err = json.Unmarshal(value, &decoded.Name); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["description"]; exists {
+		if err = json.Unmarshal(value, &decoded.Description); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["cpu_cost"]; exists {
+		if err = json.Unmarshal(value, &decoded.CpuCost); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["memory_cost"]; exists {
+		if err = json.Unmarshal(value, &decoded.MemoryCost); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["overcommit_cpu_ratio"]; exists {
+		if err = json.Unmarshal(value, &decoded.OvercommitCpuRatio); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["overcommit_memory_ratio"]; exists {
+		if err = json.Unmarshal(value, &decoded.OvercommitMemoryRatio); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["agents"]; exists {
+		if err = json.Unmarshal(value, &decoded.Agents); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertKaktusRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKaktusRequired(obj Kaktus) error {
 	elements := map[string]interface{}{
-		"name": obj.Name,
 		"agents": obj.Agents,
 	}
 	for name, el := range elements {

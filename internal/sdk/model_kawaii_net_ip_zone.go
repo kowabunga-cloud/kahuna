@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -26,20 +31,78 @@ type KawaiiNetIpZone struct {
 	// The Kawaii zone gateway private virtual IP (read-only).
 	Private string `json:"private"`
 }
-
-// AssertKawaiiNetIpZoneRequired checks if the required fields are not zero-ed
-func AssertKawaiiNetIpZoneRequired(obj KawaiiNetIpZone) error {
-	elements := map[string]interface{}{
-		"zone": obj.Zone,
-		"public": obj.Public,
-		"private": obj.Private,
+// UnmarshalJSON validates required property keys then unmarshals into KawaiiNetIpZone
+func (o *KawaiiNetIpZone) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"zone",
+		"public",
+		"private",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"zone": false,
+		"public": false,
+		"private": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"zone": {},
+		"public": {},
+		"private": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded KawaiiNetIpZone
+
+	if value, exists := allProperties["zone"]; exists {
+		if err = json.Unmarshal(value, &decoded.Zone); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["public"]; exists {
+		if err = json.Unmarshal(value, &decoded.Public); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["private"]; exists {
+		if err = json.Unmarshal(value, &decoded.Private); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertKawaiiNetIpZoneRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertKawaiiNetIpZoneRequired(obj KawaiiNetIpZone) error {
 	return nil
 }
 

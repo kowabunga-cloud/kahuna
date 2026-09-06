@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -23,19 +28,70 @@ type Cost struct {
 	// The associated currency.
 	Currency string `json:"currency"`
 }
-
-// AssertCostRequired checks if the required fields are not zero-ed
-func AssertCostRequired(obj Cost) error {
-	elements := map[string]interface{}{
-		"price": obj.Price,
-		"currency": obj.Currency,
+// UnmarshalJSON validates required property keys then unmarshals into Cost
+func (o *Cost) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"price",
+		"currency",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"price": false,
+		"currency": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"price": {},
+		"currency": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded Cost
+
+	if value, exists := allProperties["price"]; exists {
+		if err = json.Unmarshal(value, &decoded.Price); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["currency"]; exists {
+		if err = json.Unmarshal(value, &decoded.Currency); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertCostRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertCostRequired(obj Cost) error {
 	return nil
 }
 

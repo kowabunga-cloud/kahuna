@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -35,23 +40,102 @@ type KaktusCpu struct {
 	// The Kaktus computing node CPU number of threads.
 	Threads int64 `json:"threads"`
 }
-
-// AssertKaktusCpuRequired checks if the required fields are not zero-ed
-func AssertKaktusCpuRequired(obj KaktusCpu) error {
-	elements := map[string]interface{}{
-		"arch": obj.Arch,
-		"model": obj.Model,
-		"vendor": obj.Vendor,
-		"sockets": obj.Sockets,
-		"cores": obj.Cores,
-		"threads": obj.Threads,
+// UnmarshalJSON validates required property keys then unmarshals into KaktusCpu
+func (o *KaktusCpu) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"arch",
+		"model",
+		"vendor",
+		"sockets",
+		"cores",
+		"threads",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"arch": false,
+		"model": false,
+		"vendor": false,
+		"sockets": false,
+		"cores": false,
+		"threads": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"arch": {},
+		"model": {},
+		"vendor": {},
+		"sockets": {},
+		"cores": {},
+		"threads": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded KaktusCpu
+
+	if value, exists := allProperties["arch"]; exists {
+		if err = json.Unmarshal(value, &decoded.Arch); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["model"]; exists {
+		if err = json.Unmarshal(value, &decoded.Model); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["vendor"]; exists {
+		if err = json.Unmarshal(value, &decoded.Vendor); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["sockets"]; exists {
+		if err = json.Unmarshal(value, &decoded.Sockets); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["cores"]; exists {
+		if err = json.Unmarshal(value, &decoded.Cores); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["threads"]; exists {
+		if err = json.Unmarshal(value, &decoded.Threads); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertKaktusCpuRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertKaktusCpuRequired(obj KaktusCpu) error {
 	return nil
 }
 

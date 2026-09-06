@@ -5,12 +5,17 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
+
+import (
+	"encoding/json"
+	"fmt"
+)
 
 
 
@@ -74,29 +79,197 @@ type KawaiiIpSec struct {
 	// The Kawaii IPsec connection phase 2 encryption algorithm..
 	Phase2EncryptionAlgorithm string `json:"phase2_encryption_algorithm"`
 
+	// The Kawaii IPsec connection firewall settings on the IPsec interface.
 	Firewall KawaiiFirewall `json:"firewall,omitempty"`
 }
-
-// AssertKawaiiIpSecRequired checks if the required fields are not zero-ed
-func AssertKawaiiIpSecRequired(obj KawaiiIpSec) error {
-	elements := map[string]interface{}{
-		"name": obj.Name,
-		"remote_ip": obj.RemoteIp,
-		"remote_subnet": obj.RemoteSubnet,
-		"pre_shared_key": obj.PreSharedKey,
-		"phase1_dh_group_number": obj.Phase1DhGroupNumber,
-		"phase1_integrity_algorithm": obj.Phase1IntegrityAlgorithm,
-		"phase1_encryption_algorithm": obj.Phase1EncryptionAlgorithm,
-		"phase2_dh_group_number": obj.Phase2DhGroupNumber,
-		"phase2_integrity_algorithm": obj.Phase2IntegrityAlgorithm,
-		"phase2_encryption_algorithm": obj.Phase2EncryptionAlgorithm,
+// UnmarshalJSON validates required property keys then unmarshals into KawaiiIpSec
+func (o *KawaiiIpSec) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"name",
+		"remote_ip",
+		"remote_subnet",
+		"pre_shared_key",
+		"phase1_dh_group_number",
+		"phase1_integrity_algorithm",
+		"phase1_encryption_algorithm",
+		"phase2_dh_group_number",
+		"phase2_integrity_algorithm",
+		"phase2_encryption_algorithm",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"name": false,
+		"remote_ip": false,
+		"remote_subnet": false,
+		"pre_shared_key": false,
+		"phase1_dh_group_number": false,
+		"phase1_integrity_algorithm": false,
+		"phase1_encryption_algorithm": false,
+		"phase2_dh_group_number": false,
+		"phase2_integrity_algorithm": false,
+		"phase2_encryption_algorithm": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"id": {},
+		"name": {},
+		"description": {},
+		"ip": {},
+		"remote_ip": {},
+		"remote_subnet": {},
+		"pre_shared_key": {},
+		"dpd_timeout_action": {},
+		"dpd_timeout": {},
+		"start_action": {},
+		"rekey_time": {},
+		"phase1_lifetime": {},
+		"phase1_dh_group_number": {},
+		"phase1_integrity_algorithm": {},
+		"phase1_encryption_algorithm": {},
+		"phase2_lifetime": {},
+		"phase2_dh_group_number": {},
+		"phase2_integrity_algorithm": {},
+		"phase2_encryption_algorithm": {},
+		"firewall": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded KawaiiIpSec
+
+	if value, exists := allProperties["id"]; exists {
+		if err = json.Unmarshal(value, &decoded.Id); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["name"]; exists {
+		if err = json.Unmarshal(value, &decoded.Name); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["description"]; exists {
+		if err = json.Unmarshal(value, &decoded.Description); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["ip"]; exists {
+		if err = json.Unmarshal(value, &decoded.Ip); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["remote_ip"]; exists {
+		if err = json.Unmarshal(value, &decoded.RemoteIp); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["remote_subnet"]; exists {
+		if err = json.Unmarshal(value, &decoded.RemoteSubnet); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["pre_shared_key"]; exists {
+		if err = json.Unmarshal(value, &decoded.PreSharedKey); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["dpd_timeout_action"]; exists {
+		if err = json.Unmarshal(value, &decoded.DpdTimeoutAction); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["dpd_timeout"]; exists {
+		if err = json.Unmarshal(value, &decoded.DpdTimeout); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["start_action"]; exists {
+		if err = json.Unmarshal(value, &decoded.StartAction); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["rekey_time"]; exists {
+		if err = json.Unmarshal(value, &decoded.RekeyTime); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["phase1_lifetime"]; exists {
+		if err = json.Unmarshal(value, &decoded.Phase1Lifetime); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["phase1_dh_group_number"]; exists {
+		if err = json.Unmarshal(value, &decoded.Phase1DhGroupNumber); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["phase1_integrity_algorithm"]; exists {
+		if err = json.Unmarshal(value, &decoded.Phase1IntegrityAlgorithm); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["phase1_encryption_algorithm"]; exists {
+		if err = json.Unmarshal(value, &decoded.Phase1EncryptionAlgorithm); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["phase2_lifetime"]; exists {
+		if err = json.Unmarshal(value, &decoded.Phase2Lifetime); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["phase2_dh_group_number"]; exists {
+		if err = json.Unmarshal(value, &decoded.Phase2DhGroupNumber); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["phase2_integrity_algorithm"]; exists {
+		if err = json.Unmarshal(value, &decoded.Phase2IntegrityAlgorithm); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["phase2_encryption_algorithm"]; exists {
+		if err = json.Unmarshal(value, &decoded.Phase2EncryptionAlgorithm); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["firewall"]; exists {
+		if err = json.Unmarshal(value, &decoded.Firewall); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertKawaiiIpSecRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertKawaiiIpSecRequired(obj KawaiiIpSec) error {
 	if err := AssertKawaiiFirewallRequired(obj.Firewall); err != nil {
 		return err
 	}

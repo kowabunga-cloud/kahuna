@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.53.2
+ * API version: 0.54.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -30,7 +30,8 @@ type ProjectResources struct {
 	Instances int32 `json:"instances,omitempty"`
 }
 
-// AssertProjectResourcesRequired checks if the required fields are not zero-ed
+// AssertProjectResourcesRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertProjectResourcesRequired(obj ProjectResources) error {
 	return nil
 }
