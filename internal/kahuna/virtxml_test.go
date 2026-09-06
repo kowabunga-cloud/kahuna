@@ -47,6 +47,9 @@ func TestNewVirtualDisk_IsoSata(t *testing.T) {
 	if rawDisk.Target.Bus != "virtio" {
 		t.Errorf("expected bus 'virtio' for raw volume, got %q", rawDisk.Target.Bus)
 	}
+	if rawDisk.Driver.Discard != "unmap" {
+		t.Errorf("expected discard 'unmap' for raw volume, got %q", rawDisk.Driver.Discard)
+	}
 }
 
 func TestVirtualInstanceDescription_XMLGeneration(t *testing.T) {
@@ -55,8 +58,18 @@ func TestVirtualInstanceDescription_XMLGeneration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error generating XML: %v", err)
 	}
-	if !strings.Contains(xmlStr, "machine='q35'") && !strings.Contains(xmlStr, `machine="q35"`) {
-		t.Errorf("expected XML to contain machine='q35', got: %s", xmlStr)
+	expectedStrings := []string{
+		"q35",
+		"model=\"qemu-xhci\"",
+		"type=\"tablet\" bus=\"usb\"",
+		"type=\"keyboard\" bus=\"usb\"",
+		"model type=\"virtio\"",
+		"autodeflate=\"on\"",
+	}
+	for _, s := range expectedStrings {
+		if !strings.Contains(xmlStr, s) {
+			t.Errorf("expected XML to contain %q, but was missing in:\n%s", s, xmlStr)
+		}
 	}
 }
 
@@ -206,22 +219,21 @@ func TestVirtualInstanceDescription_Windows11Topology(t *testing.T) {
 		}
 	}
 
-	// Windows with legacy BIOS (non-UEFI)
-	descWinBios := NewVirtualInstanceDescription(TemplateOsWindows, "test-win-bios", "Windows Legacy VM", "x86_64", "q35", "/usr/bin/qemu-system-x86_64", 4294967296, 4, false)
-	if descWinBios.domain.OS.Firmware != "" {
-		t.Errorf("expected empty firmware for legacy BIOS, got %q", descWinBios.domain.OS.Firmware)
+	// Windows with UEFI parameter false should still enforce UEFI & TPM
+	descWinEnforced := NewVirtualInstanceDescription(TemplateOsWindows, "test-win-enforced", "Windows Enforced VM", "x86_64", "q35", "/usr/bin/qemu-system-x86_64", 4294967296, 4, false)
+	if descWinEnforced.domain.OS.Firmware != "efi" {
+		t.Errorf("expected firmware 'efi' enforced for Windows, got %q", descWinEnforced.domain.OS.Firmware)
 	}
-	if descWinBios.domain.OS.FirmwareInfo != nil {
-		t.Errorf("expected nil FirmwareInfo for legacy BIOS, got %v", descWinBios.domain.OS.FirmwareInfo)
+	if descWinEnforced.domain.OS.FirmwareInfo == nil {
+		t.Errorf("expected non-nil FirmwareInfo for Windows")
 	}
-	if descWinBios.domain.Features.SMM != nil {
-		t.Errorf("expected nil SMM for legacy BIOS, got %v", descWinBios.domain.Features.SMM)
+	if descWinEnforced.domain.Features.SMM == nil || descWinEnforced.domain.Features.SMM.State != "on" {
+		t.Errorf("expected SMM enabled for Windows, got %v", descWinEnforced.domain.Features.SMM)
 	}
-	if len(descWinBios.domain.Devices.TPMs) != 0 {
-		t.Errorf("expected no TPM for legacy BIOS, got %v", descWinBios.domain.Devices.TPMs)
+	if len(descWinEnforced.domain.Devices.TPMs) == 0 {
+		t.Errorf("expected TPM device present for Windows")
 	}
-	// But clock offset is still localtime and tablet is present
-	if descWinBios.domain.Clock.Offset != "localtime" {
-		t.Errorf("expected localtime offset for legacy Windows, got %q", descWinBios.domain.Clock.Offset)
+	if descWinEnforced.domain.Clock.Offset != "localtime" {
+		t.Errorf("expected localtime offset for Windows, got %q", descWinEnforced.domain.Clock.Offset)
 	}
 }

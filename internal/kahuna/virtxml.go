@@ -166,12 +166,12 @@ func virtWindowsTPMDevice() []virtxml.DomainTPM {
 func virtInputDevices() []virtxml.DomainInput {
 	return []virtxml.DomainInput{
 		{
-			Type: "mouse",
-			Bus:  "ps2",
+			Type: "tablet",
+			Bus:  "usb",
 		},
 		{
 			Type: "keyboard",
-			Bus:  "ps2",
+			Bus:  "usb",
 		},
 	}
 }
@@ -214,8 +214,7 @@ func virtLinuxVideoDevices() []virtxml.DomainVideo {
 	return []virtxml.DomainVideo{
 		{
 			Model: virtxml.DomainVideoModel{
-				Type:    "cirrus",
-				VRam:    16384,
+				Type:    "virtio",
 				Heads:   1,
 				Primary: "yes",
 			},
@@ -272,21 +271,32 @@ func virtConsoleDevices() []virtxml.DomainConsole {
 		virtConsoleDevice("virtio", &ptyVirtioPort),
 	}
 }
+func virtControllers() []virtxml.DomainController {
+	return []virtxml.DomainController{
+		{
+			Type:  "usb",
+			Model: "qemu-xhci",
+		},
+	}
+}
+
 func virtMemBallonDevice() *virtxml.DomainMemBalloon {
 	return &virtxml.DomainMemBalloon{
-		Model: "virtio",
+		Model:       "virtio",
+		AutoDeflate: "on",
 	}
 }
 
 func virtDevice(emulator string) *virtxml.DomainDeviceList {
 	return &virtxml.DomainDeviceList{
-		Emulator:   emulator,
-		Inputs:     virtInputDevices(),
-		Graphics:   virtGraphicDevices(),
-		Audios:     virtAudioDevices(),
-		Serials:    virtSerialDevices(),
-		Consoles:   virtConsoleDevices(),
-		MemBalloon: virtMemBallonDevice(),
+		Emulator:    emulator,
+		Controllers: virtControllers(),
+		Inputs:      virtInputDevices(),
+		Graphics:    virtGraphicDevices(),
+		Audios:      virtAudioDevices(),
+		Serials:     virtSerialDevices(),
+		Consoles:    virtConsoleDevices(),
+		MemBalloon:  virtMemBallonDevice(),
 	}
 }
 
@@ -397,6 +407,10 @@ func NewVirtualInstanceDescription(os, name, desc, arch, machine, emulator strin
 		Devices:     virtDevice(emulator),
 	}
 
+	if os == TemplateOsWindows {
+		uefi = true
+	}
+
 	if uefi {
 		d.OS.Firmware = "efi"
 	}
@@ -413,10 +427,6 @@ func NewVirtualInstanceDescription(os, name, desc, arch, machine, emulator strin
 		d.Clock.Offset = "localtime"
 		d.Clock.Timer = virtWindowsTimers()
 		d.PM = virtWindowsPM()
-		d.Devices.Inputs = append(d.Devices.Inputs, virtxml.DomainInput{
-			Type: "tablet",
-			Bus:  "usb",
-		})
 		d.Devices.Channels = virtWindowsChannelDevices()
 		d.Devices.Sounds = virtWindowsSoundDevices()
 		d.Devices.Videos = virtWindowsVideoDevices()
@@ -623,6 +633,7 @@ func NewVirtualDisk(vType, pool, device, name, address, auth string, port int) v
 		disk.Serial = "cloudinit"
 	default:
 		disk.Driver.Cache = "writeback"
+		disk.Driver.Discard = "unmap"
 	}
 
 	return disk

@@ -224,6 +224,9 @@ func NewInstance(projectId, kaktusId, name, desc, profile, profileId string, cpu
 		}
 	}
 	instance.OS = osType
+	if instance.OS == TemplateOsWindows {
+		instance.Uefi = true
+	}
 
 	interfaces, err := instance.NewInterfaceMap(adapters)
 	if err != nil {
