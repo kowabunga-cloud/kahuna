@@ -33,7 +33,7 @@ func (desc *VirtualInstanceDescription) SetMemory(memBytes int64) {
 }
 
 func (desc *VirtualInstanceDescription) SetInterfaces(interfaces map[string]string) {
-	desc.domain.Devices.Interfaces = newVirtualInterfaces(interfaces)
+	desc.domain.Devices.Interfaces = newVirtualInterfaces(interfaces, desc.domain.VCPU.Value)
 }
 
 func (desc *VirtualInstanceDescription) SetDisks(disks map[string]string, cloudInitVolumeId string) {
@@ -42,6 +42,13 @@ func (desc *VirtualInstanceDescription) SetDisks(disks map[string]string, cloudI
 
 var ptySerialPort uint = 0
 var ptyVirtioPort uint = 1
+
+// diskIOThread is the dedicated IOThread every non-ISO disk is pinned to,
+// offloading block I/O processing off the vCPU/main event loop threads for
+// near-native storage latency and throughput. It's a pure QEMU-side
+// construct with no host-hardware dependency, so it doesn't affect
+// migratability.
+var diskIOThread uint = 1
 
 func virtOsType(arch, machine string) *virtxml.DomainOSType {
 	return &virtxml.DomainOSType{
@@ -86,14 +93,45 @@ func virtClock() *virtxml.DomainClock {
 	}
 }
 
-func virtCPU() *virtxml.DomainCPU {
-	return &virtxml.DomainCPU{
-		Mode:       "host-passthrough",
-		Check:      "none",
-		Migratable: "on",
-		Model: &virtxml.DomainCPUModel{
-			Fallback: "allow",
+func virtLinuxTimers() []virtxml.DomainTimer {
+	return []virtxml.DomainTimer{
+		{
+			Name:       "rtc",
+			TickPolicy: "catchup",
 		},
+		{
+			Name:       "pit",
+			TickPolicy: "delay",
+		},
+		{
+			Name:    "hpet",
+			Present: "no",
+		},
+		{
+			// paravirt clock: unlike a raw TSC, it re-syncs with the host
+			// after a (live) migration, so guest time stays correct even
+			// though the destination CPU runs at a different frequency.
+			Name:    "kvmclock",
+			Present: "yes",
+		},
+	}
+}
+
+func virtCPU() *virtxml.DomainCPU {
+	// host-model asks libvirt to build the closest CPU model to the host's
+	// that is still safe to (live) migrate: unlike host-passthrough, which
+	// exposes the exact host silicon 1:1 and can refuse to start (or worse,
+	// crash the guest) on a destination with a different CPU, host-model
+	// keeps near-native performance while staying portable across hosts
+	// with differing (but same-vendor-family) CPUs. This also holds up when
+	// the Kaktus node itself is a nested (L1) VM: host-model baselines off
+	// whatever virtual CPU that node was given, rather than passing it
+	// through 1:1, so our instance stays portable across L1 nodes that may
+	// each expose a slightly different virtual CPU.
+	return &virtxml.DomainCPU{
+		Mode:       "host-model",
+		Check:      "partial",
+		Migratable: "on",
 	}
 }
 
@@ -102,6 +140,14 @@ func virtFeatures() *virtxml.DomainFeatureList {
 		PAE:  &virtxml.DomainFeature{},
 		ACPI: &virtxml.DomainFeature{},
 		APIC: &virtxml.DomainFeatureAPIC{},
+		// vPMU emulation isn't reliably virtualizable across two levels of
+		// nesting (Kaktus node itself running as an L1 VM): the guest's
+		// performance counters can read bogus values or, on some CPU/KVM
+		// combinations, wedge the guest kernel. Perf counters aren't needed
+		// for correctness, so disable them rather than risk instability.
+		PMU: &virtxml.DomainFeatureState{
+			State: "off",
+		},
 	}
 }
 
@@ -400,6 +446,7 @@ func NewVirtualInstanceDescription(os, name, desc, arch, machine, emulator strin
 		VCPU:        virtVcpus(vcpus),
 		Clock:       virtClock(),
 		CPU:         virtCPU(),
+		IOThreads:   1,
 		OnPoweroff:  "destroy",
 		OnReboot:    "restart",
 		OnCrash:     "destroy",
@@ -418,6 +465,7 @@ func NewVirtualInstanceDescription(os, name, desc, arch, machine, emulator strin
 	switch os {
 	case TemplateOsLinux:
 		// Linux-instance specifics
+		d.Clock.Timer = virtLinuxTimers()
 		d.Devices.Channels = virtLinuxChannelDevices()
 		d.Devices.RNGs = virtRngDevices()
 		d.Devices.Videos = virtLinuxVideoDevices()
@@ -477,10 +525,23 @@ func VirtualInstanceToXml(desc *VirtualInstanceDescription) (string, error) {
 	return XmlMarshal(desc.domain)
 }
 
-func virtInterface(address, iface string) virtxml.DomainInterface {
+// maxNetworkQueues caps virtio-net multiqueue at a sane thread count: beyond
+// this, extra vhost worker threads add host-side overhead for no measurable
+// guest throughput gain.
+const maxNetworkQueues = 8
+
+func virtInterface(address, iface string, queues uint) virtxml.DomainInterface {
 	return virtxml.DomainInterface{
 		Model: &virtxml.DomainInterfaceModel{
 			Type: "virtio",
+		},
+		Driver: &virtxml.DomainInterfaceDriver{
+			// vhost offloads packet processing to a dedicated in-kernel
+			// thread instead of QEMU's userspace emulation, and one queue
+			// per vCPU (up to maxNetworkQueues) lets guest network traffic
+			// scale across cores for near-native throughput.
+			Name:   "vhost",
+			Queues: queues,
 		},
 		MAC: &virtxml.DomainInterfaceMAC{
 			Address: address,
@@ -493,8 +554,12 @@ func virtInterface(address, iface string) virtxml.DomainInterface {
 	}
 }
 
-func newVirtualInterfaces(interfaces map[string]string) []virtxml.DomainInterface {
+func newVirtualInterfaces(interfaces map[string]string, vcpus uint) []virtxml.DomainInterface {
 	ifaces := make([]virtxml.DomainInterface, 0, len(interfaces))
+	queues := min(vcpus, maxNetworkQueues)
+	if queues == 0 {
+		queues = 1
+	}
 
 	// ensure we sort out interfaces by name, reflecting correct insertion order and appropriate XML generation
 	keys := make([]string, 0, len(interfaces))
@@ -525,7 +590,7 @@ func newVirtualInterfaces(interfaces map[string]string) []virtxml.DomainInterfac
 			continue
 		}
 
-		iface := virtInterface(a.MAC, v.Interface)
+		iface := virtInterface(a.MAC, v.Interface, queues)
 		ifaces = append(ifaces, iface)
 	}
 
@@ -634,6 +699,7 @@ func NewVirtualDisk(vType, pool, device, name, address, auth string, port int) v
 	default:
 		disk.Driver.Cache = "writeback"
 		disk.Driver.Discard = "unmap"
+		disk.Driver.IOThread = &diskIOThread
 	}
 
 	return disk
