@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.54.0
+ * API version: 0.55.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -118,6 +118,52 @@ func (s *KaktusAPIService) DeleteKaktus(ctx context.Context, kaktusId string) (I
 	// return Response(422, ApiErrorUnprocessableEntity{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteKaktus method not implemented")
+}
+
+// EnableKaktusMaintenance -
+func (s *KaktusAPIService) EnableKaktusMaintenance(ctx context.Context, kaktusId string) (ImplResponse, error) {
+	// TODO - update EnableKaktusMaintenance with the required logic for this service method.
+	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
+	// return Response(200, nil),nil
+
+	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
+	// return Response(401, ApiErrorUnauthorized{}), nil
+
+	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
+	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
+	// return Response(404, ApiErrorNotFound{}), nil
+
+	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
+	// return Response(422, ApiErrorUnprocessableEntity{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("EnableKaktusMaintenance method not implemented")
+}
+
+// DisableKaktusMaintenance -
+func (s *KaktusAPIService) DisableKaktusMaintenance(ctx context.Context, kaktusId string) (ImplResponse, error) {
+	// TODO - update DisableKaktusMaintenance with the required logic for this service method.
+	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
+	// return Response(200, nil),nil
+
+	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
+	// return Response(401, ApiErrorUnauthorized{}), nil
+
+	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
+	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
+	// return Response(404, ApiErrorNotFound{}), nil
+
+	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
+	// return Response(422, ApiErrorUnprocessableEntity{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("DisableKaktusMaintenance method not implemented")
 }
 
 // ReadKaktusCaps -

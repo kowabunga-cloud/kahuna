@@ -230,6 +230,11 @@ func (z *Zone) ElectMostFavorableKaktus(instanceName string, kaktusCandidates []
 			continue
 		}
 
+		// a kaktus under maintenance must not receive any newly scheduled workload
+		if h.Maintenance {
+			continue
+		}
+
 		// verify kaktus current virtual resources usage and give a score
 		score := h.UsageScore()
 

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.54.0
+ * API version: 0.55.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -77,6 +77,18 @@ func (c *KaktusAPIController) Routes() Routes {
 			"/api/v1/kaktus/{kaktusId}",
 			c.DeleteKaktus,
 		},
+		"EnableKaktusMaintenance": Route{
+			"EnableKaktusMaintenance",
+			strings.ToUpper("Patch"),
+			"/api/v1/kaktus/{kaktusId}/maintenance/enable",
+			c.EnableKaktusMaintenance,
+		},
+		"DisableKaktusMaintenance": Route{
+			"DisableKaktusMaintenance",
+			strings.ToUpper("Patch"),
+			"/api/v1/kaktus/{kaktusId}/maintenance/disable",
+			c.DisableKaktusMaintenance,
+		},
 		"ReadKaktusCaps": Route{
 			"ReadKaktusCaps",
 			strings.ToUpper("Get"),
@@ -118,6 +130,18 @@ func (c *KaktusAPIController) OrderedRoutes() []Route {
 			strings.ToUpper("Delete"),
 			"/api/v1/kaktus/{kaktusId}",
 			c.DeleteKaktus,
+		},
+		Route{
+			"EnableKaktusMaintenance",
+			strings.ToUpper("Patch"),
+			"/api/v1/kaktus/{kaktusId}/maintenance/enable",
+			c.EnableKaktusMaintenance,
+		},
+		Route{
+			"DisableKaktusMaintenance",
+			strings.ToUpper("Patch"),
+			"/api/v1/kaktus/{kaktusId}/maintenance/disable",
+			c.DisableKaktusMaintenance,
 		},
 		Route{
 			"ReadKaktusCaps",
@@ -213,6 +237,42 @@ func (c *KaktusAPIController) DeleteKaktus(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	result, err := c.service.DeleteKaktus(r.Context(), kaktusIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// EnableKaktusMaintenance -
+func (c *KaktusAPIController) EnableKaktusMaintenance(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	kaktusIdParam := params["kaktusId"]
+	if kaktusIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"kaktusId"}, nil)
+		return
+	}
+	result, err := c.service.EnableKaktusMaintenance(r.Context(), kaktusIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// DisableKaktusMaintenance -
+func (c *KaktusAPIController) DisableKaktusMaintenance(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	kaktusIdParam := params["kaktusId"]
+	if kaktusIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"kaktusId"}, nil)
+		return
+	}
+	result, err := c.service.DisableKaktusMaintenance(r.Context(), kaktusIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

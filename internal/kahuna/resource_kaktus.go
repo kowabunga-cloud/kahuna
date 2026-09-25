@@ -44,6 +44,7 @@ type Kaktus struct {
 	OverCommit       KaktusOverCommitRatio  `bson:"overcommit"`
 	VirtualResources KaktusVirtualResources `bson:"virtual_resources"`
 	AgentIDs         []string               `bson:"agent_ids"`
+	Maintenance      bool                   `bson:"maintenance"`
 
 	// children references
 	InstanceIDs []string `bson:"instance_ids"`
@@ -375,7 +376,18 @@ func (k *Kaktus) Model() sdk.Kaktus {
 		OvercommitCpuRatio:    k.OverCommit.CPU,
 		OvercommitMemoryRatio: k.OverCommit.Memory,
 		Agents:                k.AgentIDs,
+		Maintenance:           k.Maintenance,
 	}
+}
+
+func (k *Kaktus) EnableMaintenance() error {
+	k.Maintenance = true
+	return k.Save()
+}
+
+func (k *Kaktus) DisableMaintenance() error {
+	k.Maintenance = false
+	return k.Save()
 }
 
 func (k *Kaktus) UsageScore() int {

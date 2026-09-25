@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.54.0
+ * API version: 0.55.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -64,6 +64,8 @@ type KaktusAPIRouter interface {
 	ReadKaktus(http.ResponseWriter, *http.Request)
 	UpdateKaktus(http.ResponseWriter, *http.Request)
 	DeleteKaktus(http.ResponseWriter, *http.Request)
+	EnableKaktusMaintenance(http.ResponseWriter, *http.Request)
+	DisableKaktusMaintenance(http.ResponseWriter, *http.Request)
 	ReadKaktusCaps(http.ResponseWriter, *http.Request)
 	ListKaktusInstances(http.ResponseWriter, *http.Request)
 }
@@ -353,6 +355,8 @@ type KaktusAPIServicer interface {
 	ReadKaktus(context.Context, string) (ImplResponse, error)
 	UpdateKaktus(context.Context, string, Kaktus) (ImplResponse, error)
 	DeleteKaktus(context.Context, string) (ImplResponse, error)
+	EnableKaktusMaintenance(context.Context, string) (ImplResponse, error)
+	DisableKaktusMaintenance(context.Context, string) (ImplResponse, error)
 	ReadKaktusCaps(context.Context, string) (ImplResponse, error)
 	ListKaktusInstances(context.Context, string) (ImplResponse, error)
 }

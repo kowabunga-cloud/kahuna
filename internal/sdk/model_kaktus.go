@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.54.0
+ * API version: 0.55.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -45,6 +45,9 @@ type Kaktus struct {
 
 	// a list of existing remote agents managing the Kaktus node.
 	Agents []string `json:"agents"`
+
+	// Whether the Kaktus node is under maintenance. A node under maintenance keeps running its existing instances but is excluded from scheduling of newly created workloads.
+	Maintenance bool `json:"maintenance,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into Kaktus
 func (o *Kaktus) UnmarshalJSON(data []byte) (err error) {
@@ -69,6 +72,7 @@ func (o *Kaktus) UnmarshalJSON(data []byte) (err error) {
 		"overcommit_cpu_ratio": {},
 		"overcommit_memory_ratio": {},
 		"agents": {},
+		"maintenance": {},
 	}
 
 	allProperties := make(map[string]json.RawMessage)
@@ -134,6 +138,11 @@ func (o *Kaktus) UnmarshalJSON(data []byte) (err error) {
 	}
 	if value, exists := allProperties["agents"]; exists {
 		if err = json.Unmarshal(value, &decoded.Agents); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["maintenance"]; exists {
+		if err = json.Unmarshal(value, &decoded.Maintenance); err != nil {
 			return err
 		}
 	}

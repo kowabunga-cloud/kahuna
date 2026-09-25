@@ -39,6 +39,34 @@ func (s *KaktusService) DeleteKaktus(ctx context.Context, kaktusId string) (sdk.
 	return HttpOK(nil)
 }
 
+func (s *KaktusService) DisableKaktusMaintenance(ctx context.Context, kaktusId string) (sdk.ImplResponse, error) {
+	h, err := FindKaktusByID(kaktusId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	err = h.DisableMaintenance()
+	if err != nil {
+		return HttpServerError(err)
+	}
+
+	return HttpOK(nil)
+}
+
+func (s *KaktusService) EnableKaktusMaintenance(ctx context.Context, kaktusId string) (sdk.ImplResponse, error) {
+	h, err := FindKaktusByID(kaktusId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	err = h.EnableMaintenance()
+	if err != nil {
+		return HttpServerError(err)
+	}
+
+	return HttpOK(nil)
+}
+
 func (s *KaktusService) ListKaktusInstances(ctx context.Context, kaktusId string) (sdk.ImplResponse, error) {
 	h, err := FindKaktusByID(kaktusId)
 	if err != nil {

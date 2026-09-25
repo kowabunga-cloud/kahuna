@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.54.0
+ * API version: 0.55.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -103,9 +103,7 @@ func (o *Kompute) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	decoded := Kompute{
-		Uefi: true,
-	}
+	var decoded Kompute
 
 	if value, exists := allProperties["id"]; exists {
 		if err = json.Unmarshal(value, &decoded.Id); err != nil {
