@@ -18,6 +18,10 @@ func NewInstanceRouter() sdk.Router {
 
 type InstanceService struct{}
 
+func (s *InstanceService) CommitInstanceKMotion(ctx context.Context, instanceId string, commit sdk.KMotionCommitRequest) (sdk.ImplResponse, error) {
+	return HttpNotImplemented(nil)
+}
+
 func (s *InstanceService) DeleteInstance(ctx context.Context, instanceId string) (sdk.ImplResponse, error) {
 	// ensure instance exists
 	i, err := FindInstanceByID(instanceId)
@@ -41,6 +45,10 @@ func (s *InstanceService) DeleteInstance(ctx context.Context, instanceId string)
 
 func (s *InstanceService) ListInstances(ctx context.Context) (sdk.ImplResponse, error) {
 	return HttpOK(FindResourceIDs(MongoCollectionInstanceName))
+}
+
+func (s *InstanceService) PlanInstanceKMotion(ctx context.Context, instanceId string, plan sdk.KMotionPlanRequest) (sdk.ImplResponse, error) {
+	return HttpNotImplemented(nil)
 }
 
 func (s *InstanceService) ReadInstance(ctx context.Context, instanceId string) (sdk.ImplResponse, error) {

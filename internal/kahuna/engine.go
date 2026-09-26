@@ -49,6 +49,7 @@ func (ke *KahunaEngine) RegisterApiHandlers() {
 		NewKiwiRouter(),
 		NewKomputeRouter(),
 		NewKonveyRouter(),
+		NewKwarantineRouter(),
 		NewKyloRouter(),
 		NewNfsRouter(),
 		NewProjectRouter(),

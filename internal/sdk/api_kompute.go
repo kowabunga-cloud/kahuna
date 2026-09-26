@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.55.0
+ * API version: 0.56.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -125,6 +125,18 @@ func (c *KomputeAPIController) Routes() Routes {
 			"/api/v1/kompute/{komputeId}/shutdown",
 			c.ShutdownKompute,
 		},
+		"PlanKomputeKMotion": Route{
+			"PlanKomputeKMotion",
+			strings.ToUpper("Post"),
+			"/api/v1/kompute/{komputeId}/kmotion/plan",
+			c.PlanKomputeKMotion,
+		},
+		"CommitKomputeKMotion": Route{
+			"CommitKomputeKMotion",
+			strings.ToUpper("Patch"),
+			"/api/v1/kompute/{komputeId}/kmotion/commit",
+			c.CommitKomputeKMotion,
+		},
 	}
 }
 
@@ -202,6 +214,18 @@ func (c *KomputeAPIController) OrderedRoutes() []Route {
 			strings.ToUpper("Patch"),
 			"/api/v1/kompute/{komputeId}/shutdown",
 			c.ShutdownKompute,
+		},
+		Route{
+			"PlanKomputeKMotion",
+			strings.ToUpper("Post"),
+			"/api/v1/kompute/{komputeId}/kmotion/plan",
+			c.PlanKomputeKMotion,
+		},
+		Route{
+			"CommitKomputeKMotion",
+			strings.ToUpper("Patch"),
+			"/api/v1/kompute/{komputeId}/kmotion/commit",
+			c.CommitKomputeKMotion,
 		},
 	}
 }
@@ -429,6 +453,82 @@ func (c *KomputeAPIController) ShutdownKompute(w http.ResponseWriter, r *http.Re
 		return
 	}
 	result, err := c.service.ShutdownKompute(r.Context(), komputeIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// PlanKomputeKMotion -
+func (c *KomputeAPIController) PlanKomputeKMotion(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	komputeIdParam := params["komputeId"]
+	if komputeIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"komputeId"}, nil)
+		return
+	}
+	var kMotionPlanRequestParam KMotionPlanRequest
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&kMotionPlanRequestParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertKMotionPlanRequestRequired(kMotionPlanRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertKMotionPlanRequestConstraints(kMotionPlanRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.PlanKomputeKMotion(r.Context(), komputeIdParam, kMotionPlanRequestParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// CommitKomputeKMotion -
+func (c *KomputeAPIController) CommitKomputeKMotion(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	komputeIdParam := params["komputeId"]
+	if komputeIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"komputeId"}, nil)
+		return
+	}
+	var kMotionCommitRequestParam KMotionCommitRequest
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&kMotionCommitRequestParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertKMotionCommitRequestRequired(kMotionCommitRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertKMotionCommitRequestConstraints(kMotionCommitRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.CommitKomputeKMotion(r.Context(), komputeIdParam, kMotionCommitRequestParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

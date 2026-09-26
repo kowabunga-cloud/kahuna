@@ -17,21 +17,21 @@ import (
 	"errors"
 )
 
-// KaktusAPIService is a service that implements the logic for the KaktusAPIServicer
-// This service should implement the business logic for every endpoint for the KaktusAPI API.
+// KwarantineAPIService is a service that implements the logic for the KwarantineAPIServicer
+// This service should implement the business logic for every endpoint for the KwarantineAPI API.
 // Include any external packages or services that will be required by this service.
-type KaktusAPIService struct {
+type KwarantineAPIService struct {
 }
 
-// NewKaktusAPIService creates a default api service
-func NewKaktusAPIService() *KaktusAPIService {
-	return &KaktusAPIService{}
+// NewKwarantineAPIService creates a default api service
+func NewKwarantineAPIService() *KwarantineAPIService {
+	return &KwarantineAPIService{}
 }
 
-// ListKaktuss -
-func (s *KaktusAPIService) ListKaktuss(ctx context.Context) (ImplResponse, error) {
-	// TODO - update ListKaktuss with the required logic for this service method.
-	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+// ListKwarantines -
+func (s *KwarantineAPIService) ListKwarantines(ctx context.Context) (ImplResponse, error) {
+	// TODO - update ListKwarantines with the required logic for this service method.
+	// Add api_kwarantine_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []string{}) or use other options such as http.Ok ...
 	// return Response(200, []string{}), nil
@@ -42,16 +42,16 @@ func (s *KaktusAPIService) ListKaktuss(ctx context.Context) (ImplResponse, error
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ListKaktuss method not implemented")
+	return Response(http.StatusNotImplemented, nil), errors.New("ListKwarantines method not implemented")
 }
 
-// ReadKaktus -
-func (s *KaktusAPIService) ReadKaktus(ctx context.Context, kaktusId string) (ImplResponse, error) {
-	// TODO - update ReadKaktus with the required logic for this service method.
-	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+// ReadKwarantine -
+func (s *KwarantineAPIService) ReadKwarantine(ctx context.Context, kwarantineId string) (ImplResponse, error) {
+	// TODO - update ReadKwarantine with the required logic for this service method.
+	// Add api_kwarantine_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
-	// TODO: Uncomment the next line to return response Response(200, Kaktus{}) or use other options such as http.Ok ...
-	// return Response(200, Kaktus{}), nil
+	// TODO: Uncomment the next line to return response Response(200, Kwarantine{}) or use other options such as http.Ok ...
+	// return Response(200, Kwarantine{}), nil
 
 	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
 	// return Response(401, ApiErrorUnauthorized{}), nil
@@ -62,16 +62,16 @@ func (s *KaktusAPIService) ReadKaktus(ctx context.Context, kaktusId string) (Imp
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ReadKaktus method not implemented")
+	return Response(http.StatusNotImplemented, nil), errors.New("ReadKwarantine method not implemented")
 }
 
-// UpdateKaktus -
-func (s *KaktusAPIService) UpdateKaktus(ctx context.Context, kaktusId string, kaktus Kaktus) (ImplResponse, error) {
-	// TODO - update UpdateKaktus with the required logic for this service method.
-	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+// UpdateKwarantine -
+func (s *KwarantineAPIService) UpdateKwarantine(ctx context.Context, kwarantineId string, kwarantine Kwarantine) (ImplResponse, error) {
+	// TODO - update UpdateKwarantine with the required logic for this service method.
+	// Add api_kwarantine_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
-	// TODO: Uncomment the next line to return response Response(200, Kaktus{}) or use other options such as http.Ok ...
-	// return Response(200, Kaktus{}), nil
+	// TODO: Uncomment the next line to return response Response(200, Kwarantine{}) or use other options such as http.Ok ...
+	// return Response(200, Kwarantine{}), nil
 
 	// TODO: Uncomment the next line to return response Response(400, ApiErrorBadRequest{}) or use other options such as http.Ok ...
 	// return Response(400, ApiErrorBadRequest{}), nil
@@ -91,13 +91,13 @@ func (s *KaktusAPIService) UpdateKaktus(ctx context.Context, kaktusId string, ka
 	// TODO: Uncomment the next line to return response Response(507, ApiErrorInsufficientResource{}) or use other options such as http.Ok ...
 	// return Response(507, ApiErrorInsufficientResource{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("UpdateKaktus method not implemented")
+	return Response(http.StatusNotImplemented, nil), errors.New("UpdateKwarantine method not implemented")
 }
 
-// DeleteKaktus -
-func (s *KaktusAPIService) DeleteKaktus(ctx context.Context, kaktusId string) (ImplResponse, error) {
-	// TODO - update DeleteKaktus with the required logic for this service method.
-	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+// DeleteKwarantine -
+func (s *KwarantineAPIService) DeleteKwarantine(ctx context.Context, kwarantineId string) (ImplResponse, error) {
+	// TODO - update DeleteKwarantine with the required logic for this service method.
+	// Add api_kwarantine_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
 	// return Response(200, nil),nil
@@ -117,13 +117,36 @@ func (s *KaktusAPIService) DeleteKaktus(ctx context.Context, kaktusId string) (I
 	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
 	// return Response(422, ApiErrorUnprocessableEntity{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("DeleteKaktus method not implemented")
+	return Response(http.StatusNotImplemented, nil), errors.New("DeleteKwarantine method not implemented")
 }
 
-// EnableKaktusMaintenance -
-func (s *KaktusAPIService) EnableKaktusMaintenance(ctx context.Context, kaktusId string) (ImplResponse, error) {
-	// TODO - update EnableKaktusMaintenance with the required logic for this service method.
-	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+// AddKwarantineInstance -
+func (s *KwarantineAPIService) AddKwarantineInstance(ctx context.Context, kwarantineId string, instanceId string) (ImplResponse, error) {
+	// TODO - update AddKwarantineInstance with the required logic for this service method.
+	// Add api_kwarantine_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(200, Kwarantine{}) or use other options such as http.Ok ...
+	// return Response(200, Kwarantine{}), nil
+
+	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
+	// return Response(401, ApiErrorUnauthorized{}), nil
+
+	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
+	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
+	// return Response(404, ApiErrorNotFound{}), nil
+
+	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
+	// return Response(422, ApiErrorUnprocessableEntity{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("AddKwarantineInstance method not implemented")
+}
+
+// RemoveKwarantineInstance -
+func (s *KwarantineAPIService) RemoveKwarantineInstance(ctx context.Context, kwarantineId string, instanceId string) (ImplResponse, error) {
+	// TODO - update RemoveKwarantineInstance with the required logic for this service method.
+	// Add api_kwarantine_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
 	// return Response(200, nil),nil
@@ -140,13 +163,36 @@ func (s *KaktusAPIService) EnableKaktusMaintenance(ctx context.Context, kaktusId
 	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
 	// return Response(422, ApiErrorUnprocessableEntity{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("EnableKaktusMaintenance method not implemented")
+	return Response(http.StatusNotImplemented, nil), errors.New("RemoveKwarantineInstance method not implemented")
 }
 
-// DisableKaktusMaintenance -
-func (s *KaktusAPIService) DisableKaktusMaintenance(ctx context.Context, kaktusId string) (ImplResponse, error) {
-	// TODO - update DisableKaktusMaintenance with the required logic for this service method.
-	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+// AddKwarantineKompute -
+func (s *KwarantineAPIService) AddKwarantineKompute(ctx context.Context, kwarantineId string, komputeId string) (ImplResponse, error) {
+	// TODO - update AddKwarantineKompute with the required logic for this service method.
+	// Add api_kwarantine_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(200, Kwarantine{}) or use other options such as http.Ok ...
+	// return Response(200, Kwarantine{}), nil
+
+	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
+	// return Response(401, ApiErrorUnauthorized{}), nil
+
+	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
+	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
+	// return Response(404, ApiErrorNotFound{}), nil
+
+	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
+	// return Response(422, ApiErrorUnprocessableEntity{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("AddKwarantineKompute method not implemented")
+}
+
+// RemoveKwarantineKompute -
+func (s *KwarantineAPIService) RemoveKwarantineKompute(ctx context.Context, kwarantineId string, komputeId string) (ImplResponse, error) {
+	// TODO - update RemoveKwarantineKompute with the required logic for this service method.
+	// Add api_kwarantine_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
 	// return Response(200, nil),nil
@@ -163,45 +209,5 @@ func (s *KaktusAPIService) DisableKaktusMaintenance(ctx context.Context, kaktusI
 	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
 	// return Response(422, ApiErrorUnprocessableEntity{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("DisableKaktusMaintenance method not implemented")
-}
-
-// ReadKaktusCaps -
-func (s *KaktusAPIService) ReadKaktusCaps(ctx context.Context, kaktusId string) (ImplResponse, error) {
-	// TODO - update ReadKaktusCaps with the required logic for this service method.
-	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	// TODO: Uncomment the next line to return response Response(200, KaktusCaps{}) or use other options such as http.Ok ...
-	// return Response(200, KaktusCaps{}), nil
-
-	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
-	// return Response(401, ApiErrorUnauthorized{}), nil
-
-	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
-	// return Response(403, ApiErrorForbidden{}), nil
-
-	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
-	// return Response(404, ApiErrorNotFound{}), nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("ReadKaktusCaps method not implemented")
-}
-
-// ListKaktusInstances -
-func (s *KaktusAPIService) ListKaktusInstances(ctx context.Context, kaktusId string) (ImplResponse, error) {
-	// TODO - update ListKaktusInstances with the required logic for this service method.
-	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	// TODO: Uncomment the next line to return response Response(200, []string{}) or use other options such as http.Ok ...
-	// return Response(200, []string{}), nil
-
-	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
-	// return Response(401, ApiErrorUnauthorized{}), nil
-
-	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
-	// return Response(403, ApiErrorForbidden{}), nil
-
-	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
-	// return Response(404, ApiErrorNotFound{}), nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("ListKaktusInstances method not implemented")
+	return Response(http.StatusNotImplemented, nil), errors.New("RemoveKwarantineKompute method not implemented")
 }

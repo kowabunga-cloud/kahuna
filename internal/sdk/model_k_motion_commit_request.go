@@ -19,34 +19,26 @@ import (
 
 
 
-type ApiErrorBadRequest struct {
+// KMotionCommitRequest - A virtual machine instance kMotion commit request.
+type KMotionCommitRequest struct {
 
-	Status int32 `json:"status"`
-
-	Error string `json:"error"`
-
-	Reason string `json:"reason"`
+	// The ID of the previously computed kMotion plan (see kMotion plan webservice) to execute.
+	Plan string `json:"plan"`
 }
-// UnmarshalJSON validates required property keys then unmarshals into ApiErrorBadRequest
-func (o *ApiErrorBadRequest) UnmarshalJSON(data []byte) (err error) {
+// UnmarshalJSON validates required property keys then unmarshals into KMotionCommitRequest
+func (o *KMotionCommitRequest) UnmarshalJSON(data []byte) (err error) {
 	// Presence is checked against required fields that exist on this struct,
 	// including fields promoted from embedded allOf parents.
 	requiredProperties := []string{
-		"status",
-		"error",
-		"reason",
+		"plan",
 	}
 
 	requiredNullableProperties := map[string]bool{
-		"status": false,
-		"error": false,
-		"reason": false,
+		"plan": false,
 	}
 
 	allowedJsonKeys := map[string]struct{}{
-		"status": {},
-		"error": {},
-		"reason": {},
+		"plan": {},
 	}
 
 	allProperties := make(map[string]json.RawMessage)
@@ -73,20 +65,10 @@ func (o *ApiErrorBadRequest) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	var decoded ApiErrorBadRequest
+	var decoded KMotionCommitRequest
 
-	if value, exists := allProperties["status"]; exists {
-		if err = json.Unmarshal(value, &decoded.Status); err != nil {
-			return err
-		}
-	}
-	if value, exists := allProperties["error"]; exists {
-		if err = json.Unmarshal(value, &decoded.Error); err != nil {
-			return err
-		}
-	}
-	if value, exists := allProperties["reason"]; exists {
-		if err = json.Unmarshal(value, &decoded.Reason); err != nil {
+	if value, exists := allProperties["plan"]; exists {
+		if err = json.Unmarshal(value, &decoded.Plan); err != nil {
 			return err
 		}
 	}
@@ -96,13 +78,13 @@ func (o *ApiErrorBadRequest) UnmarshalJSON(data []byte) (err error) {
 	return nil
 }
 
-// AssertApiErrorBadRequestRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// AssertKMotionCommitRequestRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
-func AssertApiErrorBadRequestRequired(obj ApiErrorBadRequest) error {
+func AssertKMotionCommitRequestRequired(obj KMotionCommitRequest) error {
 	return nil
 }
 
-// AssertApiErrorBadRequestConstraints checks if the values respects the defined constraints
-func AssertApiErrorBadRequestConstraints(obj ApiErrorBadRequest) error {
+// AssertKMotionCommitRequestConstraints checks if the values respects the defined constraints
+func AssertKMotionCommitRequestConstraints(obj KMotionCommitRequest) error {
 	return nil
 }

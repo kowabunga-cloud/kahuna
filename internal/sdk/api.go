@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.55.0
+ * API version: 0.56.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -55,6 +55,8 @@ type InstanceAPIRouter interface {
 	StopInstance(http.ResponseWriter, *http.Request)
 	ShutdownInstance(http.ResponseWriter, *http.Request)
 	ReadInstanceRemoteConnection(http.ResponseWriter, *http.Request)
+	PlanInstanceKMotion(http.ResponseWriter, *http.Request)
+	CommitInstanceKMotion(http.ResponseWriter, *http.Request)
 }
 // KaktusAPIRouter defines the required methods for binding the api requests to a responses for the KaktusAPI
 // The KaktusAPIRouter implementation should parse necessary information from the http request,
@@ -108,6 +110,8 @@ type KomputeAPIRouter interface {
 	StartKompute(http.ResponseWriter, *http.Request)
 	StopKompute(http.ResponseWriter, *http.Request)
 	ShutdownKompute(http.ResponseWriter, *http.Request)
+	PlanKomputeKMotion(http.ResponseWriter, *http.Request)
+	CommitKomputeKMotion(http.ResponseWriter, *http.Request)
 }
 // KonveyAPIRouter defines the required methods for binding the api requests to a responses for the KonveyAPI
 // The KonveyAPIRouter implementation should parse necessary information from the http request,
@@ -117,6 +121,19 @@ type KonveyAPIRouter interface {
 	ReadKonvey(http.ResponseWriter, *http.Request)
 	UpdateKonvey(http.ResponseWriter, *http.Request)
 	DeleteKonvey(http.ResponseWriter, *http.Request)
+}
+// KwarantineAPIRouter defines the required methods for binding the api requests to a responses for the KwarantineAPI
+// The KwarantineAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a KwarantineAPIServicer to perform the required actions, then write the service results to the http response.
+type KwarantineAPIRouter interface {
+	ListKwarantines(http.ResponseWriter, *http.Request)
+	ReadKwarantine(http.ResponseWriter, *http.Request)
+	UpdateKwarantine(http.ResponseWriter, *http.Request)
+	DeleteKwarantine(http.ResponseWriter, *http.Request)
+	AddKwarantineInstance(http.ResponseWriter, *http.Request)
+	RemoveKwarantineInstance(http.ResponseWriter, *http.Request)
+	AddKwarantineKompute(http.ResponseWriter, *http.Request)
+	RemoveKwarantineKompute(http.ResponseWriter, *http.Request)
 }
 // KyloAPIRouter defines the required methods for binding the api requests to a responses for the KyloAPI
 // The KyloAPIRouter implementation should parse necessary information from the http request,
@@ -161,6 +178,8 @@ type ProjectAPIRouter interface {
 	DeleteProject(http.ResponseWriter, *http.Request)
 	ReadProjectCost(http.ResponseWriter, *http.Request)
 	ReadProjectUsage(http.ResponseWriter, *http.Request)
+	CreateProjectKwarantine(http.ResponseWriter, *http.Request)
+	ListProjectKwarantines(http.ResponseWriter, *http.Request)
 	CreateProjectDnsRecord(http.ResponseWriter, *http.Request)
 	ListProjectDnsRecords(http.ResponseWriter, *http.Request)
 	CreateProjectRegionVolume(http.ResponseWriter, *http.Request)
@@ -343,6 +362,8 @@ type InstanceAPIServicer interface {
 	StopInstance(context.Context, string) (ImplResponse, error)
 	ShutdownInstance(context.Context, string) (ImplResponse, error)
 	ReadInstanceRemoteConnection(context.Context, string) (ImplResponse, error)
+	PlanInstanceKMotion(context.Context, string, KMotionPlanRequest) (ImplResponse, error)
+	CommitInstanceKMotion(context.Context, string, KMotionCommitRequest) (ImplResponse, error)
 }
 
 
@@ -408,6 +429,8 @@ type KomputeAPIServicer interface {
 	StartKompute(context.Context, string) (ImplResponse, error)
 	StopKompute(context.Context, string) (ImplResponse, error)
 	ShutdownKompute(context.Context, string) (ImplResponse, error)
+	PlanKomputeKMotion(context.Context, string, KMotionPlanRequest) (ImplResponse, error)
+	CommitKomputeKMotion(context.Context, string, KMotionCommitRequest) (ImplResponse, error)
 }
 
 
@@ -420,6 +443,22 @@ type KonveyAPIServicer interface {
 	ReadKonvey(context.Context, string) (ImplResponse, error)
 	UpdateKonvey(context.Context, string, Konvey) (ImplResponse, error)
 	DeleteKonvey(context.Context, string) (ImplResponse, error)
+}
+
+
+// KwarantineAPIServicer defines the api actions for the KwarantineAPI service
+// This interface intended to stay up to date with the openapi yaml used to generate it,
+// while the service implementation can be ignored with the .openapi-generator-ignore file
+// and updated with the logic required for the API.
+type KwarantineAPIServicer interface {
+	ListKwarantines(context.Context) (ImplResponse, error)
+	ReadKwarantine(context.Context, string) (ImplResponse, error)
+	UpdateKwarantine(context.Context, string, Kwarantine) (ImplResponse, error)
+	DeleteKwarantine(context.Context, string) (ImplResponse, error)
+	AddKwarantineInstance(context.Context, string, string) (ImplResponse, error)
+	RemoveKwarantineInstance(context.Context, string, string) (ImplResponse, error)
+	AddKwarantineKompute(context.Context, string, string) (ImplResponse, error)
+	RemoveKwarantineKompute(context.Context, string, string) (ImplResponse, error)
 }
 
 
@@ -476,6 +515,8 @@ type ProjectAPIServicer interface {
 	DeleteProject(context.Context, string) (ImplResponse, error)
 	ReadProjectCost(context.Context, string) (ImplResponse, error)
 	ReadProjectUsage(context.Context, string) (ImplResponse, error)
+	CreateProjectKwarantine(context.Context, string, Kwarantine) (ImplResponse, error)
+	ListProjectKwarantines(context.Context, string) (ImplResponse, error)
 	CreateProjectDnsRecord(context.Context, string, DnsRecord) (ImplResponse, error)
 	ListProjectDnsRecords(context.Context, string) (ImplResponse, error)
 	CreateProjectRegionVolume(context.Context, string, string, Volume, string, string) (ImplResponse, error)

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.55.0
+ * API version: 0.56.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -94,6 +94,18 @@ func (c *ProjectAPIController) Routes() Routes {
 			strings.ToUpper("Get"),
 			"/api/v1/project/{projectId}/usage",
 			c.ReadProjectUsage,
+		},
+		"CreateProjectKwarantine": Route{
+			"CreateProjectKwarantine",
+			strings.ToUpper("Post"),
+			"/api/v1/project/{projectId}/kwarantine",
+			c.CreateProjectKwarantine,
+		},
+		"ListProjectKwarantines": Route{
+			"ListProjectKwarantines",
+			strings.ToUpper("Get"),
+			"/api/v1/project/{projectId}/kwarantines",
+			c.ListProjectKwarantines,
 		},
 		"CreateProjectDnsRecord": Route{
 			"CreateProjectDnsRecord",
@@ -238,6 +250,18 @@ func (c *ProjectAPIController) OrderedRoutes() []Route {
 			strings.ToUpper("Get"),
 			"/api/v1/project/{projectId}/usage",
 			c.ReadProjectUsage,
+		},
+		Route{
+			"CreateProjectKwarantine",
+			strings.ToUpper("Post"),
+			"/api/v1/project/{projectId}/kwarantine",
+			c.CreateProjectKwarantine,
+		},
+		Route{
+			"ListProjectKwarantines",
+			strings.ToUpper("Get"),
+			"/api/v1/project/{projectId}/kwarantines",
+			c.ListProjectKwarantines,
 		},
 		Route{
 			"CreateProjectDnsRecord",
@@ -523,6 +547,62 @@ func (c *ProjectAPIController) ReadProjectUsage(w http.ResponseWriter, r *http.R
 		return
 	}
 	result, err := c.service.ReadProjectUsage(r.Context(), projectIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// CreateProjectKwarantine -
+func (c *ProjectAPIController) CreateProjectKwarantine(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	projectIdParam := params["projectId"]
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
+	var kwarantineParam Kwarantine
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&kwarantineParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertKwarantineRequired(kwarantineParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertKwarantineConstraints(kwarantineParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.CreateProjectKwarantine(r.Context(), projectIdParam, kwarantineParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// ListProjectKwarantines -
+func (c *ProjectAPIController) ListProjectKwarantines(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	projectIdParam := params["projectId"]
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
+	result, err := c.service.ListProjectKwarantines(r.Context(), projectIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

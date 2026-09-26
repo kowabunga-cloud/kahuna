@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.55.0
+ * API version: 0.56.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -45,6 +45,9 @@ type Instance struct {
 
 	// enable UEFI secure firmware (vs. legacy BIOS).
 	Uefi bool `json:"uefi,omitempty"`
+
+	// Whether kMotion (live/cold host migration) is enabled for the virtual machine instance. When disabled, the instance remains bound to its original hosting node.
+	KmotionEnabled bool `json:"kmotion_enabled,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into Instance
 func (o *Instance) UnmarshalJSON(data []byte) (err error) {
@@ -71,6 +74,7 @@ func (o *Instance) UnmarshalJSON(data []byte) (err error) {
 		"adapters": {},
 		"volumes": {},
 		"uefi": {},
+		"kmotion_enabled": {},
 	}
 
 	allProperties := make(map[string]json.RawMessage)
@@ -136,6 +140,11 @@ func (o *Instance) UnmarshalJSON(data []byte) (err error) {
 	}
 	if value, exists := allProperties["uefi"]; exists {
 		if err = json.Unmarshal(value, &decoded.Uefi); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["kmotion_enabled"]; exists {
+		if err = json.Unmarshal(value, &decoded.KmotionEnabled); err != nil {
 			return err
 		}
 	}

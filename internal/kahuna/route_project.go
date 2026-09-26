@@ -82,6 +82,10 @@ func (s *ProjectService) CreateProjectDnsRecord(ctx context.Context, projectId s
 	return HttpCreated(payload)
 }
 
+func (s *ProjectService) CreateProjectKwarantine(ctx context.Context, projectId string, kwarantine sdk.Kwarantine) (sdk.ImplResponse, error) {
+	return HttpNotImplemented(nil)
+}
+
 func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectId string, zoneId string, instance sdk.Instance) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("projectId", projectId), RA("zoneId", zoneId), RA("instance", instance))
 
@@ -677,6 +681,10 @@ func (s *ProjectService) ListProjectDnsRecords(ctx context.Context, projectId st
 
 	payload := p.DnsRecords()
 	return HttpOK(payload)
+}
+
+func (s *ProjectService) ListProjectKwarantines(ctx context.Context, projectId string) (sdk.ImplResponse, error) {
+	return HttpNotImplemented(nil)
 }
 
 func (s *ProjectService) ListProjectZoneInstances(ctx context.Context, projectId string, zoneId string) (sdk.ImplResponse, error) {

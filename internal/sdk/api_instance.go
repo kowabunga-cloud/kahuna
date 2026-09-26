@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.55.0
+ * API version: 0.56.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -131,6 +131,18 @@ func (c *InstanceAPIController) Routes() Routes {
 			"/api/v1/instance/{instanceId}/connect",
 			c.ReadInstanceRemoteConnection,
 		},
+		"PlanInstanceKMotion": Route{
+			"PlanInstanceKMotion",
+			strings.ToUpper("Post"),
+			"/api/v1/instance/{instanceId}/kmotion/plan",
+			c.PlanInstanceKMotion,
+		},
+		"CommitInstanceKMotion": Route{
+			"CommitInstanceKMotion",
+			strings.ToUpper("Patch"),
+			"/api/v1/instance/{instanceId}/kmotion/commit",
+			c.CommitInstanceKMotion,
+		},
 	}
 }
 
@@ -214,6 +226,18 @@ func (c *InstanceAPIController) OrderedRoutes() []Route {
 			strings.ToUpper("Get"),
 			"/api/v1/instance/{instanceId}/connect",
 			c.ReadInstanceRemoteConnection,
+		},
+		Route{
+			"PlanInstanceKMotion",
+			strings.ToUpper("Post"),
+			"/api/v1/instance/{instanceId}/kmotion/plan",
+			c.PlanInstanceKMotion,
+		},
+		Route{
+			"CommitInstanceKMotion",
+			strings.ToUpper("Patch"),
+			"/api/v1/instance/{instanceId}/kmotion/commit",
+			c.CommitInstanceKMotion,
 		},
 	}
 }
@@ -459,6 +483,82 @@ func (c *InstanceAPIController) ReadInstanceRemoteConnection(w http.ResponseWrit
 		return
 	}
 	result, err := c.service.ReadInstanceRemoteConnection(r.Context(), instanceIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// PlanInstanceKMotion -
+func (c *InstanceAPIController) PlanInstanceKMotion(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	instanceIdParam := params["instanceId"]
+	if instanceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"instanceId"}, nil)
+		return
+	}
+	var kMotionPlanRequestParam KMotionPlanRequest
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&kMotionPlanRequestParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertKMotionPlanRequestRequired(kMotionPlanRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertKMotionPlanRequestConstraints(kMotionPlanRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.PlanInstanceKMotion(r.Context(), instanceIdParam, kMotionPlanRequestParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// CommitInstanceKMotion -
+func (c *InstanceAPIController) CommitInstanceKMotion(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	instanceIdParam := params["instanceId"]
+	if instanceIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"instanceId"}, nil)
+		return
+	}
+	var kMotionCommitRequestParam KMotionCommitRequest
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&kMotionCommitRequestParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertKMotionCommitRequestRequired(kMotionCommitRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertKMotionCommitRequestConstraints(kMotionCommitRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.CommitInstanceKMotion(r.Context(), instanceIdParam, kMotionCommitRequestParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

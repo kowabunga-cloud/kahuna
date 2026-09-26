@@ -18,6 +18,10 @@ func NewKomputeRouter() sdk.Router {
 
 type KomputeService struct{}
 
+func (s *KomputeService) CommitKomputeKMotion(ctx context.Context, komputeId string, commit sdk.KMotionCommitRequest) (sdk.ImplResponse, error) {
+	return HttpNotImplemented(nil)
+}
+
 func (s *KomputeService) DeleteKompute(ctx context.Context, komputeId string) (sdk.ImplResponse, error) {
 	// ensure Kompute exists
 	k, err := FindKomputeByID(komputeId)
@@ -36,6 +40,10 @@ func (s *KomputeService) DeleteKompute(ctx context.Context, komputeId string) (s
 
 func (s *KomputeService) ListKomputes(ctx context.Context) (sdk.ImplResponse, error) {
 	return HttpOK(FindResourceIDs(MongoCollectionKomputeName))
+}
+
+func (s *KomputeService) PlanKomputeKMotion(ctx context.Context, komputeId string, plan sdk.KMotionPlanRequest) (sdk.ImplResponse, error) {
+	return HttpNotImplemented(nil)
 }
 
 func (s *KomputeService) ReadKompute(ctx context.Context, komputeId string) (sdk.ImplResponse, error) {
