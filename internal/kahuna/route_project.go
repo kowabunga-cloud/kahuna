@@ -172,7 +172,53 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 }
 
 func (s *ProjectService) CreateProjectRegionInstance(ctx context.Context, projectId string, regionId string, instance sdk.Instance) (sdk.ImplResponse, error) {
-	return HttpNotImplemented(nil)
+	LogHttpRequest(RA("projectId", projectId), RA("regionId", regionId), RA("instance", instance))
+
+	// ensure project exists
+	prj, err := FindProjectByID(projectId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	// ensure region exists
+	region, err := FindRegionByID(regionId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	// check for params
+	if instance.Name == "" || instance.Memory == 0 || instance.Vcpus == 0 {
+		return HttpBadParams(nil)
+	}
+
+	// ensure we're allowed by quotas
+	if !prj.AllowInstanceCreationOrUpdate(1, instance.Vcpus, instance.Memory) {
+		return HttpQuota(nil)
+	}
+
+	// ensure instance does not already exists (globally, across all projects)
+	_, err = FindInstanceByName(instance.Name)
+	if err == nil {
+		return HttpConflict(err)
+	}
+
+	// now find the best-suited kaktus node, across the whole region
+	// TODO: honor instance.Kwarantines once the SDK exposes it (openapi kwarantines field)
+	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(nil)
+	h, err := region.ElectMostFavorableKaktus(instance.Name, excludedKaktuses, excludedZones)
+	if err != nil {
+		return HttpServerError(err)
+	}
+
+	// create instance
+	i, err := NewInstance(prj.String(), h.String(), instance.Name, instance.Description, "", "", instance.Vcpus, instance.Memory, instance.Adapters, instance.Volumes, instance.Uefi)
+	if err != nil {
+		return HttpServerError(err)
+	}
+
+	payload := i.Model()
+	LogHttpResponse(payload)
+	return HttpCreated(payload)
 }
 
 func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId string, zoneId string, kompute sdk.Kompute, poolId string, templateId string, public bool) (sdk.ImplResponse, error) {
@@ -751,7 +797,13 @@ func (s *ProjectService) ListProjectZoneInstances(ctx context.Context, projectId
 }
 
 func (s *ProjectService) ListProjectRegionInstances(ctx context.Context, projectId string, regionId string) (sdk.ImplResponse, error) {
-	return HttpNotImplemented(nil)
+	p, err := FindProjectByID(projectId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	payload := p.Instances()
+	return HttpOK(payload)
 }
 
 func (s *ProjectService) ListProjectRegionKomputes(ctx context.Context, projectId string, regionId string) (sdk.ImplResponse, error) {
