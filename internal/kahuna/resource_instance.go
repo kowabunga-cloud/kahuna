@@ -913,6 +913,12 @@ func (i *Instance) Delete() error {
 		return err
 	}
 
+	// remove instance's reference from any Kwarantine anti-affinity group
+	err = RemoveInstanceFromKwarantines(i.String())
+	if err != nil {
+		return err
+	}
+
 	return GetDB().Delete(MongoCollectionInstanceName, i.ID)
 }
 

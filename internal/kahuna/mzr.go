@@ -179,7 +179,7 @@ func NewMultiZonesResource(projectId, regionId, namePrefix, desc, profile, profi
 
 		// pick best host from zone
 		mzrName := fmt.Sprintf("%s-%s", namePrefix, z.Name)
-		h, err := z.ElectMostFavorableKaktus(mzrName, z.Kaktuses())
+		h, err := z.ElectMostFavorableKaktus(mzrName, z.Kaktuses(), "")
 		if err != nil {
 			return nil, err
 		}

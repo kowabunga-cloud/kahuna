@@ -379,6 +379,12 @@ func (k *Kompute) Delete() error {
 		return err
 	}
 
+	// remove Kompute's reference from any Kwarantine anti-affinity group
+	err = RemoveKomputeFromKwarantines(k.String())
+	if err != nil {
+		return err
+	}
+
 	return GetDB().Delete(MongoCollectionKomputeName, k.ID)
 }
 

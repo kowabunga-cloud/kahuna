@@ -58,6 +58,7 @@ type Project struct {
 	KonveyIDs      []string          `bson:"konvey_ids"`
 	KyloIDs        []string          `bson:"kylo_ids"`
 	RecordIDs      []string          `bson:"record_ids"`
+	KwarantineIDs  []string          `bson:"kwarantine_ids"`
 	PrivateSubnets map[string]string `bson:"private_subnets"`
 	ZoneGateways   map[string]string `bson:"zone_gateways"`
 }
@@ -156,6 +157,7 @@ func NewProject(name, desc, domain, pwd, user, pubkey string, teams, regions, ta
 		KawaiiIDs:      []string{},
 		KonveyIDs:      []string{},
 		RecordIDs:      []string{},
+		KwarantineIDs:  []string{},
 		PrivateSubnets: map[string]string{},
 		ZoneGateways:   map[string]string{},
 	}
@@ -281,11 +283,12 @@ func (p *Project) Resources() []string {
 	res = append(res, p.KawaiiIDs...)
 	res = append(res, p.KonveyIDs...)
 	res = append(res, p.RecordIDs...)
+	res = append(res, p.KwarantineIDs...)
 	return res
 }
 
 func (p *Project) HasChildren() bool {
-	return HasChildRefs(p.InstanceIDs, p.VolumeIDs, p.KomputeIDs, p.KyloIDs, p.KawaiiIDs, p.KonveyIDs, p.RecordIDs)
+	return HasChildRefs(p.InstanceIDs, p.VolumeIDs, p.KomputeIDs, p.KyloIDs, p.KawaiiIDs, p.KonveyIDs, p.RecordIDs, p.KwarantineIDs)
 }
 
 func (p *Project) FindInstances() ([]Instance, error) {
@@ -856,6 +859,24 @@ func (p *Project) AddKylo(id string) error {
 func (p *Project) RemoveKylo(id string) error {
 	klog.Debugf("Removing Kylo %s from project %s", id, p.String())
 	RemoveChildRef(&p.KyloIDs, id)
+	return p.Save()
+}
+
+// Kwarantine
+
+func (p *Project) Kwarantines() []string {
+	return p.KwarantineIDs
+}
+
+func (p *Project) AddKwarantine(id string) error {
+	klog.Debugf("Adding Kwarantine %s to project %s", id, p.String())
+	AddChildRef(&p.KwarantineIDs, id)
+	return p.Save()
+}
+
+func (p *Project) RemoveKwarantine(id string) error {
+	klog.Debugf("Removing Kwarantine %s from project %s", id, p.String())
+	RemoveChildRef(&p.KwarantineIDs, id)
 	return p.Save()
 }
 

@@ -83,7 +83,42 @@ func (s *ProjectService) CreateProjectDnsRecord(ctx context.Context, projectId s
 }
 
 func (s *ProjectService) CreateProjectKwarantine(ctx context.Context, projectId string, kwarantine sdk.Kwarantine) (sdk.ImplResponse, error) {
-	return HttpNotImplemented(nil)
+	LogHttpRequest(RA("projectId", projectId), RA("kwarantine", kwarantine))
+
+	// ensure project exists
+	prj, err := FindProjectByID(projectId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	// check for params
+	if kwarantine.Name == "" {
+		return HttpBadParams(nil)
+	}
+
+	policy := kwarantine.Policy
+	if policy == "" {
+		policy = KwarantinePolicyHost
+	}
+	if policy != KwarantinePolicyHost && policy != KwarantinePolicyZone {
+		return HttpBadParams(nil)
+	}
+
+	// ensure Kwarantine does not already exists (globally, across all projects)
+	_, err = FindKwarantineByName(kwarantine.Name)
+	if err == nil {
+		return HttpConflict(err)
+	}
+
+	// create Kwarantine
+	k, err := NewKwarantine(prj.String(), kwarantine.Name, kwarantine.Description, policy)
+	if err != nil {
+		return HttpServerError(err)
+	}
+
+	payload := k.Model()
+	LogHttpResponse(payload)
+	return HttpCreated(payload)
 }
 
 func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectId string, zoneId string, instance sdk.Instance) (sdk.ImplResponse, error) {
@@ -118,7 +153,7 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	}
 
 	// now find the best-suited kaktus node
-	h, err := zone.ElectMostFavorableKaktus(instance.Name, zone.Kaktuses())
+	h, err := zone.ElectMostFavorableKaktus(instance.Name, zone.Kaktuses(), "")
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -200,7 +235,7 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	}
 
 	// now find the best-suited kaktus node
-	h, err := zone.ElectMostFavorableKaktus(kompute.Name, zone.Kaktuses())
+	h, err := zone.ElectMostFavorableKaktus(kompute.Name, zone.Kaktuses(), "")
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -294,7 +329,7 @@ func (s *ProjectService) CreateProjectZoneKonvey(ctx context.Context, projectId 
 	}
 
 	// now find the best-suited kaktus nodes
-	kaktuses, err := z.ElectMostFavorableKaktuses(konveyName, count)
+	kaktuses, err := z.ElectMostFavorableKaktuses(konveyName, count, "")
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -580,7 +615,7 @@ func (s *ProjectService) CreateProjectRegionKonvey(ctx context.Context, projectI
 			eligibleKaktuses = z.Kaktuses()
 		}
 
-		h, err := z.ElectMostFavorableKaktus(konveyName, eligibleKaktuses)
+		h, err := z.ElectMostFavorableKaktus(konveyName, eligibleKaktuses, "")
 		if err != nil {
 			return HttpServerError(err)
 		}
@@ -684,7 +719,13 @@ func (s *ProjectService) ListProjectDnsRecords(ctx context.Context, projectId st
 }
 
 func (s *ProjectService) ListProjectKwarantines(ctx context.Context, projectId string) (sdk.ImplResponse, error) {
-	return HttpNotImplemented(nil)
+	p, err := FindProjectByID(projectId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	payload := p.Kwarantines()
+	return HttpOK(payload)
 }
 
 func (s *ProjectService) ListProjectZoneInstances(ctx context.Context, projectId string, zoneId string) (sdk.ImplResponse, error) {

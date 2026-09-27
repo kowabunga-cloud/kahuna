@@ -195,12 +195,12 @@ func (z *Zone) Model() sdk.Zone {
 	}
 }
 
-func (z *Zone) ElectMostFavorableKaktuses(instanceName string, number int) ([]*Kaktus, error) {
+func (z *Zone) ElectMostFavorableKaktuses(instanceName string, number int, memberId string) ([]*Kaktus, error) {
 	var kaktuses []*Kaktus
 	kaktusCandidates := z.KaktusIDs
 
 	for i := 0; i < number; i++ {
-		kaktus, err := z.ElectMostFavorableKaktus(instanceName, kaktusCandidates)
+		kaktus, err := z.ElectMostFavorableKaktus(instanceName, kaktusCandidates, memberId)
 		if err != nil {
 			return kaktuses, err
 		}
@@ -221,9 +221,15 @@ func (z *Zone) ElectMostFavorableKaktuses(instanceName string, number int) ([]*K
 	return kaktuses, nil
 }
 
-func (z *Zone) ElectMostFavorableKaktus(instanceName string, kaktusCandidates []string) (*Kaktus, error) {
+// ElectMostFavorableKaktus picks the best-scored candidate Kaktus node for a
+// (re)scheduled workload. memberId is the instance or Kompute ID this
+// election is for, used to honor its Kwarantine anti-affinity group
+// memberships, if any; pass "" for a brand new resource that can't yet be a
+// group member.
+func (z *Zone) ElectMostFavorableKaktus(instanceName string, kaktusCandidates []string, memberId string) (*Kaktus, error) {
 	var kaktus *Kaktus
 	bestScore := KaktusMaxScore
+	excludedKaktuses, excludedZones := KwarantineExclusions(memberId)
 	for _, id := range kaktusCandidates {
 		h, err := FindKaktusByID(id)
 		if err != nil {
@@ -232,6 +238,11 @@ func (z *Zone) ElectMostFavorableKaktus(instanceName string, kaktusCandidates []
 
 		// a kaktus under maintenance must not receive any newly scheduled workload
 		if h.Maintenance {
+			continue
+		}
+
+		// a Kwarantine anti-affinity policy must never be violated, regardless of scheduling score
+		if excludedKaktuses[h.String()] || excludedZones[h.ZoneID] {
 			continue
 		}
 
