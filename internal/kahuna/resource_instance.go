@@ -931,6 +931,7 @@ func (i *Instance) Model() sdk.Instance {
 		Memory:      i.Memory,
 		Adapters:    i.Adapters(),
 		Volumes:     i.Volumes(),
+		Kwarantines: KwarantineIDsForInstance(i.String()),
 		Uefi:        i.Uefi,
 	}
 }

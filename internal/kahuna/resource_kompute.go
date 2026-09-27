@@ -393,6 +393,7 @@ func (k *Kompute) Model() sdk.Kompute {
 		Id:          k.String(),
 		Name:        k.Name,
 		Description: k.Description,
+		Kwarantines: KwarantineIDsForKompute(k.String()),
 	}
 
 	i, err := k.Instance()

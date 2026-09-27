@@ -153,8 +153,7 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	}
 
 	// now find the best-suited kaktus node
-	// TODO: honor instance.Kwarantines once the SDK exposes it (openapi kwarantines field)
-	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(nil)
+	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(instance.Kwarantines)
 	h, err := zone.ElectMostFavorableKaktus(instance.Name, zone.Kaktuses(), excludedKaktuses, excludedZones)
 	if err != nil {
 		return HttpServerError(err)
@@ -165,6 +164,9 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	if err != nil {
 		return HttpServerError(err)
 	}
+
+	// register instance as a member of every requested Kwarantine group, if any
+	RegisterInstanceWithKwarantines(i.String(), instance.Kwarantines)
 
 	payload := i.Model()
 	LogHttpResponse(payload)
@@ -203,8 +205,7 @@ func (s *ProjectService) CreateProjectRegionInstance(ctx context.Context, projec
 	}
 
 	// now find the best-suited kaktus node, across the whole region
-	// TODO: honor instance.Kwarantines once the SDK exposes it (openapi kwarantines field)
-	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(nil)
+	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(instance.Kwarantines)
 	h, err := region.ElectMostFavorableKaktus(instance.Name, excludedKaktuses, excludedZones)
 	if err != nil {
 		return HttpServerError(err)
@@ -215,6 +216,9 @@ func (s *ProjectService) CreateProjectRegionInstance(ctx context.Context, projec
 	if err != nil {
 		return HttpServerError(err)
 	}
+
+	// register instance as a member of every requested Kwarantine group, if any
+	RegisterInstanceWithKwarantines(i.String(), instance.Kwarantines)
 
 	payload := i.Model()
 	LogHttpResponse(payload)
@@ -287,8 +291,7 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	}
 
 	// now find the best-suited kaktus node
-	// TODO: honor kompute.Kwarantines once the SDK exposes it (openapi kwarantines field)
-	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(nil)
+	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(kompute.Kwarantines)
 	h, err := zone.ElectMostFavorableKaktus(kompute.Name, zone.Kaktuses(), excludedKaktuses, excludedZones)
 	if err != nil {
 		return HttpServerError(err)
@@ -303,6 +306,10 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	if err != nil {
 		return HttpServerError(err)
 	}
+
+	// register Kompute as a member of every requested Kwarantine group, if any
+	RegisterKomputeWithKwarantines(k.String(), kompute.Kwarantines)
+
 	payload := k.Model()
 	LogHttpResponse(payload)
 	return HttpCreated(payload)
@@ -368,8 +375,7 @@ func (s *ProjectService) CreateProjectRegionKompute(ctx context.Context, project
 	}
 
 	// now find the best-suited kaktus node, across the whole region
-	// TODO: honor kompute.Kwarantines once the SDK exposes it (openapi kwarantines field)
-	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(nil)
+	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(kompute.Kwarantines)
 	h, err := region.ElectMostFavorableKaktus(kompute.Name, excludedKaktuses, excludedZones)
 	if err != nil {
 		return HttpServerError(err)
@@ -384,6 +390,10 @@ func (s *ProjectService) CreateProjectRegionKompute(ctx context.Context, project
 	if err != nil {
 		return HttpServerError(err)
 	}
+
+	// register Kompute as a member of every requested Kwarantine group, if any
+	RegisterKomputeWithKwarantines(k.String(), kompute.Kwarantines)
+
 	payload := k.Model()
 	LogHttpResponse(payload)
 	return HttpCreated(payload)
