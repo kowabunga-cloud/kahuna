@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.56.0
+ * API version: 0.57.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -43,6 +43,9 @@ type Instance struct {
 	// volumes list of existing storage volumes (i.e. disks) to be connected to the instance.
 	Volumes []string `json:"volumes,omitempty"`
 
+	// An optional list of existing Kwarantine anti-affinity group IDs. Only considered at instance creation time, to elect an initial host consistent with the referenced groups policies and register the instance as one of their members. Read-only afterwards, always reflecting current membership, which should be managed going forward via the Kwarantine webservices.
+	Kwarantines []string `json:"kwarantines,omitempty"`
+
 	// enable UEFI secure firmware (vs. legacy BIOS).
 	Uefi bool `json:"uefi,omitempty"`
 
@@ -73,6 +76,7 @@ func (o *Instance) UnmarshalJSON(data []byte) (err error) {
 		"vcpus": {},
 		"adapters": {},
 		"volumes": {},
+		"kwarantines": {},
 		"uefi": {},
 		"kmotion_enabled": {},
 	}
@@ -135,6 +139,11 @@ func (o *Instance) UnmarshalJSON(data []byte) (err error) {
 	}
 	if value, exists := allProperties["volumes"]; exists {
 		if err = json.Unmarshal(value, &decoded.Volumes); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["kwarantines"]; exists {
+		if err = json.Unmarshal(value, &decoded.Kwarantines); err != nil {
 			return err
 		}
 	}

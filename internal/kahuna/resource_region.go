@@ -262,6 +262,24 @@ func (r *Region) ElectMostFavorableZones(count int) ([]string, error) {
 	return zones, nil
 }
 
+// ElectMostFavorableKaktus picks the best-scored Kaktus node across every
+// zone in the region (a flat, region-wide candidate pool), rather than
+// electing a zone first and a host within it. This can pick a different
+// (better-scoring) host than the zone-first approach when the overall best
+// individual host doesn't happen to sit in the region's overall best zone.
+func (r *Region) ElectMostFavorableKaktus(instanceName string, excludedKaktuses, excludedZones map[string]bool) (*Kaktus, error) {
+	candidates := []string{}
+	for _, zoneId := range r.ZoneIDs {
+		z, err := FindZoneByID(zoneId)
+		if err != nil {
+			continue
+		}
+		candidates = append(candidates, z.Kaktuses()...)
+	}
+
+	return electBestKaktus(instanceName, candidates, excludedKaktuses, excludedZones)
+}
+
 // Zones
 
 func (r *Region) Zones() []string {

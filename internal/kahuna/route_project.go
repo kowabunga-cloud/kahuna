@@ -153,7 +153,9 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	}
 
 	// now find the best-suited kaktus node
-	h, err := zone.ElectMostFavorableKaktus(instance.Name, zone.Kaktuses(), "")
+	// TODO: honor instance.Kwarantines once the SDK exposes it (openapi kwarantines field)
+	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(nil)
+	h, err := zone.ElectMostFavorableKaktus(instance.Name, zone.Kaktuses(), excludedKaktuses, excludedZones)
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -167,6 +169,10 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	payload := i.Model()
 	LogHttpResponse(payload)
 	return HttpCreated(payload)
+}
+
+func (s *ProjectService) CreateProjectRegionInstance(ctx context.Context, projectId string, regionId string, instance sdk.Instance) (sdk.ImplResponse, error) {
+	return HttpNotImplemented(nil)
 }
 
 func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId string, zoneId string, kompute sdk.Kompute, poolId string, templateId string, public bool) (sdk.ImplResponse, error) {
@@ -235,7 +241,9 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	}
 
 	// now find the best-suited kaktus node
-	h, err := zone.ElectMostFavorableKaktus(kompute.Name, zone.Kaktuses(), "")
+	// TODO: honor kompute.Kwarantines once the SDK exposes it (openapi kwarantines field)
+	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(nil)
+	h, err := zone.ElectMostFavorableKaktus(kompute.Name, zone.Kaktuses(), excludedKaktuses, excludedZones)
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -252,6 +260,10 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	payload := k.Model()
 	LogHttpResponse(payload)
 	return HttpCreated(payload)
+}
+
+func (s *ProjectService) CreateProjectRegionKompute(ctx context.Context, projectId string, regionId string, kompute sdk.Kompute, poolId string, templateId string, public bool) (sdk.ImplResponse, error) {
+	return HttpNotImplemented(nil)
 }
 
 func CreateProjectKonvey(projectId, regionId, name string, konvey sdk.Konvey, kaktusIds []string) (sdk.ImplResponse, error) {
@@ -329,7 +341,7 @@ func (s *ProjectService) CreateProjectZoneKonvey(ctx context.Context, projectId 
 	}
 
 	// now find the best-suited kaktus nodes
-	kaktuses, err := z.ElectMostFavorableKaktuses(konveyName, count, "")
+	kaktuses, err := z.ElectMostFavorableKaktuses(konveyName, count, map[string]bool{}, map[string]bool{})
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -615,7 +627,7 @@ func (s *ProjectService) CreateProjectRegionKonvey(ctx context.Context, projectI
 			eligibleKaktuses = z.Kaktuses()
 		}
 
-		h, err := z.ElectMostFavorableKaktus(konveyName, eligibleKaktuses, "")
+		h, err := z.ElectMostFavorableKaktus(konveyName, eligibleKaktuses, map[string]bool{}, map[string]bool{})
 		if err != nil {
 			return HttpServerError(err)
 		}
@@ -736,6 +748,14 @@ func (s *ProjectService) ListProjectZoneInstances(ctx context.Context, projectId
 
 	payload := p.Instances()
 	return HttpOK(payload)
+}
+
+func (s *ProjectService) ListProjectRegionInstances(ctx context.Context, projectId string, regionId string) (sdk.ImplResponse, error) {
+	return HttpNotImplemented(nil)
+}
+
+func (s *ProjectService) ListProjectRegionKomputes(ctx context.Context, projectId string, regionId string) (sdk.ImplResponse, error) {
+	return HttpNotImplemented(nil)
 }
 
 func (s *ProjectService) ListProjectZoneKomputes(ctx context.Context, projectId string, zoneId string) (sdk.ImplResponse, error) {

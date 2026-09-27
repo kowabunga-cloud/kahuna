@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.56.0
+ * API version: 0.57.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -186,8 +186,12 @@ type ProjectAPIRouter interface {
 	ListProjectRegionVolumes(http.ResponseWriter, *http.Request)
 	CreateProjectZoneInstance(http.ResponseWriter, *http.Request)
 	ListProjectZoneInstances(http.ResponseWriter, *http.Request)
+	CreateProjectRegionInstance(http.ResponseWriter, *http.Request)
+	ListProjectRegionInstances(http.ResponseWriter, *http.Request)
 	CreateProjectZoneKompute(http.ResponseWriter, *http.Request)
 	ListProjectZoneKomputes(http.ResponseWriter, *http.Request)
+	CreateProjectRegionKompute(http.ResponseWriter, *http.Request)
+	ListProjectRegionKomputes(http.ResponseWriter, *http.Request)
 	ListProjectRegionKylos(http.ResponseWriter, *http.Request)
 	CreateProjectRegionKylo(http.ResponseWriter, *http.Request)
 	CreateProjectRegionKawaii(http.ResponseWriter, *http.Request)
@@ -523,8 +527,12 @@ type ProjectAPIServicer interface {
 	ListProjectRegionVolumes(context.Context, string, string) (ImplResponse, error)
 	CreateProjectZoneInstance(context.Context, string, string, Instance) (ImplResponse, error)
 	ListProjectZoneInstances(context.Context, string, string) (ImplResponse, error)
+	CreateProjectRegionInstance(context.Context, string, string, Instance) (ImplResponse, error)
+	ListProjectRegionInstances(context.Context, string, string) (ImplResponse, error)
 	CreateProjectZoneKompute(context.Context, string, string, Kompute, string, string, bool) (ImplResponse, error)
 	ListProjectZoneKomputes(context.Context, string, string) (ImplResponse, error)
+	CreateProjectRegionKompute(context.Context, string, string, Kompute, string, string, bool) (ImplResponse, error)
+	ListProjectRegionKomputes(context.Context, string, string) (ImplResponse, error)
 	ListProjectRegionKylos(context.Context, string, string, string) (ImplResponse, error)
 	CreateProjectRegionKylo(context.Context, string, string, Kylo, string) (ImplResponse, error)
 	CreateProjectRegionKawaii(context.Context, string, string, Kawaii) (ImplResponse, error)

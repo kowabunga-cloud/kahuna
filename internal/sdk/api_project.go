@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.56.0
+ * API version: 0.57.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -143,6 +143,18 @@ func (c *ProjectAPIController) Routes() Routes {
 			"/api/v1/project/{projectId}/zone/{zoneId}/instances",
 			c.ListProjectZoneInstances,
 		},
+		"CreateProjectRegionInstance": Route{
+			"CreateProjectRegionInstance",
+			strings.ToUpper("Post"),
+			"/api/v1/project/{projectId}/region/{regionId}/instance",
+			c.CreateProjectRegionInstance,
+		},
+		"ListProjectRegionInstances": Route{
+			"ListProjectRegionInstances",
+			strings.ToUpper("Get"),
+			"/api/v1/project/{projectId}/region/{regionId}/instances",
+			c.ListProjectRegionInstances,
+		},
 		"CreateProjectZoneKompute": Route{
 			"CreateProjectZoneKompute",
 			strings.ToUpper("Post"),
@@ -154,6 +166,18 @@ func (c *ProjectAPIController) Routes() Routes {
 			strings.ToUpper("Get"),
 			"/api/v1/project/{projectId}/zone/{zoneId}/komputes",
 			c.ListProjectZoneKomputes,
+		},
+		"CreateProjectRegionKompute": Route{
+			"CreateProjectRegionKompute",
+			strings.ToUpper("Post"),
+			"/api/v1/project/{projectId}/region/{regionId}/kompute",
+			c.CreateProjectRegionKompute,
+		},
+		"ListProjectRegionKomputes": Route{
+			"ListProjectRegionKomputes",
+			strings.ToUpper("Get"),
+			"/api/v1/project/{projectId}/region/{regionId}/komputes",
+			c.ListProjectRegionKomputes,
 		},
 		"ListProjectRegionKylos": Route{
 			"ListProjectRegionKylos",
@@ -300,6 +324,18 @@ func (c *ProjectAPIController) OrderedRoutes() []Route {
 			c.ListProjectZoneInstances,
 		},
 		Route{
+			"CreateProjectRegionInstance",
+			strings.ToUpper("Post"),
+			"/api/v1/project/{projectId}/region/{regionId}/instance",
+			c.CreateProjectRegionInstance,
+		},
+		Route{
+			"ListProjectRegionInstances",
+			strings.ToUpper("Get"),
+			"/api/v1/project/{projectId}/region/{regionId}/instances",
+			c.ListProjectRegionInstances,
+		},
+		Route{
 			"CreateProjectZoneKompute",
 			strings.ToUpper("Post"),
 			"/api/v1/project/{projectId}/zone/{zoneId}/kompute",
@@ -310,6 +346,18 @@ func (c *ProjectAPIController) OrderedRoutes() []Route {
 			strings.ToUpper("Get"),
 			"/api/v1/project/{projectId}/zone/{zoneId}/komputes",
 			c.ListProjectZoneKomputes,
+		},
+		Route{
+			"CreateProjectRegionKompute",
+			strings.ToUpper("Post"),
+			"/api/v1/project/{projectId}/region/{regionId}/kompute",
+			c.CreateProjectRegionKompute,
+		},
+		Route{
+			"ListProjectRegionKomputes",
+			strings.ToUpper("Get"),
+			"/api/v1/project/{projectId}/region/{regionId}/komputes",
+			c.ListProjectRegionKomputes,
 		},
 		Route{
 			"ListProjectRegionKylos",
@@ -819,6 +867,72 @@ func (c *ProjectAPIController) ListProjectZoneInstances(w http.ResponseWriter, r
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
+// CreateProjectRegionInstance -
+func (c *ProjectAPIController) CreateProjectRegionInstance(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	projectIdParam := params["projectId"]
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
+	regionIdParam := params["regionId"]
+	if regionIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"regionId"}, nil)
+		return
+	}
+	var instanceParam Instance
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&instanceParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertInstanceRequired(instanceParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertInstanceConstraints(instanceParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.CreateProjectRegionInstance(r.Context(), projectIdParam, regionIdParam, instanceParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// ListProjectRegionInstances -
+func (c *ProjectAPIController) ListProjectRegionInstances(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	projectIdParam := params["projectId"]
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
+	regionIdParam := params["regionId"]
+	if regionIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"regionId"}, nil)
+		return
+	}
+	result, err := c.service.ListProjectRegionInstances(r.Context(), projectIdParam, regionIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
 // CreateProjectZoneKompute -
 func (c *ProjectAPIController) CreateProjectZoneKompute(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
@@ -909,6 +1023,105 @@ func (c *ProjectAPIController) ListProjectZoneKomputes(w http.ResponseWriter, r 
 		return
 	}
 	result, err := c.service.ListProjectZoneKomputes(r.Context(), projectIdParam, zoneIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// CreateProjectRegionKompute -
+func (c *ProjectAPIController) CreateProjectRegionKompute(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	query, err := parseQuery(r.URL.RawQuery)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	projectIdParam := params["projectId"]
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
+	regionIdParam := params["regionId"]
+	if regionIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"regionId"}, nil)
+		return
+	}
+	var komputeParam Kompute
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&komputeParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertKomputeRequired(komputeParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertKomputeConstraints(komputeParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	var poolIdParam string
+	if query.Has("poolId") {
+		param := query.Get("poolId")
+
+		poolIdParam = param
+	} else {
+	}
+	var templateIdParam string
+	if query.Has("templateId") {
+		param := query.Get("templateId")
+
+		templateIdParam = param
+	} else {
+	}
+	var publicParam bool
+	if query.Has("public") {
+		param, err := parseBoolParameter(
+			query.Get("public"),
+			WithParse[bool](parseBool),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Param: "public", Err: err}, nil)
+			return
+		}
+
+		publicParam = param
+	} else {
+	}
+	result, err := c.service.CreateProjectRegionKompute(r.Context(), projectIdParam, regionIdParam, komputeParam, poolIdParam, templateIdParam, publicParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// ListProjectRegionKomputes -
+func (c *ProjectAPIController) ListProjectRegionKomputes(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	projectIdParam := params["projectId"]
+	if projectIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"projectId"}, nil)
+		return
+	}
+	regionIdParam := params["regionId"]
+	if regionIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"regionId"}, nil)
+		return
+	}
+	result, err := c.service.ListProjectRegionKomputes(r.Context(), projectIdParam, regionIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

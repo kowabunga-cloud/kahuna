@@ -150,23 +150,18 @@ func kwarantineMemberKaktus(memberId string) *Kaktus {
 	return nil
 }
 
-// KwarantineExclusions returns the set of Kaktus node IDs and the set of
-// availability zone IDs that memberId (an instance or Kompute ID) must not
-// be (re)scheduled onto/into, due to its Kwarantine anti-affinity group
-// memberships. memberId may be empty (e.g. a brand new instance that hasn't
-// joined any group yet), in which case both sets are empty.
-func KwarantineExclusions(memberId string) (excludedKaktuses, excludedZones map[string]bool) {
+// kwarantineExclusionsForMembers computes the exclusion sets implied by a
+// list of Kwarantine groups, ignoring any member whose ID matches selfId
+// (pass "" when there is no self to exclude, e.g. a brand new instance or
+// Kompute that isn't listed as a member of any group yet).
+func kwarantineExclusionsForMembers(groups []Kwarantine, selfId string) (excludedKaktuses, excludedZones map[string]bool) {
 	excludedKaktuses = map[string]bool{}
 	excludedZones = map[string]bool{}
-	if memberId == "" {
-		return
-	}
 
-	groups := append(FindKwarantinesByInstance(memberId), FindKwarantinesByKompute(memberId)...)
 	for _, g := range groups {
 		members := append(append([]string{}, g.InstanceIDs...), g.KomputeIDs...)
 		for _, m := range members {
-			if m == memberId {
+			if m == selfId {
 				continue
 			}
 
@@ -184,6 +179,40 @@ func KwarantineExclusions(memberId string) (excludedKaktuses, excludedZones map[
 	}
 
 	return
+}
+
+// KwarantineExclusions returns the set of Kaktus node IDs and the set of
+// availability zone IDs that memberId (an existing instance or Kompute ID)
+// must not be re-scheduled onto/into, due to its current Kwarantine
+// anti-affinity group memberships. memberId may be empty (e.g. a brand new
+// instance that hasn't joined any group yet), in which case both sets are
+// empty.
+func KwarantineExclusions(memberId string) (excludedKaktuses, excludedZones map[string]bool) {
+	if memberId == "" {
+		return map[string]bool{}, map[string]bool{}
+	}
+
+	groups := append(FindKwarantinesByInstance(memberId), FindKwarantinesByKompute(memberId)...)
+	return kwarantineExclusionsForMembers(groups, memberId)
+}
+
+// KwarantineExclusionsForGroups is the creation-time counterpart to
+// KwarantineExclusions: for a brand new instance or Kompute that is about to
+// be created and registered as a member of groupIds, it returns the same
+// exclusion sets, computed from those groups' *current* members. There is
+// no self to exclude, since the new resource has no identity yet. Unknown
+// group IDs are silently ignored.
+func KwarantineExclusionsForGroups(groupIds []string) (excludedKaktuses, excludedZones map[string]bool) {
+	groups := []Kwarantine{}
+	for _, id := range groupIds {
+		g, err := FindKwarantineByID(id)
+		if err != nil {
+			continue
+		}
+		groups = append(groups, *g)
+	}
+
+	return kwarantineExclusionsForMembers(groups, "")
 }
 
 func (k *Kwarantine) Project() (*Project, error) {

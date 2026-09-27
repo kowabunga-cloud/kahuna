@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.56.0
+ * API version: 0.57.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -400,6 +400,58 @@ func (s *ProjectAPIService) ListProjectZoneInstances(ctx context.Context, projec
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectZoneInstances method not implemented")
 }
 
+// CreateProjectRegionInstance -
+func (s *ProjectAPIService) CreateProjectRegionInstance(ctx context.Context, projectId string, regionId string, instance Instance) (ImplResponse, error) {
+	// TODO - update CreateProjectRegionInstance with the required logic for this service method.
+	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(201, Instance{}) or use other options such as http.Ok ...
+	// return Response(201, Instance{}), nil
+
+	// TODO: Uncomment the next line to return response Response(400, ApiErrorBadRequest{}) or use other options such as http.Ok ...
+	// return Response(400, ApiErrorBadRequest{}), nil
+
+	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
+	// return Response(401, ApiErrorUnauthorized{}), nil
+
+	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
+	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
+	// return Response(404, ApiErrorNotFound{}), nil
+
+	// TODO: Uncomment the next line to return response Response(409, ApiErrorConflict{}) or use other options such as http.Ok ...
+	// return Response(409, ApiErrorConflict{}), nil
+
+	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
+	// return Response(422, ApiErrorUnprocessableEntity{}), nil
+
+	// TODO: Uncomment the next line to return response Response(507, ApiErrorInsufficientResource{}) or use other options such as http.Ok ...
+	// return Response(507, ApiErrorInsufficientResource{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectRegionInstance method not implemented")
+}
+
+// ListProjectRegionInstances -
+func (s *ProjectAPIService) ListProjectRegionInstances(ctx context.Context, projectId string, regionId string) (ImplResponse, error) {
+	// TODO - update ListProjectRegionInstances with the required logic for this service method.
+	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(200, []string{}) or use other options such as http.Ok ...
+	// return Response(200, []string{}), nil
+
+	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
+	// return Response(401, ApiErrorUnauthorized{}), nil
+
+	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
+	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
+	// return Response(404, ApiErrorNotFound{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectRegionInstances method not implemented")
+}
+
 // CreateProjectZoneKompute -
 func (s *ProjectAPIService) CreateProjectZoneKompute(ctx context.Context, projectId string, zoneId string, kompute Kompute, poolId string, templateId string, public bool) (ImplResponse, error) {
 	// TODO - update CreateProjectZoneKompute with the required logic for this service method.
@@ -450,6 +502,58 @@ func (s *ProjectAPIService) ListProjectZoneKomputes(ctx context.Context, project
 	// return Response(404, ApiErrorNotFound{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectZoneKomputes method not implemented")
+}
+
+// CreateProjectRegionKompute -
+func (s *ProjectAPIService) CreateProjectRegionKompute(ctx context.Context, projectId string, regionId string, kompute Kompute, poolId string, templateId string, public bool) (ImplResponse, error) {
+	// TODO - update CreateProjectRegionKompute with the required logic for this service method.
+	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(201, Kompute{}) or use other options such as http.Ok ...
+	// return Response(201, Kompute{}), nil
+
+	// TODO: Uncomment the next line to return response Response(400, ApiErrorBadRequest{}) or use other options such as http.Ok ...
+	// return Response(400, ApiErrorBadRequest{}), nil
+
+	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
+	// return Response(401, ApiErrorUnauthorized{}), nil
+
+	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
+	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
+	// return Response(404, ApiErrorNotFound{}), nil
+
+	// TODO: Uncomment the next line to return response Response(409, ApiErrorConflict{}) or use other options such as http.Ok ...
+	// return Response(409, ApiErrorConflict{}), nil
+
+	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
+	// return Response(422, ApiErrorUnprocessableEntity{}), nil
+
+	// TODO: Uncomment the next line to return response Response(507, ApiErrorInsufficientResource{}) or use other options such as http.Ok ...
+	// return Response(507, ApiErrorInsufficientResource{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectRegionKompute method not implemented")
+}
+
+// ListProjectRegionKomputes -
+func (s *ProjectAPIService) ListProjectRegionKomputes(ctx context.Context, projectId string, regionId string) (ImplResponse, error) {
+	// TODO - update ListProjectRegionKomputes with the required logic for this service method.
+	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(200, []string{}) or use other options such as http.Ok ...
+	// return Response(200, []string{}), nil
+
+	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
+	// return Response(401, ApiErrorUnauthorized{}), nil
+
+	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
+	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
+	// return Response(404, ApiErrorNotFound{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectRegionKomputes method not implemented")
 }
 
 // ListProjectRegionKylos -

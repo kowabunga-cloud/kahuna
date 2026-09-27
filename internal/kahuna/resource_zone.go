@@ -195,12 +195,12 @@ func (z *Zone) Model() sdk.Zone {
 	}
 }
 
-func (z *Zone) ElectMostFavorableKaktuses(instanceName string, number int, memberId string) ([]*Kaktus, error) {
+func (z *Zone) ElectMostFavorableKaktuses(instanceName string, number int, excludedKaktuses, excludedZones map[string]bool) ([]*Kaktus, error) {
 	var kaktuses []*Kaktus
 	kaktusCandidates := z.KaktusIDs
 
 	for i := 0; i < number; i++ {
-		kaktus, err := z.ElectMostFavorableKaktus(instanceName, kaktusCandidates, memberId)
+		kaktus, err := z.ElectMostFavorableKaktus(instanceName, kaktusCandidates, excludedKaktuses, excludedZones)
 		if err != nil {
 			return kaktuses, err
 		}
@@ -221,15 +221,22 @@ func (z *Zone) ElectMostFavorableKaktuses(instanceName string, number int, membe
 	return kaktuses, nil
 }
 
-// ElectMostFavorableKaktus picks the best-scored candidate Kaktus node for a
-// (re)scheduled workload. memberId is the instance or Kompute ID this
-// election is for, used to honor its Kwarantine anti-affinity group
-// memberships, if any; pass "" for a brand new resource that can't yet be a
-// group member.
-func (z *Zone) ElectMostFavorableKaktus(instanceName string, kaktusCandidates []string, memberId string) (*Kaktus, error) {
+// ElectMostFavorableKaktus picks the best-scored candidate Kaktus node,
+// among kaktusCandidates, for a (re)scheduled workload. excludedKaktuses and
+// excludedZones (see KwarantineExclusions/KwarantineExclusionsForGroups)
+// name candidates that must never be picked, regardless of score, to honor
+// Kwarantine anti-affinity group policies; pass empty maps when there are
+// none to enforce.
+func (z *Zone) ElectMostFavorableKaktus(instanceName string, kaktusCandidates []string, excludedKaktuses, excludedZones map[string]bool) (*Kaktus, error) {
+	return electBestKaktus(instanceName, kaktusCandidates, excludedKaktuses, excludedZones)
+}
+
+// electBestKaktus scores every candidate Kaktus node and returns the
+// lowest-scoring (i.e. least loaded) one that isn't excluded, whether by
+// maintenance mode or a Kwarantine anti-affinity constraint.
+func electBestKaktus(instanceName string, kaktusCandidates []string, excludedKaktuses, excludedZones map[string]bool) (*Kaktus, error) {
 	var kaktus *Kaktus
 	bestScore := KaktusMaxScore
-	excludedKaktuses, excludedZones := KwarantineExclusions(memberId)
 	for _, id := range kaktusCandidates {
 		h, err := FindKaktusByID(id)
 		if err != nil {
