@@ -15,7 +15,7 @@ require (
 	github.com/huandu/xstrings v1.6.1
 	github.com/inhies/go-bytesize v0.0.0-20220417184213-4913239db9cf
 	github.com/kdomanski/iso9660 v0.4.0
-	github.com/kowabunga-cloud/common v0.64.1
+	github.com/kowabunga-cloud/common v0.65.0
 	github.com/matcornic/hermes v1.3.0
 	github.com/netdata/go.d.plugin v0.58.1
 	github.com/prometheus/client_golang v1.24.1
