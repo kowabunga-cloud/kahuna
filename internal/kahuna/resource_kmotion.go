@@ -8,8 +8,15 @@ package kahuna
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
+)
+
+const (
+	kMotionShutdownTimeout      = 60 * time.Second
+	kMotionShutdownPollInterval = 2 * time.Second
 )
 
 const (
@@ -20,6 +27,13 @@ const (
 	KMotionDestinationZone   = "zone"
 	KMotionDestinationRegion = "region"
 	KMotionDestinationAuto   = "auto"
+
+	// ErrKMotionLiveNotSupported is returned (and specifically matched on by
+	// the route handlers, to map it to a distinct HTTP status) when a plan
+	// asks for a live migration: only cold (live=false) migrations are
+	// currently supported, since the Kaktus agent RPC protocol has no live
+	// migration call yet.
+	ErrKMotionLiveNotSupported = "live kMotion is not yet supported; only cold (non-live) migrations are currently available"
 )
 
 // KMotionPlan is a short-lived, single-use record of a proposed instance
@@ -156,4 +170,152 @@ func (k *Kompute) PlanMigration(destination, explicitKaktus string, live bool) (
 		return nil, err
 	}
 	return i.PlanMigration(destination, explicitKaktus, live)
+}
+
+// CommitMigration executes a previously computed kMotion plan. Only cold
+// (live=false) migrations are currently supported; a live plan is rejected
+// with ErrKMotionLiveNotSupported. The target is re-validated (still
+// exists, not under maintenance, still Kwarantine-compliant) since cluster
+// state may have changed since the plan was computed. The plan is consumed
+// (deleted) on success.
+func (i *Instance) CommitMigration(plan *KMotionPlan) error {
+	if plan.InstanceID != i.String() {
+		return fmt.Errorf("kMotion plan %s does not apply to instance %s", plan.String(), i.String())
+	}
+
+	if plan.Live {
+		return fmt.Errorf("%s", ErrKMotionLiveNotSupported)
+	}
+
+	target, err := FindKaktusByID(plan.TargetID)
+	if err != nil {
+		return err
+	}
+
+	if target.Maintenance {
+		return fmt.Errorf("kaktus %s is under maintenance, plan %s is no longer valid", target.String(), plan.String())
+	}
+
+	excludedKaktuses, excludedZones := KwarantineExclusions(i.String())
+	if excludedKaktuses[target.String()] || excludedZones[target.ZoneID] {
+		return fmt.Errorf("kaktus %s now violates a Kwarantine anti-affinity policy for instance %s, plan %s is no longer valid", target.String(), i.String(), plan.String())
+	}
+
+	if err := i.Migrate(target.String()); err != nil {
+		return err
+	}
+
+	return plan.Delete()
+}
+
+// Migrate performs a cold migration of the instance to a different Kaktus
+// computing node: it powers the instance off, undefines its libvirt domain
+// from the current host (attached volumes are never touched, only
+// re-attached to the redefined domain), moves it to the new host and
+// redefines (and, if it was running, restarts) it there. If redefining on
+// the target fails, it attempts a best-effort rollback onto the original
+// source host.
+func (i *Instance) Migrate(targetKaktusId string) error {
+	source, err := i.Kaktus()
+	if err != nil {
+		return err
+	}
+
+	target, err := FindKaktusByID(targetKaktusId)
+	if err != nil {
+		return err
+	}
+
+	if source.String() == target.String() {
+		return fmt.Errorf("instance %s is already hosted on kaktus %s", i.String(), target.String())
+	}
+
+	klog.Infof("Migrating instance %s from kaktus %s to kaktus %s", i.String(), source.String(), target.String())
+
+	wasRunning := i.IsRunning()
+	if wasRunning {
+		if err := i.shutdownForMigration(); err != nil {
+			return fmt.Errorf("unable to power off instance %s for migration: %w", i.String(), err)
+		}
+	}
+
+	// undefine the domain from the source host; volumes/adapters are
+	// untouched, only the compute definition moves
+	if err := i.delete(); err != nil {
+		return fmt.Errorf("unable to undefine instance %s on source kaktus %s: %w", i.String(), source.String(), err)
+	}
+
+	// move the instance to its new host
+	i.KaktusID = target.String()
+	if err := i.Save(); err != nil {
+		return err
+	}
+
+	// redefine (and, if it was running, restart) on the target host
+	if err := i.CreateInstance(); err != nil {
+		klog.Errorf("unable to redefine instance %s on target kaktus %s, attempting rollback onto %s: %v", i.String(), target.String(), source.String(), err)
+
+		i.KaktusID = source.String()
+		if saveErr := i.Save(); saveErr != nil {
+			klog.Errorf("rollback failed to restore instance %s kaktus assignment to %s: %v", i.String(), source.String(), saveErr)
+			return err
+		}
+		if rollbackErr := i.CreateInstance(); rollbackErr != nil {
+			klog.Errorf("rollback failed to redefine instance %s on source kaktus %s: %v", i.String(), source.String(), rollbackErr)
+			return fmt.Errorf("migration of instance %s failed and rollback also failed, it may now be undefined on every host: %w", i.String(), err)
+		}
+		return err
+	}
+
+	// move Kaktus-side bookkeeping (usage counters, instance-list membership)
+	if err := source.RemoveInstance(i.String()); err != nil {
+		klog.Error(err)
+	}
+	if err := target.AddInstance(i.String()); err != nil {
+		klog.Error(err)
+	}
+
+	return nil
+}
+
+// shutdownForMigration attempts a graceful ACPI shutdown, falling back to a
+// hard power-off if the guest doesn't cooperate within the grace period, so
+// a migration commit never hangs indefinitely on an unresponsive guest.
+func (i *Instance) shutdownForMigration() error {
+	if err := i.Shutdown(); err != nil {
+		return err
+	}
+	if i.waitUntilStopped(kMotionShutdownTimeout) {
+		return nil
+	}
+
+	klog.Warningf("instance %s did not shut down gracefully within %s, forcing power-off", i.String(), kMotionShutdownTimeout)
+	if err := i.Stop(); err != nil {
+		return err
+	}
+	if i.waitUntilStopped(kMotionShutdownTimeout) {
+		return nil
+	}
+
+	return fmt.Errorf("instance did not power off within %s", kMotionShutdownTimeout)
+}
+
+func (i *Instance) waitUntilStopped(timeout time.Duration) bool {
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		if !i.IsRunning() {
+			return true
+		}
+		time.Sleep(kMotionShutdownPollInterval)
+	}
+	return !i.IsRunning()
+}
+
+// CommitMigration is the Kompute counterpart to Instance.CommitMigration.
+func (k *Kompute) CommitMigration(plan *KMotionPlan) error {
+	i, err := k.Instance()
+	if err != nil {
+		return err
+	}
+	return i.CommitMigration(plan)
 }

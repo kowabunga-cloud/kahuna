@@ -19,7 +19,31 @@ func NewKomputeRouter() sdk.Router {
 type KomputeService struct{}
 
 func (s *KomputeService) CommitKomputeKMotion(ctx context.Context, komputeId string, commit sdk.KMotionCommitRequest) (sdk.ImplResponse, error) {
-	return HttpNotImplemented(nil)
+	LogHttpRequest(RA("komputeId", komputeId), RA("commit", commit))
+
+	if commit.Plan == "" {
+		return HttpBadParams(nil)
+	}
+
+	k, err := FindKomputeByID(komputeId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	p, err := FindKMotionPlanByID(commit.Plan)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	err = k.CommitMigration(p)
+	if err != nil {
+		if err.Error() == ErrKMotionLiveNotSupported {
+			return HttpNotImplemented(err)
+		}
+		return HttpServerError(err)
+	}
+
+	return HttpOK(nil)
 }
 
 func (s *KomputeService) DeleteKompute(ctx context.Context, komputeId string) (sdk.ImplResponse, error) {

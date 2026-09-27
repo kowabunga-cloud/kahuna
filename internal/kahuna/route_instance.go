@@ -19,7 +19,31 @@ func NewInstanceRouter() sdk.Router {
 type InstanceService struct{}
 
 func (s *InstanceService) CommitInstanceKMotion(ctx context.Context, instanceId string, commit sdk.KMotionCommitRequest) (sdk.ImplResponse, error) {
-	return HttpNotImplemented(nil)
+	LogHttpRequest(RA("instanceId", instanceId), RA("commit", commit))
+
+	if commit.Plan == "" {
+		return HttpBadParams(nil)
+	}
+
+	i, err := FindInstanceByID(instanceId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	p, err := FindKMotionPlanByID(commit.Plan)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	err = i.CommitMigration(p)
+	if err != nil {
+		if err.Error() == ErrKMotionLiveNotSupported {
+			return HttpNotImplemented(err)
+		}
+		return HttpServerError(err)
+	}
+
+	return HttpOK(nil)
 }
 
 func (s *InstanceService) DeleteInstance(ctx context.Context, instanceId string) (sdk.ImplResponse, error) {
