@@ -102,12 +102,9 @@ func FindKwarantinesByKompute(komputeId string) []Kwarantine {
 	return groups
 }
 
-// KwarantineIDsForInstance returns the IDs of every Kwarantine group a given
-// instance is currently a member of. Used to reflect live membership back
-// on Instance.Model(), since membership itself is only ever persisted on
-// the Kwarantine side.
-func KwarantineIDsForInstance(instanceId string) []string {
-	groups := FindKwarantinesByInstance(instanceId)
+// kwarantineIDs maps a list of Kwarantine groups to their IDs. Shared by
+// Instance.KwarantineIDs() and Kompute.KwarantineIDs().
+func kwarantineIDs(groups []Kwarantine) []string {
 	ids := make([]string, 0, len(groups))
 	for _, g := range groups {
 		ids = append(ids, g.String())
@@ -115,42 +112,19 @@ func KwarantineIDsForInstance(instanceId string) []string {
 	return ids
 }
 
-// KwarantineIDsForKompute is the Kompute counterpart to KwarantineIDsForInstance.
-func KwarantineIDsForKompute(komputeId string) []string {
-	groups := FindKwarantinesByKompute(komputeId)
-	ids := make([]string, 0, len(groups))
-	for _, g := range groups {
-		ids = append(ids, g.String())
-	}
-	return ids
-}
-
-// RegisterInstanceWithKwarantines adds instanceId as a member of every
-// Kwarantine group in groupIds, typically right after that instance was
-// created. Unknown group IDs are silently ignored, matching
+// registerMemberWithKwarantines adds memberId as a member of every
+// Kwarantine group in groupIds, via the given add func (Kwarantine.AddInstance
+// or Kwarantine.AddKompute), typically right after that member was created.
+// Unknown group IDs are silently ignored, matching
 // KwarantineExclusionsForGroups' leniency.
-func RegisterInstanceWithKwarantines(instanceId string, groupIds []string) {
+func registerMemberWithKwarantines(memberId string, groupIds []string, add func(k *Kwarantine, id string) error) {
 	for _, id := range groupIds {
 		g, err := FindKwarantineByID(id)
 		if err != nil {
 			continue
 		}
-		if err := g.AddInstance(instanceId); err != nil {
-			klog.Errorf("unable to add instance %s to Kwarantine %s: %v", instanceId, id, err)
-		}
-	}
-}
-
-// RegisterKomputeWithKwarantines is the Kompute counterpart to
-// RegisterInstanceWithKwarantines.
-func RegisterKomputeWithKwarantines(komputeId string, groupIds []string) {
-	for _, id := range groupIds {
-		g, err := FindKwarantineByID(id)
-		if err != nil {
-			continue
-		}
-		if err := g.AddKompute(komputeId); err != nil {
-			klog.Errorf("unable to add Kompute %s to Kwarantine %s: %v", komputeId, id, err)
+		if err := add(g, memberId); err != nil {
+			klog.Errorf("unable to add %s to Kwarantine %s: %v", memberId, id, err)
 		}
 	}
 }

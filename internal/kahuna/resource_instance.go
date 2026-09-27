@@ -814,6 +814,18 @@ func (i *Instance) Kaktus() (*Kaktus, error) {
 	return FindKaktusByID(i.KaktusID)
 }
 
+// KwarantineIDs returns the IDs of every Kwarantine group the instance is
+// currently a member of.
+func (i *Instance) KwarantineIDs() []string {
+	return kwarantineIDs(FindKwarantinesByInstance(i.String()))
+}
+
+// RegisterWithKwarantines adds the instance as a member of every Kwarantine
+// group in groupIds, typically right after it was created.
+func (i *Instance) RegisterWithKwarantines(groupIds []string) {
+	registerMemberWithKwarantines(i.String(), groupIds, (*Kwarantine).AddInstance)
+}
+
 func (i *Instance) HasChildren() bool {
 	// TODO: need to add instance reference to adapters and volumes and get them removed from list when deleted ?
 	// return HasChildRefs(i.Adapters(), i.Volumes())
@@ -931,7 +943,7 @@ func (i *Instance) Model() sdk.Instance {
 		Memory:      i.Memory,
 		Adapters:    i.Adapters(),
 		Volumes:     i.Volumes(),
-		Kwarantines: KwarantineIDsForInstance(i.String()),
+		Kwarantines: i.KwarantineIDs(),
 		Uefi:        i.Uefi,
 	}
 }

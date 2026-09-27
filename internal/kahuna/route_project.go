@@ -166,7 +166,7 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	}
 
 	// register instance as a member of every requested Kwarantine group, if any
-	RegisterInstanceWithKwarantines(i.String(), instance.Kwarantines)
+	i.RegisterWithKwarantines(instance.Kwarantines)
 
 	payload := i.Model()
 	LogHttpResponse(payload)
@@ -218,7 +218,7 @@ func (s *ProjectService) CreateProjectRegionInstance(ctx context.Context, projec
 	}
 
 	// register instance as a member of every requested Kwarantine group, if any
-	RegisterInstanceWithKwarantines(i.String(), instance.Kwarantines)
+	i.RegisterWithKwarantines(instance.Kwarantines)
 
 	payload := i.Model()
 	LogHttpResponse(payload)
@@ -308,7 +308,7 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	}
 
 	// register Kompute as a member of every requested Kwarantine group, if any
-	RegisterKomputeWithKwarantines(k.String(), kompute.Kwarantines)
+	k.RegisterWithKwarantines(kompute.Kwarantines)
 
 	payload := k.Model()
 	LogHttpResponse(payload)
@@ -392,7 +392,7 @@ func (s *ProjectService) CreateProjectRegionKompute(ctx context.Context, project
 	}
 
 	// register Kompute as a member of every requested Kwarantine group, if any
-	RegisterKomputeWithKwarantines(k.String(), kompute.Kwarantines)
+	k.RegisterWithKwarantines(kompute.Kwarantines)
 
 	payload := k.Model()
 	LogHttpResponse(payload)

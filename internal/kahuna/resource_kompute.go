@@ -304,6 +304,18 @@ func (k *Kompute) Instance() (*Instance, error) {
 	return FindInstanceByID(k.InstanceID)
 }
 
+// KwarantineIDs returns the IDs of every Kwarantine group the Kompute is
+// currently a member of.
+func (k *Kompute) KwarantineIDs() []string {
+	return kwarantineIDs(FindKwarantinesByKompute(k.String()))
+}
+
+// RegisterWithKwarantines adds the Kompute as a member of every Kwarantine
+// group in groupIds, typically right after it was created.
+func (k *Kompute) RegisterWithKwarantines(groupIds []string) {
+	registerMemberWithKwarantines(k.String(), groupIds, (*Kwarantine).AddKompute)
+}
+
 func (k *Kompute) Save() error {
 	k.Updated()
 	return resourceUpdate(MongoCollectionKomputeName, k.ID, k)
@@ -393,7 +405,7 @@ func (k *Kompute) Model() sdk.Kompute {
 		Id:          k.String(),
 		Name:        k.Name,
 		Description: k.Description,
-		Kwarantines: KwarantineIDsForKompute(k.String()),
+		Kwarantines: k.KwarantineIDs(),
 	}
 
 	i, err := k.Instance()
