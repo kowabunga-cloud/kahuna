@@ -48,7 +48,21 @@ func (s *InstanceService) ListInstances(ctx context.Context) (sdk.ImplResponse, 
 }
 
 func (s *InstanceService) PlanInstanceKMotion(ctx context.Context, instanceId string, plan sdk.KMotionPlanRequest) (sdk.ImplResponse, error) {
-	return HttpNotImplemented(nil)
+	LogHttpRequest(RA("instanceId", instanceId), RA("plan", plan))
+
+	i, err := FindInstanceByID(instanceId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	p, err := i.PlanMigration(plan.Destination, plan.Kaktus, plan.Live)
+	if err != nil {
+		return HttpServerError(err)
+	}
+
+	payload := p.Model()
+	LogHttpResponse(payload)
+	return HttpCreated(payload)
 }
 
 func (s *InstanceService) ReadInstance(ctx context.Context, instanceId string) (sdk.ImplResponse, error) {

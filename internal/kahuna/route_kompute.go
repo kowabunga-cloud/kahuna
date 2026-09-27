@@ -43,7 +43,21 @@ func (s *KomputeService) ListKomputes(ctx context.Context) (sdk.ImplResponse, er
 }
 
 func (s *KomputeService) PlanKomputeKMotion(ctx context.Context, komputeId string, plan sdk.KMotionPlanRequest) (sdk.ImplResponse, error) {
-	return HttpNotImplemented(nil)
+	LogHttpRequest(RA("komputeId", komputeId), RA("plan", plan))
+
+	k, err := FindKomputeByID(komputeId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	p, err := k.PlanMigration(plan.Destination, plan.Kaktus, plan.Live)
+	if err != nil {
+		return HttpServerError(err)
+	}
+
+	payload := p.Model()
+	LogHttpResponse(payload)
+	return HttpCreated(payload)
 }
 
 func (s *KomputeService) ReadKompute(ctx context.Context, komputeId string) (sdk.ImplResponse, error) {
