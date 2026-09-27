@@ -25,13 +25,6 @@ const (
 	KMotionDestinationZone   = "zone"
 	KMotionDestinationRegion = "region"
 	KMotionDestinationAuto   = "auto"
-
-	// ErrKMotionLiveNotSupported is returned (and specifically matched on by
-	// the route handlers, to map it to a distinct HTTP status) when a plan
-	// asks for a live migration: only cold (live=false) migrations are
-	// currently supported, since the Kaktus agent RPC protocol has no live
-	// migration call yet.
-	ErrKMotionLiveNotSupported = "live kMotion is not yet supported; only cold (non-live) migrations are currently available"
 )
 
 // KMotionPlan is a short-lived, single-use record of a proposed instance

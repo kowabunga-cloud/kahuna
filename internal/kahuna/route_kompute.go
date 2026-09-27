@@ -37,9 +37,6 @@ func (s *KomputeService) CommitKomputeKMotion(ctx context.Context, komputeId str
 
 	err = k.CommitMigration(p)
 	if err != nil {
-		if err.Error() == ErrKMotionLiveNotSupported {
-			return HttpNotImplemented(err)
-		}
 		return HttpServerError(err)
 	}
 

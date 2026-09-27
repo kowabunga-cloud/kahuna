@@ -1162,19 +1162,13 @@ func (i *Instance) electKMotionTarget(destination, explicitKaktus string, source
 	}
 }
 
-// CommitMigration executes a previously computed kMotion plan. Only cold
-// (live=false) migrations are currently supported; a live plan is rejected
-// with ErrKMotionLiveNotSupported. The target is re-validated (still
-// exists, not under maintenance, still Kwarantine-compliant) since cluster
-// state may have changed since the plan was computed. The plan is consumed
-// (deleted) on success.
+// CommitMigration executes a previously computed kMotion plan, live or
+// cold. The target is re-validated (still exists, not under maintenance,
+// still Kwarantine-compliant) since cluster state may have changed since
+// the plan was computed. The plan is consumed (deleted) on success.
 func (i *Instance) CommitMigration(plan *KMotionPlan) error {
 	if plan.InstanceID != i.String() {
 		return fmt.Errorf("kMotion plan %s does not apply to instance %s", plan.String(), i.String())
-	}
-
-	if plan.Live {
-		return fmt.Errorf("%s", ErrKMotionLiveNotSupported)
 	}
 
 	target, err := FindKaktusByID(plan.TargetID)
@@ -1191,11 +1185,66 @@ func (i *Instance) CommitMigration(plan *KMotionPlan) error {
 		return fmt.Errorf("kaktus %s now violates a Kwarantine anti-affinity policy for instance %s, plan %s is no longer valid", target.String(), i.String(), plan.String())
 	}
 
-	if err := i.Migrate(target.String()); err != nil {
+	if plan.Live {
+		if err := i.LiveMigrate(target); err != nil {
+			return err
+		}
+	} else if err := i.Migrate(target.String()); err != nil {
 		return err
 	}
 
 	return plan.Delete()
+}
+
+// LiveMigrate performs a live, peer-to-peer migration of the instance to
+// target: it queries target's current libvirt endpoint (never cached,
+// since this is transient node config, always fetched fresh) to build a
+// destination connection URI, then triggers the migration on the current
+// (source) Kaktus node. Unlike cold Migrate, this needs no manual
+// stop/undefine/redefine/rollback dance: libvirt itself moves the running
+// domain, atomically, so a failure here leaves the source untouched.
+func (i *Instance) LiveMigrate(target *Kaktus) error {
+	source, err := i.Kaktus()
+	if err != nil {
+		return err
+	}
+
+	if source.String() == target.String() {
+		return fmt.Errorf("instance %s is already hosted on kaktus %s", i.String(), target.String())
+	}
+
+	var epArgs proto.KaktusGetLibvirtEndpointArgs
+	var epReply proto.KaktusGetLibvirtEndpointReply
+	if err := target.RPC(proto.RpcKaktusGetLibvirtEndpoint, epArgs, &epReply); err != nil {
+		return fmt.Errorf("unable to reach kaktus %s to fetch its libvirt endpoint: %w", target.String(), err)
+	}
+
+	destinationURI := fmt.Sprintf("qemu+%s://%s:%d/system", epReply.Protocol, epReply.Address, epReply.Port)
+
+	klog.Infof("Live migrating instance %s from kaktus %s to kaktus %s (%s)", i.String(), source.String(), target.String(), destinationURI)
+
+	args := proto.KaktusMigrateInstanceArgs{
+		Name:           i.Name,
+		DestinationURI: destinationURI,
+	}
+	var reply proto.KaktusMigrateInstanceReply
+	if err := i.RPC(proto.RpcKaktusMigrateInstance, args, &reply); err != nil {
+		return fmt.Errorf("unable to live migrate instance %s to kaktus %s: %w", i.String(), target.String(), err)
+	}
+
+	// move Kaktus-side bookkeeping (usage counters, instance-list membership)
+	i.KaktusID = target.String()
+	if err := i.Save(); err != nil {
+		return err
+	}
+	if err := source.RemoveInstance(i.String()); err != nil {
+		klog.Error(err)
+	}
+	if err := target.AddInstance(i.String()); err != nil {
+		klog.Error(err)
+	}
+
+	return nil
 }
 
 // Migrate performs a cold migration of the instance to a different Kaktus

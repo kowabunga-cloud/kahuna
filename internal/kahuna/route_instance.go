@@ -37,9 +37,6 @@ func (s *InstanceService) CommitInstanceKMotion(ctx context.Context, instanceId 
 
 	err = i.CommitMigration(p)
 	if err != nil {
-		if err.Error() == ErrKMotionLiveNotSupported {
-			return HttpNotImplemented(err)
-		}
 		return HttpServerError(err)
 	}
 
