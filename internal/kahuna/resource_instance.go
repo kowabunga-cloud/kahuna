@@ -45,6 +45,7 @@ type Instance struct {
 	Cost              InstanceCost `bson:"cost"`
 	LocalIP           string       `bson:"local_ip"`
 	Uefi              bool         `bson:"uefi"`
+	KMotionEnabled    bool         `bson:"kmotion_enabled"`
 
 	// children references
 	Interfaces map[string]string `bson:"interfaces"`
@@ -205,6 +206,13 @@ func NewInstance(projectId, kaktusId, name, desc, profile, profileId string, cpu
 		Memory:    mem,
 		Cost:      InstanceCost{},
 		Uefi:      uefi,
+		// kMotion starts enabled: the SDK's kmotion_enabled is a plain bool,
+		// so there is no way to tell "the caller omitted it" from "the
+		// caller explicitly asked for false" at creation time. Defaulting
+		// to enabled here (matching the documented API default) and letting
+		// Update() honor an explicit value afterwards is the only way to
+		// give "enabled unless specified" its intended meaning.
+		KMotionEnabled: true,
 	}
 
 	// find associated OS
@@ -685,8 +693,9 @@ func (i *Instance) update(data string) error {
 	return i.RPC(proto.RpcKaktusUpdateInstance, args, &reply)
 }
 
-func (i *Instance) Update(name, desc string, cpu, mem int64, adapters, volumes []string) error {
+func (i *Instance) Update(name, desc string, cpu, mem int64, adapters, volumes []string, kMotionEnabled bool) error {
 	i.UpdateResourceDefaults(name, desc)
+	i.KMotionEnabled = kMotionEnabled
 
 	prj, err := i.Project()
 	if err != nil {
@@ -936,15 +945,16 @@ func (i *Instance) Delete() error {
 
 func (i *Instance) Model() sdk.Instance {
 	return sdk.Instance{
-		Id:          i.String(),
-		Name:        i.Name,
-		Description: i.Description,
-		Vcpus:       i.CPU,
-		Memory:      i.Memory,
-		Adapters:    i.Adapters(),
-		Volumes:     i.Volumes(),
-		Kwarantines: i.KwarantineIDs(),
-		Uefi:        i.Uefi,
+		Id:             i.String(),
+		Name:           i.Name,
+		Description:    i.Description,
+		Vcpus:          i.CPU,
+		Memory:         i.Memory,
+		Adapters:       i.Adapters(),
+		Volumes:        i.Volumes(),
+		Kwarantines:    i.KwarantineIDs(),
+		Uefi:           i.Uefi,
+		KmotionEnabled: i.KMotionEnabled,
 	}
 }
 

@@ -252,7 +252,7 @@ func (k *Kompute) migrateSchemaV2() error {
 	return nil
 }
 
-func (k *Kompute) Update(name, desc string, cpu, mem, disk, data int64) error {
+func (k *Kompute) Update(name, desc string, cpu, mem, disk, data int64, kMotionEnabled bool) error {
 	k.UpdateResourceDefaults(name, desc)
 
 	i, err := k.Instance()
@@ -288,7 +288,7 @@ func (k *Kompute) Update(name, desc string, cpu, mem, disk, data int64) error {
 	}
 
 	// update instance
-	err = i.Update(name, desc, cpu, mem, i.Adapters(), i.Volumes())
+	err = i.Update(name, desc, cpu, mem, i.Adapters(), i.Volumes(), kMotionEnabled)
 	if err != nil {
 		return err
 	}
@@ -417,6 +417,7 @@ func (k *Kompute) Model() sdk.Kompute {
 	kompute.Memory = i.Memory
 	kompute.Ip = i.GetIpAddress(true)
 	kompute.Uefi = i.Uefi
+	kompute.KmotionEnabled = i.KMotionEnabled
 
 	// Kompute virtual machines only have a max of 2 disks
 	osDiskDevice := fmt.Sprintf("%sa", VolumeOsDiskPrefix)

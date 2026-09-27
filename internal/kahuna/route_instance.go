@@ -218,7 +218,7 @@ func (s *InstanceService) UpdateInstance(ctx context.Context, instanceId string,
 	}
 
 	// update instance
-	err = i.Update(instance.Name, instance.Description, instance.Vcpus, instance.Memory, instance.Adapters, instance.Volumes)
+	err = i.Update(instance.Name, instance.Description, instance.Vcpus, instance.Memory, instance.Adapters, instance.Volumes, instance.KmotionEnabled)
 	if err != nil {
 		return HttpServerError(err)
 	}

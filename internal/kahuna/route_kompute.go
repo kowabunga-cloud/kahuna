@@ -219,7 +219,7 @@ func (s *KomputeService) UpdateKompute(ctx context.Context, komputeId string, ko
 	}
 
 	// update Kompute
-	err = k.Update(kompute.Name, kompute.Description, kompute.Vcpus, kompute.Memory, kompute.Disk, kompute.DataDisk)
+	err = k.Update(kompute.Name, kompute.Description, kompute.Vcpus, kompute.Memory, kompute.Disk, kompute.DataDisk, kompute.KmotionEnabled)
 	if err != nil {
 		return HttpServerError(err)
 	}
