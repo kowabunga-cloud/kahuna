@@ -522,3 +522,22 @@ func (k *Kompute) Shutdown() error {
 	}
 	return i.Shutdown()
 }
+
+// PlanMigration is the Kompute counterpart to Instance.PlanMigration,
+// delegating to its underlying instance.
+func (k *Kompute) PlanMigration(destination, explicitKaktus string, live bool) (*KMotionPlan, error) {
+	i, err := k.Instance()
+	if err != nil {
+		return nil, err
+	}
+	return i.PlanMigration(destination, explicitKaktus, live)
+}
+
+// CommitMigration is the Kompute counterpart to Instance.CommitMigration.
+func (k *Kompute) CommitMigration(plan *KMotionPlan) error {
+	i, err := k.Instance()
+	if err != nil {
+		return err
+	}
+	return i.CommitMigration(plan)
+}
