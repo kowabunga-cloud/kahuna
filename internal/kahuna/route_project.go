@@ -309,7 +309,84 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 }
 
 func (s *ProjectService) CreateProjectRegionKompute(ctx context.Context, projectId string, regionId string, kompute sdk.Kompute, poolId string, templateId string, public bool) (sdk.ImplResponse, error) {
-	return HttpNotImplemented(nil)
+	LogHttpRequest(RA("projectId", projectId), RA("regionId", regionId), RA("kompute", kompute), RA("poolId", poolId), RA("templateId", templateId), RA("public", public))
+
+	// ensure project exists
+	prj, err := FindProjectByID(projectId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	// ensure region exists
+	region, err := FindRegionByID(regionId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	// check for params
+	if kompute.Name == "" || kompute.Memory == 0 || kompute.Vcpus == 0 || kompute.Disk == 0 {
+		return HttpBadParams(nil)
+	}
+
+	// ensure we're allowed by quotas
+	if !prj.AllowInstanceCreationOrUpdate(1, kompute.Vcpus, kompute.Memory) {
+		return HttpQuota(nil)
+	}
+	size := kompute.Disk + kompute.DataDisk
+	if !prj.AllowVolumeCreationOrUpdate(size) {
+		return HttpQuota(nil)
+	}
+
+	// use region's default storage pool unless specified
+	pid := region.Defaults.StoragePoolID
+	if poolId != "" {
+		pid = poolId
+	}
+
+	// ensure storage pool exists
+	p, err := FindStoragePoolByID(pid)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	// use pool's default template unless specified
+	tid := p.Defaults.TemplateIDs.OS
+	if templateId != "" {
+		tid = templateId
+	}
+
+	// ensure template exists
+	t, err := FindTemplateByID(tid)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	// ensure instance does not already exists (globally, across all projects), this would validate auto-named volumes as well
+	_, err = FindInstanceByName(kompute.Name)
+	if err == nil {
+		return HttpConflict(err)
+	}
+
+	// now find the best-suited kaktus node, across the whole region
+	// TODO: honor kompute.Kwarantines once the SDK exposes it (openapi kwarantines field)
+	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(nil)
+	h, err := region.ElectMostFavorableKaktus(kompute.Name, excludedKaktuses, excludedZones)
+	if err != nil {
+		return HttpServerError(err)
+	}
+
+	//
+	// FINALLY, we're done with preflight, let's create something
+	//
+
+	// create Kompute in the zone the elected host actually belongs to
+	k, err := NewKompute(prj.String(), h.ZoneID, h.String(), p.String(), t.String(), kompute.Name, kompute.Description, "", "", kompute.Vcpus, kompute.Memory, kompute.Disk, kompute.DataDisk, public, []string{}, kompute.Uefi)
+	if err != nil {
+		return HttpServerError(err)
+	}
+	payload := k.Model()
+	LogHttpResponse(payload)
+	return HttpCreated(payload)
 }
 
 func CreateProjectKonvey(projectId, regionId, name string, konvey sdk.Konvey, kaktusIds []string) (sdk.ImplResponse, error) {
@@ -807,7 +884,13 @@ func (s *ProjectService) ListProjectRegionInstances(ctx context.Context, project
 }
 
 func (s *ProjectService) ListProjectRegionKomputes(ctx context.Context, projectId string, regionId string) (sdk.ImplResponse, error) {
-	return HttpNotImplemented(nil)
+	p, err := FindProjectByID(projectId)
+	if err != nil {
+		return HttpNotFound(err)
+	}
+
+	payload := p.Komputes()
+	return HttpOK(payload)
 }
 
 func (s *ProjectService) ListProjectZoneKomputes(ctx context.Context, projectId string, zoneId string) (sdk.ImplResponse, error) {
