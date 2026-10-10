@@ -19,6 +19,33 @@ func NewKonveyRouter() sdk.Router {
 
 type KonveyService struct{}
 
+// konveyEndpointsFromModel validates and converts Konvey endpoints.
+func konveyEndpointsFromModel(eps []sdk.KonveyEndpoint) ([]KonveyEndpoint, error) {
+	endpoints := []KonveyEndpoint{}
+	for _, ep := range eps {
+		err := IsValidPortListExpression(fmt.Sprintf("%d", ep.Port))
+		if err != nil {
+			return nil, err
+		}
+
+		e := KonveyEndpoint{
+			Name:     ep.Name,
+			Port:     ep.Port,
+			Protocol: ep.Protocol,
+			Backends: []KonveyBackend{},
+		}
+		for _, h := range ep.Backends.Hosts {
+			e.Backends = append(e.Backends, KonveyBackend{
+				Host: h,
+				Port: ep.Backends.Port,
+			})
+		}
+
+		endpoints = append(endpoints, e)
+	}
+	return endpoints, nil
+}
+
 func (s *KonveyService) DeleteKonvey(ctx context.Context, konveyId string) (sdk.ImplResponse, error) {
 	// ensure Konvey exists
 	k, err := FindKonveyByID(konveyId)
@@ -60,28 +87,9 @@ func (s *KonveyService) UpdateKonvey(ctx context.Context, konveyId string, konve
 	}
 
 	// converts from model to object
-	endpoints := []KonveyEndpoint{}
-	for _, ep := range konvey.Endpoints {
-		e := KonveyEndpoint{
-			Name:     ep.Name,
-			Port:     ep.Port,
-			Protocol: ep.Protocol,
-			Backends: []KonveyBackend{},
-		}
-
-		err := IsValidPortListExpression(fmt.Sprintf("%d", ep.Port))
-		if err != nil {
-			return HttpBadParams(err)
-		}
-
-		for _, h := range ep.Backends.Hosts {
-			e.Backends = append(e.Backends, KonveyBackend{
-				Host: h,
-				Port: ep.Backends.Port,
-			})
-		}
-
-		endpoints = append(endpoints, e)
+	endpoints, err := konveyEndpointsFromModel(konvey.Endpoints)
+	if err != nil {
+		return HttpBadParams(err)
 	}
 
 	// update Konvey

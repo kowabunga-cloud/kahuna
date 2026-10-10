@@ -63,67 +63,13 @@ func (s *KawaiiService) UpdateKawaii(ctx context.Context, kawaiiId string, kawai
 	}
 
 	// converts kawaii from model to object
-	fw := KawaiiFirewall{
-		EgressPolicy: kawaii.Firewall.EgressPolicy,
+	fw, err := kawaiiFirewallFromModel(kawaii.Firewall)
+	if err != nil {
+		return HttpBadParams(err)
 	}
-	if fw.EgressPolicy == "" {
-		fw.EgressPolicy = KawaiiFirewallPolicyAccept
-	}
-	for _, in := range kawaii.Firewall.Ingress {
-		err := IsValidPortListExpression(in.Ports)
-		if err != nil {
-			return HttpBadParams(err)
-		}
-
-		rule := KawaiiFirewallIngressRule{
-			Source:   in.Source,
-			Protocol: in.Protocol,
-			Ports:    in.Ports,
-		}
-		if rule.Source == "" {
-			rule.Source = KawaiiFirewallWildcardNetwork
-		}
-		if rule.Protocol == "" {
-			rule.Protocol = KawaiiFirewallProtocolTCP
-		}
-		fw.Ingress = append(fw.Ingress, rule)
-	}
-	for _, out := range kawaii.Firewall.Egress {
-		err := IsValidPortListExpression(out.Ports)
-		if err != nil {
-			return HttpBadParams(err)
-		}
-
-		rule := KawaiiFirewallEgressRule{
-			Destination: out.Destination,
-			Protocol:    out.Protocol,
-			Ports:       out.Ports,
-		}
-		if rule.Destination == "" {
-			rule.Destination = KawaiiFirewallWildcardNetwork
-		}
-		if rule.Protocol == "" {
-			rule.Protocol = KawaiiFirewallProtocolTCP
-		}
-		fw.Egress = append(fw.Egress, rule)
-	}
-
-	natRules := []KawaiiDNatRule{}
-	for _, rule := range kawaii.Dnat {
-		err := IsValidPortListExpression(rule.Ports)
-		if err != nil {
-			return HttpBadParams(err)
-		}
-
-		rule := KawaiiDNatRule{
-			PrivateIP: rule.Destination,
-			Protocol:  rule.Protocol,
-			Ports:     rule.Ports,
-		}
-		if rule.Protocol == "" {
-			rule.Protocol = KawaiiFirewallProtocolTCP
-		}
-		natRules = append(natRules, rule)
+	natRules, err := kawaiiDNatRulesFromModel(kawaii.Dnat)
+	if err != nil {
+		return HttpBadParams(err)
 	}
 
 	// update Kawaii
@@ -155,11 +101,33 @@ func (s *KawaiiService) CreateKawaiiIpSec(ctx context.Context, kawaiiId string, 
 			return HttpConflict(fmt.Errorf("IP Sec connection (name and remotePeer) must be unique : %s/%s", existingIpsec.Name, existingIpsec.RemotePeer))
 		}
 	}
-	fw := KawaiiFirewall{}
-	for _, in := range ipsec.Firewall.Ingress {
+	ingress, err := kawaiiIngressRulesFromModel(ipsec.Firewall.Ingress)
+	if err != nil {
+		return HttpBadParams(err)
+	}
+	fw := KawaiiFirewall{Ingress: ingress}
+	ipsecConn, err := NewKawaiiIPsecConnection(kawaiiId, ipsec.Name, ipsec.Description, ipsec.RemoteIp,
+		ipsec.RemoteSubnet, ipsec.PreSharedKey,
+		ipsec.DpdTimeout, ipsec.DpdTimeoutAction, ipsec.StartAction, ipsec.RekeyTime,
+		ipsec.Phase1Lifetime, ipsec.Phase1DhGroupNumber, ipsec.Phase1IntegrityAlgorithm, ipsec.Phase1EncryptionAlgorithm,
+		ipsec.Phase2Lifetime, ipsec.Phase2DhGroupNumber, ipsec.Phase2IntegrityAlgorithm, ipsec.Phase2EncryptionAlgorithm,
+		fw)
+	if err != nil {
+		return HttpServerError(err)
+	}
+	payload := ipsecConn.Model()
+	LogHttpResponse(hideSecretsPayload(payload))
+	return HttpCreated(payload)
+}
+
+// kawaiiIngressRulesFromModel validates and converts firewall ingress rules,
+// filling in defaults (any source, TCP).
+func kawaiiIngressRulesFromModel(rules []sdk.KawaiiFirewallIngressRule) ([]KawaiiFirewallIngressRule, error) {
+	res := []KawaiiFirewallIngressRule{}
+	for _, in := range rules {
 		err := IsValidPortListExpression(in.Ports)
 		if err != nil {
-			return HttpBadParams(err)
+			return nil, err
 		}
 
 		rule := KawaiiFirewallIngressRule{
@@ -173,20 +141,72 @@ func (s *KawaiiService) CreateKawaiiIpSec(ctx context.Context, kawaiiId string, 
 		if rule.Protocol == "" {
 			rule.Protocol = KawaiiFirewallProtocolTCP
 		}
-		fw.Ingress = append(fw.Ingress, rule)
+		res = append(res, rule)
 	}
-	ipsecConn, err := NewKawaiiIPsecConnection(kawaiiId, ipsec.Name, ipsec.Description, ipsec.RemoteIp,
-		ipsec.RemoteSubnet, ipsec.PreSharedKey,
-		ipsec.DpdTimeout, ipsec.DpdTimeoutAction, ipsec.StartAction, ipsec.RekeyTime,
-		ipsec.Phase1Lifetime, ipsec.Phase1DhGroupNumber, ipsec.Phase1IntegrityAlgorithm, ipsec.Phase1EncryptionAlgorithm,
-		ipsec.Phase2Lifetime, ipsec.Phase2DhGroupNumber, ipsec.Phase2IntegrityAlgorithm, ipsec.Phase2EncryptionAlgorithm,
-		fw)
+	return res, nil
+}
+
+// kawaiiFirewallFromModel validates and converts a Kawaii firewall
+// definition, filling in defaults (accept egress policy, any source or
+// destination, TCP).
+func kawaiiFirewallFromModel(model sdk.KawaiiFirewall) (KawaiiFirewall, error) {
+	fw := KawaiiFirewall{
+		EgressPolicy: model.EgressPolicy,
+	}
+	if fw.EgressPolicy == "" {
+		fw.EgressPolicy = KawaiiFirewallPolicyAccept
+	}
+
+	ingress, err := kawaiiIngressRulesFromModel(model.Ingress)
 	if err != nil {
-		return HttpServerError(err)
+		return fw, err
 	}
-	payload := ipsecConn.Model()
-	LogHttpResponse(hideSecretsPayload(payload))
-	return HttpCreated(payload)
+	fw.Ingress = ingress
+
+	for _, out := range model.Egress {
+		err := IsValidPortListExpression(out.Ports)
+		if err != nil {
+			return fw, err
+		}
+
+		rule := KawaiiFirewallEgressRule{
+			Destination: out.Destination,
+			Protocol:    out.Protocol,
+			Ports:       out.Ports,
+		}
+		if rule.Destination == "" {
+			rule.Destination = KawaiiFirewallWildcardNetwork
+		}
+		if rule.Protocol == "" {
+			rule.Protocol = KawaiiFirewallProtocolTCP
+		}
+		fw.Egress = append(fw.Egress, rule)
+	}
+
+	return fw, nil
+}
+
+// kawaiiDNatRulesFromModel validates and converts destination NAT rules,
+// filling in defaults (TCP).
+func kawaiiDNatRulesFromModel(rules []sdk.KawaiiDNatRule) ([]KawaiiDNatRule, error) {
+	natRules := []KawaiiDNatRule{}
+	for _, r := range rules {
+		err := IsValidPortListExpression(r.Ports)
+		if err != nil {
+			return nil, err
+		}
+
+		rule := KawaiiDNatRule{
+			PrivateIP: r.Destination,
+			Protocol:  r.Protocol,
+			Ports:     r.Ports,
+		}
+		if rule.Protocol == "" {
+			rule.Protocol = KawaiiFirewallProtocolTCP
+		}
+		natRules = append(natRules, rule)
+	}
+	return natRules, nil
 }
 
 // findKawaiiIPsec returns the IPsec connection only if it belongs to the given
@@ -251,26 +271,11 @@ func (s *KawaiiService) UpdateKawaiiIpSec(ctx context.Context, kawaiiId, ipsecId
 	if err != nil {
 		return HttpNotFound(err)
 	}
-	fw := KawaiiFirewall{}
-	for _, in := range ipsecSpec.Firewall.Ingress {
-		err := IsValidPortListExpression(in.Ports)
-		if err != nil {
-			return HttpBadParams(err)
-		}
-
-		rule := KawaiiFirewallIngressRule{
-			Source:   in.Source,
-			Protocol: in.Protocol,
-			Ports:    in.Ports,
-		}
-		if rule.Source == "" {
-			rule.Source = KawaiiFirewallWildcardNetwork
-		}
-		if rule.Protocol == "" {
-			rule.Protocol = KawaiiFirewallProtocolTCP
-		}
-		fw.Ingress = append(fw.Ingress, rule)
+	ingress, err := kawaiiIngressRulesFromModel(ipsecSpec.Firewall.Ingress)
+	if err != nil {
+		return HttpBadParams(err)
 	}
+	fw := KawaiiFirewall{Ingress: ingress}
 	err = ipsecConn.Update(ipsecSpec.Name, ipsecSpec.Description, ipsecSpec.RemoteIp,
 		ipsecSpec.RemoteSubnet, ipsecSpec.PreSharedKey,
 		ipsecSpec.DpdTimeout, ipsecSpec.DpdTimeoutAction, ipsecSpec.StartAction, ipsecSpec.RekeyTime,

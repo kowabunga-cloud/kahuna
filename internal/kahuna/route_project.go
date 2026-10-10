@@ -418,28 +418,9 @@ func (s *ProjectService) CreateProjectRegionKompute(ctx context.Context, project
 
 func CreateProjectKonvey(projectId, regionId, name string, konvey sdk.Konvey, kaktusIds []string) (sdk.ImplResponse, error) {
 	// converts from model to object
-	endpoints := []KonveyEndpoint{}
-	for _, ep := range konvey.Endpoints {
-		e := KonveyEndpoint{
-			Name:     ep.Name,
-			Port:     ep.Port,
-			Protocol: ep.Protocol,
-			Backends: []KonveyBackend{},
-		}
-
-		err := IsValidPortListExpression(fmt.Sprintf("%d", ep.Port))
-		if err != nil {
-			return HttpBadParams(err)
-		}
-
-		for _, h := range ep.Backends.Hosts {
-			e.Backends = append(e.Backends, KonveyBackend{
-				Host: h,
-				Port: ep.Backends.Port,
-			})
-		}
-
-		endpoints = append(endpoints, e)
+	endpoints, err := konveyEndpointsFromModel(konvey.Endpoints)
+	if err != nil {
+		return HttpBadParams(err)
 	}
 
 	// Create Konvey
@@ -581,67 +562,13 @@ func (s *ProjectService) CreateProjectRegionKawaii(ctx context.Context, projectI
 	}
 
 	// converts kawaii from model to object
-	fw := KawaiiFirewall{
-		EgressPolicy: kawaii.Firewall.EgressPolicy,
+	fw, err := kawaiiFirewallFromModel(kawaii.Firewall)
+	if err != nil {
+		return HttpBadParams(err)
 	}
-	if fw.EgressPolicy == "" {
-		fw.EgressPolicy = KawaiiFirewallPolicyAccept
-	}
-	for _, in := range kawaii.Firewall.Ingress {
-		err := IsValidPortListExpression(in.Ports)
-		if err != nil {
-			return HttpBadParams(err)
-		}
-
-		rule := KawaiiFirewallIngressRule{
-			Source:   in.Source,
-			Protocol: in.Protocol,
-			Ports:    in.Ports,
-		}
-		if rule.Source == "" {
-			rule.Source = KawaiiFirewallWildcardNetwork
-		}
-		if rule.Protocol == "" {
-			rule.Protocol = KawaiiFirewallProtocolTCP
-		}
-		fw.Ingress = append(fw.Ingress, rule)
-	}
-	for _, out := range kawaii.Firewall.Egress {
-		err := IsValidPortListExpression(out.Ports)
-		if err != nil {
-			return HttpBadParams(err)
-		}
-
-		rule := KawaiiFirewallEgressRule{
-			Destination: out.Destination,
-			Protocol:    out.Protocol,
-			Ports:       out.Ports,
-		}
-		if rule.Destination == "" {
-			rule.Destination = KawaiiFirewallWildcardNetwork
-		}
-		if rule.Protocol == "" {
-			rule.Protocol = KawaiiFirewallProtocolTCP
-		}
-		fw.Egress = append(fw.Egress, rule)
-	}
-
-	natRules := []KawaiiDNatRule{}
-	for _, rule := range kawaii.Dnat {
-		err := IsValidPortListExpression(rule.Ports)
-		if err != nil {
-			return HttpBadParams(err)
-		}
-
-		rule := KawaiiDNatRule{
-			PrivateIP: rule.Destination,
-			Protocol:  rule.Protocol,
-			Ports:     rule.Ports,
-		}
-		if rule.Protocol == "" {
-			rule.Protocol = KawaiiFirewallProtocolTCP
-		}
-		natRules = append(natRules, rule)
+	natRules, err := kawaiiDNatRulesFromModel(kawaii.Dnat)
+	if err != nil {
+		return HttpBadParams(err)
 	}
 
 	vpcPeerings := []KawaiiVpcPeering{}
