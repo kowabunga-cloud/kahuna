@@ -480,7 +480,7 @@ func (s *ProjectService) CreateProjectZoneKonvey(ctx context.Context, projectId 
 	}
 	konveyName := KonveyDefaultNamePrefix + "-" + kName
 	_, err = FindKonveyByName(konveyName)
-	if err != nil {
+	if err == nil {
 		return HttpConflict(err)
 	}
 
