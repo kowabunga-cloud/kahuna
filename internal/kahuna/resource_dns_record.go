@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"net"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
+
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
 )
@@ -148,14 +150,18 @@ func FindDnsRecordByID(id string) (*DnsRecord, error) {
 }
 
 func FindDnsRecordByDomainAndName(domain, name string) (*DnsRecord, error) {
-	records := FindResources[DnsRecord](MongoCollectionDnsRecordName)
-	for _, r := range records {
-		if r.Name == name && r.Domain == domain {
-			return &r, nil
-		}
+	records, err := FindResourcesByFilter[DnsRecord](MongoCollectionDnsRecordName, bson.D{
+		bson.E{Key: "domain", Value: domain},
+		bson.E{Key: "name", Value: name},
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(records) == 0 {
+		return nil, fmt.Errorf("no such DNS record")
 	}
 
-	return nil, fmt.Errorf("no such DNS record")
+	return &records[0], nil
 }
 
 func (r *DnsRecord) renameDbField(from, to string) error {

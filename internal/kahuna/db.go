@@ -366,6 +366,7 @@ func (db *KowabungaDB) EnsureIndexes() error {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
 			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
 			{Keys: bson.D{bson.E{Key: "region_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "domain", Value: 1}, bson.E{Key: "name", Value: 1}}},
 		},
 		MongoCollectionIPsecName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
