@@ -138,36 +138,46 @@ func NewVolume(projectId, poolId, templateId, name, desc, tp string, size int64)
 	return &v, nil
 }
 
+// buildLocalCloudInitImage generates a cloud-init ISO image in a temporary
+// location, to be removed by the caller with CloudInit.Delete(). Nothing is
+// left behind on error.
 func buildLocalCloudInitImage(projectId, zoneId, instanceId, agentId, instanceName, instanceIP, osType, password, profile, domain, user, pubkey string, adapters []string) (*CloudInit, error) {
 	ci, err := NewCloudInit(instanceName, osType)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ci.SetUserData(instanceName, domain, password, user, pubkey, profile, adapters)
+	err = ci.build(projectId, zoneId, instanceId, agentId, instanceName, instanceIP, password, profile, domain, user, pubkey, adapters)
 	if err != nil {
 		klog.Error(err)
-		return ci, err
+		// temporary files contain secrets (root password hash, agent token)
+		errD := ci.Delete()
+		if errD != nil {
+			klog.Error(errD)
+		}
+		return nil, err
+	}
+
+	return ci, nil
+}
+
+func (ci *CloudInit) build(projectId, zoneId, instanceId, agentId, instanceName, instanceIP, password, profile, domain, user, pubkey string, adapters []string) error {
+	err := ci.SetUserData(instanceName, domain, password, user, pubkey, profile, adapters)
+	if err != nil {
+		return err
 	}
 
 	err = ci.SetMetaData(profile, zoneId, instanceId, agentId, instanceName, instanceIP)
 	if err != nil {
-		klog.Error(err)
-		return ci, err
+		return err
 	}
 
 	err = ci.SetNetworkConfig(projectId, zoneId, domain, profile, adapters)
 	if err != nil {
-		klog.Error(err)
-		return ci, err
+		return err
 	}
 
-	err = ci.WriteISO()
-	if err != nil {
-		return ci, err
-	}
-
-	return ci, nil
+	return ci.WriteISO()
 }
 
 func NewCloudInitVolume(projectId, zoneId, poolId, instanceId, agentId, instanceName, instanceIP, osType, password, profile string, adapters []string) (*Volume, error) {
@@ -182,19 +192,16 @@ func NewCloudInitVolume(projectId, zoneId, poolId, instanceId, agentId, instance
 		return nil, err
 	}
 
+	defer func() {
+		err := ci.Delete()
+		if err != nil {
+			klog.Error(err)
+		}
+	}()
+
 	desc := fmt.Sprintf("%s cloudinit bootstrap image", instanceName)
 	klog.Infof("Creating new cloud-init ISO image for instance %s on pool %s", instanceName, poolId)
-	v, err := NewVolume(projectId, poolId, ci.IsoImage, ci.Name, desc, VolumeTypeIso, ci.IsoSize)
-	if err != nil {
-		return v, err
-	}
-
-	err = ci.Delete()
-	if err != nil {
-		return v, err
-	}
-
-	return v, nil
+	return NewVolume(projectId, poolId, ci.IsoImage, ci.Name, desc, VolumeTypeIso, ci.IsoSize)
 }
 
 // Updates the Cloud Init ISO of a defined instance ID
@@ -224,17 +231,19 @@ func UpdateCloudInitIso(instanceID string) error {
 	}
 
 	// Create our new ISO based on our existing instances
-	ci, err := buildLocalCloudInitImage(i.ProjectID, z.String(), i.String(), i.AgentID, i.Name, i.LocalIP, v.Type, i.RootPassword, i.Profile, prj.Domain, prj.BootstrapUser, prj.BootstrapPubkey, i.Adapters())
+	ci, err := buildLocalCloudInitImage(i.ProjectID, z.String(), i.String(), i.AgentID, i.Name, i.LocalIP, i.OS, i.RootPassword, i.Profile, prj.Domain, prj.BootstrapUser, prj.BootstrapPubkey, i.Adapters())
 	if err != nil {
 		return err
 	}
+	defer func() {
+		err := ci.Delete()
+		if err != nil {
+			klog.Error(err)
+		}
+	}()
 
 	// Update Our volume ISO through upload
-	err = v.OverwriteCloudInitVolume(ci)
-	if err != nil {
-		return err
-	}
-	return nil
+	return v.OverwriteCloudInitVolume(ci)
 }
 
 func FindVolumes() []Volume {

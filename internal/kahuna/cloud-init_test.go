@@ -199,3 +199,23 @@ func TestCloudInitSetDataReportsRenderingErrors(t *testing.T) {
 		t.Error("SetData should report template execution errors")
 	}
 }
+
+func TestBuildLocalCloudInitImageCleansUpOnError(t *testing.T) {
+	tmp := t.TempDir()
+	t.Setenv("TMPDIR", tmp)
+
+	// an invalid bootstrap user makes user-data generation fail
+	ci, err := buildLocalCloudInitImage("", "", "", "", "test-vm", "", CloudinitProfileLinux,
+		"", "", "", "Not A User", "", nil)
+	if err == nil || ci != nil {
+		t.Fatalf("expected a build error and no CloudInit, got %v, %v", ci, err)
+	}
+
+	leftovers, err := os.ReadDir(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, l := range leftovers {
+		t.Errorf("leftover cloud-init temporary file: %s", l.Name())
+	}
+}

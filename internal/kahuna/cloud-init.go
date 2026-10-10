@@ -7,7 +7,9 @@
 package kahuna
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"net"
 	"os"
 	"path/filepath"
@@ -407,7 +409,12 @@ func (ci *CloudInit) Delete() error {
 		return err
 	}
 
-	return os.Remove(ci.IsoImage)
+	// ISO image may not have been generated yet
+	err = os.Remove(ci.IsoImage)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return err
+	}
+	return nil
 }
 
 func (ci *CloudInit) formatAdapterDeviceName(index int, isWindows bool) string {
