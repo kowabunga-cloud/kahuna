@@ -8,6 +8,7 @@ package kahuna
 
 import (
 	"fmt"
+	"net/netip"
 	"slices"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -369,13 +370,184 @@ func (p *Project) Update(name, desc, pwd, user, pubkey string, teams, regions, t
 	}
 	p.Quotas.Update(quotas)
 	p.TeamIDs = teams
+
+	if !sameElements(regions, p.RegionIDs) {
+		err = p.updateRegions(regions)
+		if err != nil {
+			klog.Error(err)
+			return err
+		}
+	}
+
+	return p.Save()
+}
+
+// sameElements tells whether both lists hold the same elements, in any order.
+func sameElements(a, b []string) bool {
+	return len(a) == len(b) && !slices.ContainsFunc(a, func(e string) bool { return !slices.Contains(b, e) })
+}
+
+// privateSubnetSize returns the netmask size of the project's private subnets.
+func (p *Project) privateSubnetSize() (int, error) {
+	for _, subnetId := range p.PrivateSubnets {
+		s, err := FindSubnetByID(subnetId)
+		if err != nil {
+			return 0, err
+		}
+		prefix, err := netip.ParsePrefix(s.CIDR)
+		if err != nil {
+			return 0, err
+		}
+		return prefix.Bits(), nil
+	}
+	return 0, fmt.Errorf("unable to find out project %s private subnets size", p.Name)
+}
+
+// hasResourcesInRegion tells whether any of the project's resources live in
+// the given region.
+func (p *Project) hasResourcesInRegion(regionId string) bool {
+	inRegion := func(ids []string, region func(id string) (string, error)) bool {
+		return slices.ContainsFunc(ids, func(id string) bool {
+			r, err := region(id)
+			// on lookup error, be conservative
+			return err != nil || r == regionId
+		})
+	}
+	instanceRegion := func(id string) (string, error) {
+		_, r, err := instanceLocation(id)
+		return r, err
+	}
+	komputeRegion := func(id string) (string, error) {
+		_, r, err := komputeLocation(id)
+		return r, err
+	}
+	volumeRegion := func(id string) (string, error) {
+		v, err := FindVolumeByID(id)
+		if err != nil {
+			return "", err
+		}
+		pool, err := v.StoragePool()
+		if err != nil {
+			return "", err
+		}
+		return pool.RegionID, nil
+	}
+	kawaiiRegion := func(id string) (string, error) {
+		k, err := FindKawaiiByID(id)
+		if err != nil {
+			return "", err
+		}
+		mzr, err := k.MZR()
+		if err != nil {
+			return "", err
+		}
+		return mzr.RegionID, nil
+	}
+	konveyRegion := func(id string) (string, error) {
+		k, err := FindKonveyByID(id)
+		if err != nil {
+			return "", err
+		}
+		har, err := k.HAR()
+		if err != nil {
+			return "", err
+		}
+		return har.RegionID, nil
+	}
+	kyloRegion := func(id string) (string, error) {
+		k, err := FindKyloByID(id)
+		if err != nil {
+			return "", err
+		}
+		nfs, err := k.Nfs()
+		if err != nil {
+			return "", err
+		}
+		return nfs.RegionID, nil
+	}
+
+	return inRegion(p.InstanceIDs, instanceRegion) || inRegion(p.KomputeIDs, komputeRegion) ||
+		inRegion(p.VolumeIDs, volumeRegion) || inRegion(p.KawaiiIDs, kawaiiRegion) ||
+		inRegion(p.KonveyIDs, konveyRegion) || inRegion(p.KyloIDs, kyloRegion)
+}
+
+// updateRegions changes the regions the project spans: a private subnet gets
+// reserved in each newly added region, and released from each removed one,
+// which must not host any of the project's resources anymore. Zone gateways
+// are re-assigned accordingly.
+func (p *Project) updateRegions(regions []string) error {
+	added := slices.DeleteFunc(slices.Clone(regions), func(r string) bool { return slices.Contains(p.RegionIDs, r) })
+	removed := slices.DeleteFunc(slices.Clone(p.RegionIDs), func(r string) bool { return slices.Contains(regions, r) })
+
+	for _, regionId := range removed {
+		if p.hasResourcesInRegion(regionId) {
+			return fmt.Errorf("project %s still has resources in region %s", p.Name, regionId)
+		}
+	}
+
+	// on failure, release subnets reserved so far
+	rb := newRollback("project " + p.Name + " regions update")
+	defer rb.runUnlessDone()
+
+	if len(added) > 0 {
+		size, err := p.privateSubnetSize()
+		if err != nil {
+			return err
+		}
+		for _, regionId := range added {
+			r, err := FindRegionByID(regionId)
+			if err != nil {
+				return err
+			}
+			subnetId, err := ReservePrivateSubnet(regionId, p.String(), size)
+			if err != nil {
+				return err
+			}
+			rb.add("private subnet reservation", func() error { return releasePrivateSubnet(subnetId) })
+			p.PrivateSubnets[r.Name] = subnetId
+		}
+	}
+
+	// re-assign zone gateways for the new set of regions
 	p.RegionIDs = regions
-	err = p.AssignZoneGatewayAddresses()
+	p.ZoneGateways = map[string]string{}
+	err := p.AssignZoneGatewayAddresses()
 	if err != nil {
-		klog.Error(err)
 		return err
 	}
-	return p.Save()
+
+	for _, regionId := range removed {
+		r, err := FindRegionByID(regionId)
+		if err != nil {
+			return err
+		}
+		subnetId, ok := p.PrivateSubnets[r.Name]
+		if !ok {
+			continue
+		}
+		err = releasePrivateSubnet(subnetId)
+		if err != nil {
+			return err
+		}
+		delete(p.PrivateSubnets, r.Name)
+	}
+
+	err = resourceSetFields(MongoCollectionProjectName, p.ID, bson.D{bson.E{Key: "private_subnets", Value: p.PrivateSubnets}})
+	if err != nil {
+		return err
+	}
+
+	rb.done()
+	return nil
+}
+
+// releasePrivateSubnet makes a project's private subnet available again.
+func releasePrivateSubnet(subnetId string) error {
+	s, err := FindSubnetByID(subnetId)
+	if err == nil {
+		err = s.SetProject("")
+	}
+	return ignoreMissing(err)
 }
 
 func (p *Project) AllocatePrivateSubnets(subnetSize int) error {
@@ -402,11 +574,8 @@ func (p *Project) FreePrivateSubnet() error {
 	}
 
 	for r, subnetId := range p.PrivateSubnets {
-		s, err := FindSubnetByID(subnetId)
-		if err == nil {
-			err = s.SetProject("")
-		}
-		if ignoreMissing(err) != nil {
+		err := releasePrivateSubnet(subnetId)
+		if err != nil {
 			return err
 		}
 		delete(p.PrivateSubnets, r)

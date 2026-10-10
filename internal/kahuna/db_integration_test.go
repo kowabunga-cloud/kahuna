@@ -363,3 +363,69 @@ func TestIntegrationSaveDoesNotOverwriteAtomicFields(t *testing.T) {
 		t.Errorf("concurrent instance addition lost: %v, usage %+v", got.InstanceIDs, got.Usage)
 	}
 }
+
+// newTestRegion inserts a region with one zone and one free private /26
+// subnet with a gateway pool.
+func newTestRegion(t *testing.T, db *KowabungaDB, name, cidrPrefix string) (Region, Subnet) {
+	t.Helper()
+	zone := Zone{Resource: NewResource(name+"-z1", "", MongoCollectionZoneSchemaVersion)}
+	subnet := Subnet{
+		Resource: NewResource(name+"-private", "", MongoCollectionSubnetSchemaVersion),
+		CIDR:     cidrPrefix + ".0/26",
+		Gateway:  cidrPrefix + ".1",
+		GwPool:   []*IPRange{{cidrPrefix + ".60", cidrPrefix + ".62"}},
+	}
+	vnet := VNet{Resource: NewResource(name+"-vnet", "", MongoCollectionVNetSchemaVersion), Private: true, SubnetIDs: []string{subnet.String()}}
+	region := Region{Resource: NewResource(name, "", MongoCollectionRegionSchemaVersion), ZoneIDs: []string{zone.String()}, VNetIDs: []string{vnet.String()}}
+	zone.RegionID = region.String()
+	subnet.VNetID = vnet.String()
+	for coll, doc := range map[string]any{
+		MongoCollectionZoneName:   zone,
+		MongoCollectionSubnetName: subnet,
+		MongoCollectionVNetName:   vnet,
+		MongoCollectionRegionName: region,
+	} {
+		if _, err := db.Insert(coll, doc); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return region, subnet
+}
+
+func TestIntegrationProjectRegionsUpdate(t *testing.T) {
+	db := requireTestDB(t)
+	r1, _ := newTestRegion(t, db, "r1", "10.1.0")
+	r2, s2 := newTestRegion(t, db, "r2", "10.2.0")
+
+	const pubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP6uPgayxgfvqC0PdKBFEFFhkFs/joe341L9QEZAbieY test"
+	prj, err := NewProject("p", "", "", "", "admin", pubkey, nil, []string{r1.String()}, nil, nil, sdk.ProjectResources{}, 26)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// add a region
+	err = prj.Update("p", "", "", "", "", nil, []string{r1.String(), r2.String()}, nil, nil, sdk.ProjectResources{})
+	if err != nil {
+		t.Fatalf("adding a region failed: %v", err)
+	}
+	got, _ := FindProjectByID(prj.String())
+	if got.PrivateSubnets["r2"] != s2.String() || got.ZoneGateways["r2-z1"] == "" || len(got.RegionIDs) != 2 {
+		t.Fatalf("region not properly added: subnets %v, gateways %v", got.PrivateSubnets, got.ZoneGateways)
+	}
+	if s, _ := FindSubnetByID(s2.String()); s.ProjectID != prj.String() {
+		t.Fatalf("new region's subnet not reserved: %q", s.ProjectID)
+	}
+
+	// remove it
+	err = got.Update("p", "", "", "", "", nil, []string{r1.String()}, nil, nil, sdk.ProjectResources{})
+	if err != nil {
+		t.Fatalf("removing a region failed: %v", err)
+	}
+	got, _ = FindProjectByID(prj.String())
+	if _, ok := got.PrivateSubnets["r2"]; ok || got.ZoneGateways["r2-z1"] != "" || len(got.RegionIDs) != 1 {
+		t.Fatalf("region not properly removed: subnets %v, gateways %v", got.PrivateSubnets, got.ZoneGateways)
+	}
+	if s, _ := FindSubnetByID(s2.String()); s.ProjectID != "" {
+		t.Fatalf("removed region's subnet not released: %q", s.ProjectID)
+	}
+}
