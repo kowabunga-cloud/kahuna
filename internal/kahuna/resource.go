@@ -23,7 +23,8 @@ func resourceUpdate(collection string, id bson.ObjectID, obj interface{}) error 
 	if err != nil {
 		return err
 	}
-	return GetCache().Delete(collection, id.Hex())
+	GetCache().Invalidate(collection, id.Hex())
+	return nil
 }
 
 const (

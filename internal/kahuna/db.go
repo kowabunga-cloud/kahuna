@@ -107,9 +107,7 @@ func (db *KowabungaDB) Update(collection string, id bson.ObjectID, obj interface
 
 func (db *KowabungaDB) Rename(collection string, id bson.ObjectID, from, to string) error {
 	// cleanup cache data, if any
-	defer func() {
-		_ = GetCache().Delete(collection, id.Hex())
-	}()
+	defer GetCache().Invalidate(collection, id.Hex())
 
 	c := db.DB.Collection(collection)
 
@@ -129,9 +127,7 @@ func (db *KowabungaDB) Rename(collection string, id bson.ObjectID, from, to stri
 
 func (db *KowabungaDB) SetSchemaVersion(collection string, id bson.ObjectID, schemaVersion int) error {
 	// cleanup cache data, if any
-	defer func() {
-		_ = GetCache().Delete(collection, id.Hex())
-	}()
+	defer GetCache().Invalidate(collection, id.Hex())
 
 	c := db.DB.Collection(collection)
 	filter := bson.D{bson.E{Key: "_id", Value: id}}

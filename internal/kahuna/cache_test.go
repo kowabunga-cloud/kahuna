@@ -113,3 +113,32 @@ func TestCacheDelete(t *testing.T) {
 		t.Error("Get after Delete should return an error (cache miss)")
 	}
 }
+
+func TestCacheDeleteMissingKeyReturnsError(t *testing.T) {
+	kc := &KowabungaCache{}
+	kc.Init(true, CacheTypeInMemory, 16, 15)
+
+	// the underlying store reports a missing key as an error, which is why
+	// write paths must rely on Invalidate() rather than Delete()
+	if err := kc.Delete("ns", "missing"); err == nil {
+		t.Error("Delete on a missing key should return an error")
+	}
+}
+
+func TestCacheInvalidate(t *testing.T) {
+	kc := &KowabungaCache{}
+	kc.Init(true, CacheTypeInMemory, 16, 15)
+
+	kc.Set("ns", "k3", "some-value")
+	kc.Invalidate("ns", "k3")
+
+	var result string
+	if err := kc.Get("ns", "k3", &result); err == nil {
+		t.Error("Get after Invalidate should return an error (cache miss)")
+	}
+
+	// missing key and disabled cache must both be silent no-ops
+	kc.Invalidate("ns", "missing")
+	disabled := &KowabungaCache{enabled: false}
+	disabled.Invalidate("ns", "k3")
+}

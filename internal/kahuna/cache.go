@@ -101,3 +101,9 @@ func (kc *KowabungaCache) Delete(ns, key string) error {
 
 	return kc.ms.Delete(context.TODO(), kc.key(ns, key))
 }
+
+// Invalidate drops a cache entry on a best-effort basis: a disabled cache or
+// a missing key are both expected situations and are not reported as errors.
+func (kc *KowabungaCache) Invalidate(ns, key string) {
+	_ = kc.Delete(ns, key)
+}
