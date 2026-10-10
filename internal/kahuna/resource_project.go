@@ -627,14 +627,20 @@ func (p *Project) AllocateVRID() (int, error) {
 		if slices.Contains(p.VrrpIDs, vrrpId) {
 			continue
 		}
-		p.VrrpIDs = append(p.VrrpIDs, vrrpId)
-		slices.Sort(p.VrrpIDs)
 
-		err := p.Save()
+		// atomically reserve it, unless a concurrent request was faster at it
+		claimed, err := resourceClaim(MongoCollectionProjectName, p.ID,
+			bson.D{bson.E{Key: "reserved_vrrp_ids", Value: bson.D{bson.E{Key: "$ne", Value: vrrpId}}}},
+			bson.D{childRefSetExpr("reserved_vrrp_ids", vrrpId, true)})
 		if err != nil {
 			return 0, err
 		}
+		if !claimed {
+			continue
+		}
 
+		p.VrrpIDs = append(p.VrrpIDs, vrrpId)
+		slices.Sort(p.VrrpIDs)
 		return vrrpId, nil
 	}
 
@@ -648,7 +654,7 @@ func (p *Project) RemoveVRID(vrrpId int) error {
 		return nil
 	}
 	p.VrrpIDs = slices.Delete(p.VrrpIDs, idx, idx+1)
-	return p.Save()
+	return resourceApplyPipeline(MongoCollectionProjectName, p.ID, bson.D{childRefSetExpr("reserved_vrrp_ids", vrrpId, false)})
 }
 
 // Instances

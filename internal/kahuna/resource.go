@@ -95,7 +95,7 @@ func resourceIncCounters(collection string, id bson.ObjectID, deltas bson.D) err
 // removing) childId to (or from) an array field changes it, and the resulting
 // array. Fields stored as null (nil Go slices) are handled as empty arrays,
 // which $addToSet and $pull refuse to operate on.
-func childRefExprs(field, childId string, add bool) (changes, newRefs, refs bson.D) {
+func childRefExprs(field string, childId any, add bool) (changes, newRefs, refs bson.D) {
 	refs = bson.D{bson.E{Key: "$ifNull", Value: bson.A{"$" + field, bson.A{}}}}
 	present := bson.D{bson.E{Key: "$in", Value: bson.A{childId, refs}}}
 	if add {
@@ -113,7 +113,7 @@ func childRefExprs(field, childId string, add bool) (changes, newRefs, refs bson
 
 // childRefSetExpr returns the $set stage entry adding (or removing) childId
 // to (or from) an array field.
-func childRefSetExpr(field, childId string, add bool) bson.E {
+func childRefSetExpr(field string, childId any, add bool) bson.E {
 	changes, newRefs, refs := childRefExprs(field, childId, add)
 	return bson.E{Key: field, Value: bson.D{bson.E{Key: "$cond", Value: bson.A{changes, newRefs, refs}}}}
 }
@@ -138,6 +138,21 @@ func resourceUpdateChildRefAndCounters(collection string, id bson.ObjectID, fiel
 		}}}})
 	}
 	return resourceApplyPipeline(collection, id, set)
+}
+
+// resourceClaim atomically applies a $set aggregation stage to a resource
+// document only if it still matches cond, and tells whether it did. It's the
+// building block of check-and-set allocations (IDs, subnets ...), where
+// concurrent requests must never get the same resource.
+func resourceClaim(collection string, id bson.ObjectID, cond, set bson.D) (bool, error) {
+	filter := append(bson.D{bson.E{Key: "_id", Value: id}}, cond...)
+	set = append(set, bson.E{Key: "updated_at", Value: "$$NOW"})
+	claimed, err := GetDB().UpdateFieldsIf(collection, filter, bson.A{bson.D{bson.E{Key: "$set", Value: set}}})
+	if err != nil {
+		return false, err
+	}
+	GetCache().Invalidate(collection, id.Hex())
+	return claimed, nil
 }
 
 // resourceDelete removes a resource from the database and invalidates its cache entry,

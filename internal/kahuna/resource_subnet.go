@@ -12,6 +12,7 @@ import (
 	"net/netip"
 
 	"github.com/netdata/go.d.plugin/pkg/iprange"
+	"go.mongodb.org/mongo-driver/v2/bson"
 
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
@@ -237,9 +238,10 @@ func ReservePrivateSubnet(regionId, projectId string, subnetSize int) (string, e
 					continue
 				}
 
-				// DONE: link project and subnet
-				err = s.SetProject(projectId)
-				if err != nil {
+				// DONE: link project and subnet, unless a concurrent request
+				// was faster at it
+				claimed, err := s.claimForProject(projectId)
+				if err != nil || !claimed {
 					continue
 				}
 
@@ -323,7 +325,22 @@ func (s *Subnet) FindAdapters() ([]Adapter, error) {
 
 func (s *Subnet) SetProject(id string) error {
 	s.ProjectID = id
-	return s.Save()
+	return resourceSetFields(MongoCollectionSubnetName, s.ID, bson.D{bson.E{Key: "project_id", Value: id}})
+}
+
+// claimForProject atomically assigns the subnet to a project, only if it's
+// not already assigned to one.
+func (s *Subnet) claimForProject(projectId string) (bool, error) {
+	claimed, err := resourceClaim(MongoCollectionSubnetName, s.ID,
+		bson.D{bson.E{Key: "project_id", Value: bson.D{bson.E{Key: "$in", Value: bson.A{nil, ""}}}}},
+		bson.D{bson.E{Key: "project_id", Value: projectId}})
+	if err != nil {
+		return false, err
+	}
+	if claimed {
+		s.ProjectID = projectId
+	}
+	return claimed, nil
 }
 
 func (s *Subnet) Size() int {
@@ -336,6 +353,12 @@ func (s *Subnet) Size() int {
 }
 
 func (s *Subnet) FindIPs() []string {
+	return s.FindIPsExcept("")
+}
+
+// FindIPsExcept returns the IP addresses assigned to the subnet's adapters,
+// other than adapterId.
+func (s *Subnet) FindIPsExcept(adapterId string) []string {
 	ips := []string{}
 
 	adapters, err := s.FindAdapters()
@@ -344,6 +367,9 @@ func (s *Subnet) FindIPs() []string {
 	}
 
 	for _, a := range adapters {
+		if a.String() == adapterId {
+			continue
+		}
 		ips = append(ips, a.Addresses...)
 	}
 

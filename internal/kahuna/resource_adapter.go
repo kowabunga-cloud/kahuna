@@ -9,10 +9,13 @@ package kahuna
 import (
 	"crypto/rand"
 	"encoding/binary"
+	"errors"
 	"fmt"
+	"math/big"
 	"net"
 	"net/netip"
-	"slices"
+
+	"go.mongodb.org/mongo-driver/v2/mongo"
 
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
@@ -83,7 +86,8 @@ func RandomAdapterMAC() string {
 		mac := hw.String()
 
 		// ensure we're not out of luck ...
-		if slices.Contains(FindMACs(), mac) {
+		inUse, err := macInUse(mac, "")
+		if err != nil || inUse {
 			continue
 		}
 
@@ -104,9 +108,19 @@ func broadcastAddr(p netip.Prefix) netip.Addr {
 }
 
 func findFreeIP(s *Subnet) (string, error) {
-	p, err := netip.ParsePrefix(s.CIDR)
+	ips, err := findFreeIPs(s, 1)
 	if err != nil {
 		return "", err
+	}
+	return ips[0], nil
+}
+
+// findFreeIPs returns up to limit assignable IP addresses from the subnet,
+// lowest first.
+func findFreeIPs(s *Subnet, limit int) ([]string, error) {
+	p, err := netip.ParsePrefix(s.CIDR)
+	if err != nil {
+		return nil, err
 	}
 	p = p.Masked() // a.b.c.d/mask => a.b.c.0/mask
 
@@ -121,6 +135,7 @@ func findFreeIP(s *Subnet) (string, error) {
 		registeredSet[rip] = struct{}{}
 	}
 
+	free := []string{}
 	addr := p.Addr()
 	addr = addr.Next() // skip the first IP from the range (.0)
 	for p.Contains(addr) {
@@ -145,10 +160,17 @@ func findFreeIP(s *Subnet) (string, error) {
 		}
 
 		// seems unused, go for it
-		return ip, nil
+		free = append(free, ip)
+		if len(free) >= limit {
+			break
+		}
+		addr = addr.Next()
 	}
 
-	return "", fmt.Errorf("no IP can be assigned")
+	if len(free) == 0 {
+		return nil, fmt.Errorf("no IP can be assigned")
+	}
+	return free, nil
 }
 
 func (a *Adapter) AssignIP() (string, error) {
@@ -159,15 +181,30 @@ func (a *Adapter) AssignIP() (string, error) {
 	return findFreeIP(s)
 }
 
-func RandomIpAddress(subnetId string) (string, error) {
+// adapterIPRetryCandidates is the number of lowest free IP addresses a
+// conflicting IP assignment randomly picks from on retry.
+const adapterIPRetryCandidates = 32
+
+func pickFreeIP(subnetId string, random bool) (string, error) {
 	s, err := FindSubnetByID(subnetId)
 	if err != nil {
 		return "", err
 	}
-	return findFreeIP(s)
+	if !random {
+		return findFreeIP(s)
+	}
+	ips, err := findFreeIPs(s, adapterIPRetryCandidates)
+	if err != nil {
+		return "", err
+	}
+	n, err := rand.Int(rand.Reader, big.NewInt(int64(len(ips))))
+	if err != nil {
+		return ips[0], nil
+	}
+	return ips[n.Int64()], nil
 }
 
-func verifyAdapterSettings(subnetId, mac string, addresses []string, update bool) error {
+func verifyAdapterSettings(subnetId, selfId, mac string, addresses []string) error {
 	s, err := FindSubnetByID(subnetId)
 	if err != nil {
 		return err
@@ -184,11 +221,24 @@ func verifyAdapterSettings(subnetId, mac string, addresses []string, update bool
 		return err
 	}
 
-	if !update {
-		// ensure we don't have any MAC duplicates
-		for _, a := range FindAdapters() {
-			if mac == a.MAC && !a.Reserved {
-				return fmt.Errorf("duplicated MAC address (%s) has been found. We can't authorize that unless you flag is as reserved", mac)
+	// ensure we don't have any MAC duplicates
+	inUse, err := macInUse(mac, selfId)
+	if err != nil {
+		return err
+	}
+	if inUse {
+		return fmt.Errorf("duplicated MAC address (%s) has been found. We can't authorize that unless you flag is as reserved", mac)
+	}
+
+	// ensure requested IPv4 addresses are not already assigned to other adapters
+	if len(addresses) > 0 {
+		used := map[string]struct{}{}
+		for _, ip := range s.FindIPsExcept(selfId) {
+			used[ip] = struct{}{}
+		}
+		for _, ip := range addresses {
+			if _, ok := used[ip]; ok {
+				return fmt.Errorf("%w: %s", ErrAdapterIPInUse, ip)
 			}
 		}
 	}
@@ -207,24 +257,46 @@ func verifyAdapterSettings(subnetId, mac string, addresses []string, update bool
 	return nil
 }
 
+var ErrAdapterIPInUse = errors.New("IP address is already assigned to another adapter")
+
+// adapterIPAssignmentAttempts bounds automatic IP assignment retries, when
+// concurrent requests happen to pick the same free IP address.
+const adapterIPAssignmentAttempts = 10
+
 func NewAdapter(subnetId, name, desc, mac string, addresses []string, reserved, autoAssign bool) (*Adapter, error) {
 	if mac == "" {
 		// no MAc address was provided, i.e. user requested one to be auto-generated
 		mac = RandomAdapterMAC()
 	}
 
-	// randomly assign one IP address from the subnet if requested
-	if autoAssign && len(addresses) == 0 {
-		ip, err := RandomIpAddress(subnetId)
-		if err != nil {
-			return nil, err
+	autoAssignIP := autoAssign && len(addresses) == 0
+	for attempt := 1; ; attempt++ {
+		// assign the first free IP address from the subnet if requested, or a
+		// random one amongst the first free ones when retrying after a
+		// conflict, so that concurrent requests don't keep colliding
+		if autoAssignIP {
+			ip, err := pickFreeIP(subnetId, attempt > 1)
+			if err != nil {
+				return nil, err
+			}
+			klog.Debugf("IP address %s is being assigned.", ip)
+			addresses = []string{ip}
 		}
-		klog.Debugf("IP address %s is being assigned.", ip)
-		addresses = append(addresses, ip)
-	}
 
+		a, err := newAdapter(subnetId, name, desc, mac, addresses, reserved)
+		ipTaken := errors.Is(err, ErrAdapterIPInUse) || mongo.IsDuplicateKeyError(err)
+		if autoAssignIP && ipTaken && attempt < adapterIPAssignmentAttempts {
+			// IP address got assigned to another adapter in the meantime
+			klog.Debugf("IP address %s got concurrently assigned, retrying ...", addresses[0])
+			continue
+		}
+		return a, err
+	}
+}
+
+func newAdapter(subnetId, name, desc, mac string, addresses []string, reserved bool) (*Adapter, error) {
 	// ensure the requested adapter is correctly flagged
-	err := verifyAdapterSettings(subnetId, mac, addresses, false)
+	err := verifyAdapterSettings(subnetId, "", mac, addresses)
 	if err != nil {
 		klog.Errorf("verifyAdapterSettings: %s", err)
 		return nil, err
@@ -243,6 +315,8 @@ func NewAdapter(subnetId, name, desc, mac string, addresses []string, reserved, 
 		return nil, err
 	}
 
+	// the database ensures an IP address can't be assigned twice in a subnet,
+	// even by concurrent requests
 	_, err = GetDB().Insert(MongoCollectionAdapterName, a)
 	if err != nil {
 		return nil, err
@@ -259,12 +333,19 @@ func NewAdapter(subnetId, name, desc, mac string, addresses []string, reserved, 
 	return &a, nil
 }
 
-func FindMACs() []string {
-	macs := []string{}
-	for _, a := range FindAdapters() {
-		macs = append(macs, a.MAC)
+// macInUse tells whether a non-reserved adapter, other than selfId, already
+// uses this MAC address.
+func macInUse(mac, selfId string) (bool, error) {
+	adapters, err := FindResourcesByKey[Adapter](MongoCollectionAdapterName, "mac", mac)
+	if err != nil {
+		return false, err
 	}
-	return macs
+	for _, a := range adapters {
+		if a.String() != selfId && !a.Reserved {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func FindAdapters() []Adapter {
@@ -320,7 +401,7 @@ func (a *Adapter) Update(name, desc, mac string, addresses []string, reserved bo
 	}
 
 	// ensure the requested adapter is correctly flagged
-	err := verifyAdapterSettings(a.SubnetID, mac, addresses, true)
+	err := verifyAdapterSettings(a.SubnetID, a.String(), mac, addresses)
 	if err != nil {
 		klog.Error(err)
 		return err

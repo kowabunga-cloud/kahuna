@@ -133,3 +133,111 @@ func TestIntegrationDefaultsAndMultiArrayRefs(t *testing.T) {
 		t.Fatalf("unexpected NFS references: %v / %v", got.KyloIDs, got.Exports)
 	}
 }
+
+func TestIntegrationConcurrentAllocations(t *testing.T) {
+	db := requireTestDB(t)
+	if err := db.EnsureIndexes(); err != nil {
+		t.Fatal(err)
+	}
+
+	const n = 20
+
+	// IP addresses
+	subnet := Subnet{Resource: NewResource("subnet", "", MongoCollectionSubnetSchemaVersion), CIDR: "10.0.0.0/24", Gateway: "10.0.0.1"}
+	if _, err := db.Insert(MongoCollectionSubnetName, subnet); err != nil {
+		t.Fatal(err)
+	}
+	var mu sync.Mutex
+	ips := map[string]bool{}
+	var wg sync.WaitGroup
+	for i := range n {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			a, err := NewAdapter(subnet.String(), fmt.Sprintf("nic%d", i), "", "", nil, false, true)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			if ips[a.Addresses[0]] {
+				t.Errorf("IP %s assigned twice", a.Addresses[0])
+			}
+			ips[a.Addresses[0]] = true
+		}(i)
+	}
+	wg.Wait()
+	if len(ips) != n {
+		t.Fatalf("expected %d distinct IPs, got %d", n, len(ips))
+	}
+	if _, err := NewAdapter(subnet.String(), "dup", "", "", []string{"10.0.0.2"}, false, false); err == nil {
+		t.Error("explicitly assigning an already used IP should fail")
+	}
+
+	// VRRP IDs
+	prj := Project{Resource: NewResource("project", "", MongoCollectionProjectSchemaVersion)}
+	if _, err := db.Insert(MongoCollectionProjectName, prj); err != nil {
+		t.Fatal(err)
+	}
+	vrids := map[int]bool{}
+	for range n {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			p, err := FindProjectByID(prj.String())
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			vrid, err := p.AllocateVRID()
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			if vrids[vrid] {
+				t.Errorf("VRID %d allocated twice", vrid)
+			}
+			vrids[vrid] = true
+		}()
+	}
+	wg.Wait()
+	p, _ := FindProjectByID(prj.String())
+	if len(vrids) != n || len(p.VrrpIDs) != n {
+		t.Fatalf("expected %d distinct VRIDs, got %d (%d stored)", n, len(vrids), len(p.VrrpIDs))
+	}
+
+	// private subnets
+	free := Subnet{Resource: NewResource("free", "", MongoCollectionSubnetSchemaVersion), CIDR: "10.1.0.0/24"}
+	if _, err := db.Insert(MongoCollectionSubnetName, free); err != nil {
+		t.Fatal(err)
+	}
+	winners := 0
+	for i := range n {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			s, err := FindSubnetByID(free.String())
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			claimed, err := s.claimForProject(fmt.Sprintf("project-%d", i))
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			if claimed {
+				mu.Lock()
+				winners++
+				mu.Unlock()
+			}
+		}(i)
+	}
+	wg.Wait()
+	if winners != 1 {
+		t.Fatalf("subnet claimed by %d projects", winners)
+	}
+}

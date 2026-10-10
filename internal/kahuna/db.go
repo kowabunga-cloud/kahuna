@@ -131,6 +131,20 @@ func (db *KowabungaDB) UpdateFields(collection string, id bson.ObjectID, update 
 	return err
 }
 
+// UpdateFieldsIf applies an update document or aggregation pipeline to the
+// single document matching filter, and tells whether one did match.
+func (db *KowabungaDB) UpdateFieldsIf(collection string, filter bson.D, update any) (bool, error) {
+	if db.DB == nil {
+		return false, ErrDbNotConnected
+	}
+	c := db.DB.Collection(collection)
+	res, err := c.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return false, err
+	}
+	return res.MatchedCount > 0, nil
+}
+
 func (db *KowabungaDB) Rename(collection string, id bson.ObjectID, from, to string) error {
 	// cleanup cache data, if any
 	defer GetCache().Invalidate(collection, id.Hex())
@@ -319,6 +333,13 @@ func (db *KowabungaDB) EnsureIndexes() error {
 		MongoCollectionAdapterName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
 			{Keys: bson.D{bson.E{Key: "subnet_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "mac", Value: 1}}},
+			// an IP address can only be assigned once per subnet
+			{
+				Keys: bson.D{bson.E{Key: "subnet_id", Value: 1}, bson.E{Key: "addresses", Value: 1}},
+				Options: options.Index().SetUnique(true).SetName("unique_subnet_address").
+					SetPartialFilterExpression(bson.D{bson.E{Key: "addresses.0", Value: bson.D{bson.E{Key: "$exists", Value: true}}}}),
+			},
 		},
 		MongoCollectionTokenName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
