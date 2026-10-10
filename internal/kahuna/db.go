@@ -120,6 +120,17 @@ func (db *KowabungaDB) Update(collection string, id bson.ObjectID, obj interface
 	return c.ReplaceOne(context.TODO(), bson.D{bson.E{Key: "_id", Value: id}}, obj)
 }
 
+// UpdateFields applies an update document (e.g. $set, $inc, $addToSet) to
+// a single document.
+func (db *KowabungaDB) UpdateFields(collection string, id bson.ObjectID, update bson.D) error {
+	if db.DB == nil {
+		return ErrDbNotConnected
+	}
+	c := db.DB.Collection(collection)
+	_, err := c.UpdateOne(context.TODO(), bson.D{bson.E{Key: "_id", Value: id}}, update)
+	return err
+}
+
 func (db *KowabungaDB) Rename(collection string, id bson.ObjectID, from, to string) error {
 	// cleanup cache data, if any
 	defer GetCache().Invalidate(collection, id.Hex())

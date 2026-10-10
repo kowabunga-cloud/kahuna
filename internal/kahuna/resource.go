@@ -27,6 +27,19 @@ func resourceUpdate(collection string, id bson.ObjectID, obj interface{}) error 
 	return nil
 }
 
+// resourceSetFields atomically sets the given fields of a resource document,
+// leaving the other ones untouched, and invalidates its cache entry. Unlike
+// resourceUpdate, it can't overwrite concurrent changes to other fields made
+// since the object was read.
+func resourceSetFields(collection string, id bson.ObjectID, fields bson.D) error {
+	err := GetDB().UpdateFields(collection, id, bson.D{bson.E{Key: "$set", Value: fields}})
+	if err != nil {
+		return err
+	}
+	GetCache().Invalidate(collection, id.Hex())
+	return nil
+}
+
 // resourceDelete removes a resource from the database and invalidates its cache entry,
 // so that it can no longer be looked up by ID.
 func resourceDelete(collection string, id bson.ObjectID) error {

@@ -16,6 +16,7 @@ import (
 	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.mongodb.org/mongo-driver/v2/bson"
 
 	"github.com/kowabunga-cloud/common/klog"
 )
@@ -126,10 +127,10 @@ func (e *KowabungaExporter) SetupMetrics() {
 		MetricKaktusMem:       newMetric(MetricKaktusMem, "Kowabunga kaktus allocated memory size (bytes)", "zone", "name"),
 		MetricKaktusInstances: newMetric(MetricKaktusInstances, "Kowabunga kaktus allocated instances count", "zone", "name"),
 		MetricKaktusCost:      newMetric(MetricKaktusCost, "Kowabunga kaktus cost", "zone", "name", "currency"),
-		MetricPoolsAllocated:  newMetric(MetricPoolsAllocated, "Kowabunga storage pools allocated size (bytes)", "region"),
-		MetricPoolsFree:       newMetric(MetricPoolsFree, "Kowabunga storage pools free size (bytes)", "region"),
-		MetricPoolsCapacity:   newMetric(MetricPoolsCapacity, "Kowabunga storage pools capacity (bytes)", "region"),
-		MetricPoolsCost:       newMetric(MetricPoolsCost, "Kowabunga storage pools cost", "region", "currency"),
+		MetricPoolsAllocated:  newMetric(MetricPoolsAllocated, "Kowabunga storage pools allocated size (bytes)", "region", "pool"),
+		MetricPoolsFree:       newMetric(MetricPoolsFree, "Kowabunga storage pools free size (bytes)", "region", "pool"),
+		MetricPoolsCapacity:   newMetric(MetricPoolsCapacity, "Kowabunga storage pools capacity (bytes)", "region", "pool"),
+		MetricPoolsCost:       newMetric(MetricPoolsCost, "Kowabunga storage pools cost", "region", "pool", "currency"),
 		MetricVNets:           newMetric(MetricVNets, "Kowabunga virtual networks", "region", "type"),
 		MetricPrivateSubnets:  newMetric(MetricPrivateSubnets, "Kowabunga private subnets", "region", "netmask", "type"),
 		MetricPublicSubnets:   newMetric(MetricPublicSubnets, "Kowabunga public subnets IP addresses", "region", "netmask", "type"),
@@ -497,9 +498,16 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 			}
 		}
 		if projectPrice != p.Cost.Price || (projectCurrency != "" && projectCurrency != p.Cost.Currency) {
+			// only update the cost field: the project document read at the
+			// beginning of the scrape may be outdated by now
 			p.Cost.Price = projectPrice
 			p.Cost.Currency = projectCurrency
-			_ = p.Save()
+			err := resourceSetFields(MongoCollectionProjectName, p.ID, bson.D{
+				bson.E{Key: "cost", Value: p.Cost},
+			})
+			if err != nil {
+				klog.Errorf("unable to update project %s cost: %v", p.String(), err)
+			}
 		}
 
 		pm := KowabungaProjectMetrics{
@@ -541,6 +549,12 @@ func NewKowabungaMetrics() *KowabungaMetrics {
 }
 
 func (e *KowabungaExporter) SetMetrics(m *KowabungaMetrics) {
+	// start over from a clean state, so that series of deleted resources (or
+	// with changed labels, e.g. instance IP) are no longer exported
+	for _, metric := range e.Metrics {
+		metric.Reset()
+	}
+
 	for key, r := range m.Regions {
 		e.Metrics[MetricRegions].WithLabelValues(key).Set(1)
 
@@ -560,11 +574,11 @@ func (e *KowabungaExporter) SetMetrics(m *KowabungaMetrics) {
 			e.Metrics[MetricPublicSubnets].WithLabelValues(key, mask, "free").Set(s.Free)
 		}
 
-		for _, p := range r.Pools {
-			e.Metrics[MetricPoolsAllocated].WithLabelValues(key).Set(p.Allocated)
-			e.Metrics[MetricPoolsFree].WithLabelValues(key).Set(p.Free)
-			e.Metrics[MetricPoolsCapacity].WithLabelValues(key).Set(p.Capacity)
-			e.Metrics[MetricPoolsCost].WithLabelValues(key, p.Currency).Set(p.Cost)
+		for name, p := range r.Pools {
+			e.Metrics[MetricPoolsAllocated].WithLabelValues(key, name).Set(p.Allocated)
+			e.Metrics[MetricPoolsFree].WithLabelValues(key, name).Set(p.Free)
+			e.Metrics[MetricPoolsCapacity].WithLabelValues(key, name).Set(p.Capacity)
+			e.Metrics[MetricPoolsCost].WithLabelValues(key, name, p.Currency).Set(p.Cost)
 		}
 	}
 

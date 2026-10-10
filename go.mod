@@ -54,6 +54,7 @@ require (
 	github.com/inbucket/html2text v1.0.0 // indirect
 	github.com/jaytaylor/html2text v0.0.0-20260303211410-1a4bdc82ecec // indirect
 	github.com/klauspost/compress v1.20.0 // indirect
+	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/lorenzosaino/go-sysctl v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
