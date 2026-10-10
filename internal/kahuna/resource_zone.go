@@ -11,6 +11,7 @@ import (
 
 	"github.com/agnivade/levenshtein"
 	"github.com/huandu/xstrings"
+	"go.mongodb.org/mongo-driver/v2/bson"
 
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
@@ -315,17 +316,21 @@ func (z *Zone) Kaktus(id string) (*Kaktus, error) {
 func (z *Zone) AddKaktus(id string) error {
 	klog.Debugf("Adding kaktus %s to zone %s", id, z.String())
 	AddChildRef(&z.KaktusIDs, id)
-	return z.Save()
+	return resourceAddChildRef(MongoCollectionZoneName, z.ID, "kaktus_ids", id)
 }
 
 func (z *Zone) RemoveKaktus(id string) error {
 	klog.Debugf("Removing kaktus %s from zone %s", id, z.String())
 	RemoveChildRef(&z.KaktusIDs, id)
-	err := z.UpdateCapabilities()
+	err := resourceRemoveChildRef(MongoCollectionZoneName, z.ID, "kaktus_ids", id)
+	if err != nil {
+		return err
+	}
+	err = z.UpdateCapabilities()
 	if err != nil {
 		klog.Error(err.Error())
 	}
-	return z.Save()
+	return nil
 }
 
 // Cost
@@ -358,7 +363,7 @@ func (z *Zone) UpdateCapabilities() error {
 
 	z.VirtualResources = res
 
-	err := z.Save()
+	err := resourceSetFields(MongoCollectionZoneName, z.ID, bson.D{bson.E{Key: "virtual_resources", Value: res}})
 	if err != nil {
 		return err
 	}

@@ -430,11 +430,13 @@ func (u *User) RemoveToken(id string) error {
 func (u *User) AddTeam(id string) error {
 	klog.Debugf("Adding team %s to user %s", id, u.String())
 	AddChildRef(&u.TeamIDs, id)
-	return u.Save() // save DB before looking back
+	defer invalidateUserResources()
+	return resourceAddChildRef(MongoCollectionUserName, u.ID, "team_ids", id)
 }
 
 func (u *User) RemoveTeam(id string) error {
 	klog.Debugf("Removing team %s from user %s", id, u.String())
 	RemoveChildRef(&u.TeamIDs, id)
-	return u.Save()
+	defer invalidateUserResources()
+	return resourceRemoveChildRef(MongoCollectionUserName, u.ID, "team_ids", id)
 }

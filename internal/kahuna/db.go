@@ -120,9 +120,9 @@ func (db *KowabungaDB) Update(collection string, id bson.ObjectID, obj interface
 	return c.ReplaceOne(context.TODO(), bson.D{bson.E{Key: "_id", Value: id}}, obj)
 }
 
-// UpdateFields applies an update document (e.g. $set, $inc, $addToSet) to
-// a single document.
-func (db *KowabungaDB) UpdateFields(collection string, id bson.ObjectID, update bson.D) error {
+// UpdateFields applies an update document (e.g. $set, $inc, $addToSet) or
+// an aggregation pipeline update (bson.A) to a single document.
+func (db *KowabungaDB) UpdateFields(collection string, id bson.ObjectID, update any) error {
 	if db.DB == nil {
 		return ErrDbNotConnected
 	}

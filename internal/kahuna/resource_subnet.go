@@ -608,11 +608,11 @@ func (s *Subnet) Adapter(id string) (*Adapter, error) {
 func (s *Subnet) AddAdapter(id string) error {
 	klog.Debugf("Adding adapter %s to subnet %s", id, s.String())
 	AddChildRef(&s.AdapterIDs, id)
-	return s.Save()
+	return resourceAddChildRef(MongoCollectionSubnetName, s.ID, "adapter_ids", id)
 }
 
 func (s *Subnet) RemoveAdapter(id string) error {
 	klog.Debugf("Removing adapter %s from subnet %s", id, s.String())
 	RemoveChildRef(&s.AdapterIDs, id)
-	return s.Save()
+	return resourceRemoveChildRef(MongoCollectionSubnetName, s.ID, "adapter_ids", id)
 }

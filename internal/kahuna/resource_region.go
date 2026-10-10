@@ -9,6 +9,8 @@ package kahuna
 import (
 	"fmt"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
+
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
 )
@@ -293,13 +295,13 @@ func (r *Region) Zone(id string) (*Zone, error) {
 func (r *Region) AddZone(id string) error {
 	klog.Debugf("Adding zone %s to region %s", id, r.String())
 	AddChildRef(&r.ZoneIDs, id)
-	return r.Save()
+	return resourceAddChildRef(MongoCollectionRegionName, r.ID, "zone_ids", id)
 }
 
 func (r *Region) RemoveZone(id string) error {
 	klog.Debugf("Removing zone %s from region %s", id, r.String())
 	RemoveChildRef(&r.ZoneIDs, id)
-	return r.Save()
+	return resourceRemoveChildRef(MongoCollectionRegionName, r.ID, "zone_ids", id)
 }
 
 // Network Gateways
@@ -315,13 +317,13 @@ func (r *Region) Kiwi(id string) (*Kiwi, error) {
 func (r *Region) AddKiwi(id string) error {
 	klog.Debugf("Adding network gateway %s to region %s", id, r.String())
 	AddChildRef(&r.KiwiIDs, id)
-	return r.Save()
+	return resourceAddChildRef(MongoCollectionRegionName, r.ID, "kiwi_ids", id)
 }
 
 func (r *Region) RemoveKiwi(id string) error {
 	klog.Debugf("Removing kiwi %s from region %s", id, r.String())
 	RemoveChildRef(&r.KiwiIDs, id)
-	return r.Save()
+	return resourceRemoveChildRef(MongoCollectionRegionName, r.ID, "kiwi_ids", id)
 }
 
 // Virtual Networks
@@ -337,13 +339,13 @@ func (r *Region) VNet(id string) (*VNet, error) {
 func (r *Region) AddVNet(id string) error {
 	klog.Debugf("Adding virtual network %s to region %s", id, r.String())
 	AddChildRef(&r.VNetIDs, id)
-	return r.Save()
+	return resourceAddChildRef(MongoCollectionRegionName, r.ID, "vnet_ids", id)
 }
 
 func (r *Region) RemoveVNet(id string) error {
 	klog.Debugf("Removing virtual network %s from region %s", id, r.String())
 	RemoveChildRef(&r.VNetIDs, id)
-	return r.Save()
+	return resourceRemoveChildRef(MongoCollectionRegionName, r.ID, "vnet_ids", id)
 }
 
 func (r *Region) GetPublicSubnet() (string, error) {
@@ -377,29 +379,41 @@ func (r *Region) StoragePool(id string) (*StoragePool, error) {
 func (r *Region) AddStoragePool(id string) error {
 	klog.Debugf("Adding storage pool %s to region %s", id, r.String())
 	AddChildRef(&r.StoragePoolIDs, id)
+	err := resourceAddChildRef(MongoCollectionRegionName, r.ID, "storage_pool_ids", id)
+	if err != nil {
+		return err
+	}
 
 	// set storage pool as default one if none exists
-	err := r.SetDefaultStoragePool(id, false)
+	err = r.SetDefaultStoragePool(id, false)
 	if err != nil {
 		klog.Error(err)
 		return err
 	}
-	return r.Save()
+	return nil
 }
 
 func (r *Region) RemoveStoragePool(id string) error {
 	klog.Debugf("Removing storage pool %s from region %s", id, r.String())
 	RemoveChildRef(&r.StoragePoolIDs, id)
+	err := resourceRemoveChildRef(MongoCollectionRegionName, r.ID, "storage_pool_ids", id)
+	if err != nil {
+		return err
+	}
 	// possibly unset default storage pool
 	if r.Defaults.StoragePoolID == id {
 		r.Defaults.StoragePoolID = ""
+		err := resourceSetFields(MongoCollectionRegionName, r.ID, bson.D{bson.E{Key: "defaults.pool_id", Value: ""}})
+		if err != nil {
+			return err
+		}
 	}
-	err := r.UpdateCapabilities()
+	err = r.UpdateCapabilities()
 	if err != nil {
 		klog.Error(err.Error())
 		return err
 	}
-	return r.Save()
+	return nil
 }
 
 func (r *Region) SetDefaultStoragePool(id string, force bool) error {
@@ -410,8 +424,9 @@ func (r *Region) SetDefaultStoragePool(id string, force bool) error {
 
 	if force || r.Defaults.StoragePoolID == "" {
 		r.Defaults.StoragePoolID = pool.String()
+		return resourceSetFields(MongoCollectionRegionName, r.ID, bson.D{bson.E{Key: "defaults.pool_id", Value: r.Defaults.StoragePoolID}})
 	}
-	return r.Save()
+	return nil
 }
 
 // NFS Storages
@@ -427,24 +442,33 @@ func (r *Region) Nfs(id string) (*NFS, error) {
 func (r *Region) AddNfs(id string) error {
 	klog.Debugf("Adding NFS storage %s to region %s", id, r.String())
 	AddChildRef(&r.NfsIDs, id)
+	err := resourceAddChildRef(MongoCollectionRegionName, r.ID, "nfs_ids", id)
+	if err != nil {
+		return err
+	}
 
 	// set NFS storage as default one if none exists
-	err := r.SetDefaultNfs(id, false)
+	err = r.SetDefaultNfs(id, false)
 	if err != nil {
 		klog.Error(err)
 		return err
 	}
-	return r.Save()
+	return nil
 }
 
 func (r *Region) RemoveNfs(id string) error {
 	klog.Debugf("Removing NFS storage %s from region %s", id, r.String())
 	RemoveChildRef(&r.NfsIDs, id)
-	// possibly unset default pool
+	err := resourceRemoveChildRef(MongoCollectionRegionName, r.ID, "nfs_ids", id)
+	if err != nil {
+		return err
+	}
+	// possibly unset default NFS storage
 	if r.Defaults.NfsID == id {
 		r.Defaults.NfsID = ""
+		return resourceSetFields(MongoCollectionRegionName, r.ID, bson.D{bson.E{Key: "defaults.nfs_id", Value: ""}})
 	}
-	return r.Save()
+	return nil
 }
 
 func (r *Region) SetDefaultNfs(id string, force bool) error {
@@ -455,8 +479,9 @@ func (r *Region) SetDefaultNfs(id string, force bool) error {
 
 	if force || r.Defaults.NfsID == "" {
 		r.Defaults.NfsID = n.String()
+		return resourceSetFields(MongoCollectionRegionName, r.ID, bson.D{bson.E{Key: "defaults.nfs_id", Value: r.Defaults.NfsID}})
 	}
-	return r.Save()
+	return nil
 }
 
 // DNS Records
@@ -472,13 +497,13 @@ func (r *Region) FindDnsRecordByID(id string) (*DnsRecord, error) {
 func (r *Region) AddDnsRecord(id string) error {
 	klog.Debugf("Adding DNS Record %s to region %s", id, r.String())
 	AddChildRef(&r.RecordIDs, id)
-	return r.Save()
+	return resourceAddChildRef(MongoCollectionRegionName, r.ID, "record_ids", id)
 }
 
 func (r *Region) RemoveDnsRecord(id string) error {
 	klog.Debugf("Removing DNS Record %s from region %s", id, r.String())
 	RemoveChildRef(&r.RecordIDs, id)
-	return r.Save()
+	return resourceRemoveChildRef(MongoCollectionRegionName, r.ID, "record_ids", id)
 }
 
 // Cost
@@ -507,7 +532,7 @@ func (r *Region) UpdateCapabilities() error {
 
 	r.VirtualResources = res
 
-	err := r.Save()
+	err := resourceSetFields(MongoCollectionRegionName, r.ID, bson.D{bson.E{Key: "virtual_resources", Value: res}})
 	if err != nil {
 		return err
 	}

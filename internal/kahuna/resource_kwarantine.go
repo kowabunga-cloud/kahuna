@@ -267,25 +267,25 @@ func (k *Kwarantine) Project() (*Project, error) {
 func (k *Kwarantine) AddInstance(id string) error {
 	klog.Debugf("Adding instance %s to Kwarantine %s", id, k.String())
 	AddChildRef(&k.InstanceIDs, id)
-	return k.Save()
+	return resourceAddChildRef(MongoCollectionKwarantineName, k.ID, "instance_ids", id)
 }
 
 func (k *Kwarantine) RemoveInstance(id string) error {
 	klog.Debugf("Removing instance %s from Kwarantine %s", id, k.String())
 	RemoveChildRef(&k.InstanceIDs, id)
-	return k.Save()
+	return resourceRemoveChildRef(MongoCollectionKwarantineName, k.ID, "instance_ids", id)
 }
 
 func (k *Kwarantine) AddKompute(id string) error {
 	klog.Debugf("Adding Kompute %s to Kwarantine %s", id, k.String())
 	AddChildRef(&k.KomputeIDs, id)
-	return k.Save()
+	return resourceAddChildRef(MongoCollectionKwarantineName, k.ID, "kompute_ids", id)
 }
 
 func (k *Kwarantine) RemoveKompute(id string) error {
 	klog.Debugf("Removing Kompute %s from Kwarantine %s", id, k.String())
 	RemoveChildRef(&k.KomputeIDs, id)
-	return k.Save()
+	return resourceRemoveChildRef(MongoCollectionKwarantineName, k.ID, "kompute_ids", id)
 }
 
 func (k *Kwarantine) Update(name, desc, policy string) error {

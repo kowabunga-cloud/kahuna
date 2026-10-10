@@ -9,6 +9,8 @@ package kahuna
 import (
 	"fmt"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
+
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
 )
@@ -208,22 +210,31 @@ func (v *VNet) Subnet(id string) (*Subnet, error) {
 func (v *VNet) AddSubnet(id string) error {
 	klog.Debugf("Adding subnet %s to virtual network %s", id, v.String())
 	AddChildRef(&v.SubnetIDs, id)
+	err := resourceAddChildRef(MongoCollectionVNetName, v.ID, "subnet_ids", id)
+	if err != nil {
+		return err
+	}
 	// set subnet as default one if none exists
-	err := v.SetDefaultSubnet(id, false)
+	err = v.SetDefaultSubnet(id, false)
 	if err != nil {
 		klog.Error(err)
 	}
-	return v.Save()
+	return nil
 }
 
 func (v *VNet) RemoveSubnet(id string) error {
 	klog.Debugf("Removing subnet %s from virtual network %s", id, v.String())
 	RemoveChildRef(&v.SubnetIDs, id)
-	// possibly unset default pool
+	err := resourceRemoveChildRef(MongoCollectionVNetName, v.ID, "subnet_ids", id)
+	if err != nil {
+		return err
+	}
+	// possibly unset default subnet
 	if v.Defaults.SubnetID == id {
 		v.Defaults.SubnetID = ""
+		return resourceSetFields(MongoCollectionVNetName, v.ID, bson.D{bson.E{Key: "defaults.subnet_id", Value: ""}})
 	}
-	return v.Save()
+	return nil
 }
 
 func (v *VNet) SetDefaultSubnet(subnetId string, force bool) error {
@@ -235,8 +246,9 @@ func (v *VNet) SetDefaultSubnet(subnetId string, force bool) error {
 
 	if force || v.Defaults.SubnetID == "" {
 		v.Defaults.SubnetID = s.String()
+		return resourceSetFields(MongoCollectionVNetName, v.ID, bson.D{bson.E{Key: "defaults.subnet_id", Value: v.Defaults.SubnetID}})
 	}
-	return v.Save()
+	return nil
 }
 
 func (v *VNet) FindFreeSubnet(requestedIps int) (*Subnet, error) {

@@ -7,6 +7,8 @@
 package kahuna
 
 import (
+	"go.mongodb.org/mongo-driver/v2/bson"
+
 	"github.com/kowabunga-cloud/common"
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/common/proto"
@@ -356,23 +358,32 @@ func (p *StoragePool) Template(id string) (*Template, error) {
 func (p *StoragePool) AddTemplate(id string) error {
 	klog.Debugf("Adding template %s to pool %s", id, p.String())
 	AddChildRef(&p.TemplateIDs, id)
+	err := resourceAddChildRef(MongoCollectionStoragePoolName, p.ID, "template_ids", id)
+	if err != nil {
+		return err
+	}
 	// set template as default one if none exists
-	err := p.SetDefaultTemplate(id, false)
+	err = p.SetDefaultTemplate(id, false)
 	if err != nil {
 		klog.Error(err)
 		return err
 	}
-	return p.Save()
+	return nil
 }
 
 func (p *StoragePool) RemoveTemplate(id string) error {
 	klog.Debugf("Removing template %s from pool %s", id, p.String())
 	RemoveChildRef(&p.TemplateIDs, id)
+	err := resourceRemoveChildRef(MongoCollectionStoragePoolName, p.ID, "template_ids", id)
+	if err != nil {
+		return err
+	}
 	// possibly unset default template
 	if p.Defaults.TemplateIDs.OS == id {
 		p.Defaults.TemplateIDs.OS = ""
+		return resourceSetFields(MongoCollectionStoragePoolName, p.ID, bson.D{bson.E{Key: "defaults.template_ids.os", Value: ""}})
 	}
-	return p.Save()
+	return nil
 }
 
 func (p *StoragePool) SetDefaultTemplate(id string, force bool) error {
@@ -384,8 +395,9 @@ func (p *StoragePool) SetDefaultTemplate(id string, force bool) error {
 
 	if force || p.Defaults.TemplateIDs.OS == "" {
 		p.Defaults.TemplateIDs.OS = t.String()
+		return resourceSetFields(MongoCollectionStoragePoolName, p.ID, bson.D{bson.E{Key: "defaults.template_ids.os", Value: p.Defaults.TemplateIDs.OS}})
 	}
-	return p.Save()
+	return nil
 }
 
 // Volumes
@@ -400,11 +412,11 @@ func (p *StoragePool) Volume(id string) (*Volume, error) {
 func (p *StoragePool) AddVolume(id string) error {
 	klog.Debugf("Adding volume %s to pool %s", id, p.String())
 	AddChildRef(&p.VolumeIDs, id)
-	return p.Save()
+	return resourceAddChildRef(MongoCollectionStoragePoolName, p.ID, "volume_ids", id)
 }
 
 func (p *StoragePool) RemoveVolume(id string) error {
 	klog.Debugf("Removing volume %s from pool %s", id, p.String())
 	RemoveChildRef(&p.VolumeIDs, id)
-	return p.Save()
+	return resourceRemoveChildRef(MongoCollectionStoragePoolName, p.ID, "volume_ids", id)
 }

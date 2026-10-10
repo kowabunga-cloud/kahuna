@@ -12,6 +12,8 @@ import (
 	"slices"
 	"strconv"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
+
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
 )
@@ -241,14 +243,20 @@ func (n *NFS) AddKylo(id, exportId string) error {
 	klog.Debugf("Adding Kylo %s to NFS storage %s", id, n.String())
 	AddChildRef(&n.KyloIDs, id)
 	AddChildRef(&n.Exports, exportId)
-	return n.Save()
+	return resourceApplyPipeline(MongoCollectionNfsName, n.ID, bson.D{
+		childRefSetExpr("kylo_ids", id, true),
+		childRefSetExpr("exports", exportId, true),
+	})
 }
 
 func (n *NFS) RemoveKylo(id, exportId string) error {
 	klog.Debugf("Removing Kylo %s from NFS storage %s", id, n.String())
 	RemoveChildRef(&n.KyloIDs, id)
 	RemoveChildRef(&n.Exports, exportId)
-	return n.Save()
+	return resourceApplyPipeline(MongoCollectionNfsName, n.ID, bson.D{
+		childRefSetExpr("kylo_ids", id, false),
+		childRefSetExpr("exports", exportId, false),
+	})
 }
 
 func (n *NFS) NewExportId() string {

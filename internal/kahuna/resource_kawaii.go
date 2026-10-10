@@ -745,13 +745,13 @@ func (k *Kawaii) Metadata(instanceId string) metadata.KawaiiMetadata {
 func (k *Kawaii) AddIPsec(ipsecID string) error {
 	klog.Debugf("Adding IPsec %s to pool %s", ipsecID, k.String())
 	AddChildRef(&k.IPsecIDs, ipsecID)
-	return k.Save()
+	return resourceAddChildRef(MongoCollectionKawaiiName, k.ID, "ipsec_ids", ipsecID)
 }
 
 func (k *Kawaii) RemoveIPsec(ipsecID string) error {
 	klog.Debugf("Removing IPsec %s from pool %s", ipsecID, k.String())
 	RemoveChildRef(&k.IPsecIDs, ipsecID)
-	return k.Save()
+	return resourceRemoveChildRef(MongoCollectionKawaiiName, k.ID, "ipsec_ids", ipsecID)
 }
 
 func IPsecIngressRuleToMetadata(rule *KawaiiFirewallIngressRule) *metadata.KawaiiFirewallRuleMetadata {

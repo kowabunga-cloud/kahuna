@@ -27,17 +27,117 @@ func resourceUpdate(collection string, id bson.ObjectID, obj interface{}) error 
 	return nil
 }
 
-// resourceSetFields atomically sets the given fields of a resource document,
-// leaving the other ones untouched, and invalidates its cache entry. Unlike
-// resourceUpdate, it can't overwrite concurrent changes to other fields made
-// since the object was read.
-func resourceSetFields(collection string, id bson.ObjectID, fields bson.D) error {
-	err := GetDB().UpdateFields(collection, id, bson.D{bson.E{Key: "$set", Value: fields}})
+// resourceUpdateFields atomically applies an update document (e.g. $set,
+// $addToSet, $pull) to a resource document, refreshing its update time, and
+// invalidates its cache entry. Unlike resourceUpdate, which replaces the whole
+// document, it can't overwrite concurrent changes made to other fields since
+// the object was read.
+func resourceUpdateFields(collection string, id bson.ObjectID, update bson.D) error {
+	update = append(update, bson.E{Key: "$currentDate", Value: bson.D{bson.E{Key: "updated_at", Value: true}}})
+	err := GetDB().UpdateFields(collection, id, update)
 	if err != nil {
 		return err
 	}
 	GetCache().Invalidate(collection, id.Hex())
 	return nil
+}
+
+// resourceSetFields atomically sets the given fields of a resource document.
+func resourceSetFields(collection string, id bson.ObjectID, fields bson.D) error {
+	return resourceUpdateFields(collection, id, bson.D{bson.E{Key: "$set", Value: fields}})
+}
+
+// resourceAddChildRef atomically adds childId to a resource's child
+// references array field, unless already present.
+func resourceAddChildRef(collection string, id bson.ObjectID, field, childId string) error {
+	return resourceUpdateChildRefAndCounters(collection, id, field, childId, true, nil)
+}
+
+// resourceRemoveChildRef atomically removes childId from a resource's child
+// references array field.
+func resourceRemoveChildRef(collection string, id bson.ObjectID, field, childId string) error {
+	return resourceUpdateChildRefAndCounters(collection, id, field, childId, false, nil)
+}
+
+// counterExpr returns an aggregation expression adding delta to a numeric
+// field, floored at 0 as counters are decoded into unsigned integers.
+func counterExpr(field string, delta any) bson.D {
+	return bson.D{bson.E{Key: "$max", Value: bson.A{
+		0,
+		bson.D{bson.E{Key: "$add", Value: bson.A{bson.D{bson.E{Key: "$ifNull", Value: bson.A{"$" + field, 0}}}, delta}}},
+	}}}
+}
+
+// resourceApplyPipeline atomically applies a single $set aggregation stage to
+// a resource document, refreshing its update time, and invalidates its cache
+// entry.
+func resourceApplyPipeline(collection string, id bson.ObjectID, set bson.D) error {
+	set = append(set, bson.E{Key: "updated_at", Value: "$$NOW"})
+	err := GetDB().UpdateFields(collection, id, bson.A{bson.D{bson.E{Key: "$set", Value: set}}})
+	if err != nil {
+		return err
+	}
+	GetCache().Invalidate(collection, id.Hex())
+	return nil
+}
+
+// resourceIncCounters atomically adds (possibly negative) deltas to a
+// resource's numeric fields, flooring results at 0.
+func resourceIncCounters(collection string, id bson.ObjectID, deltas bson.D) error {
+	set := bson.D{}
+	for _, d := range deltas {
+		set = append(set, bson.E{Key: d.Key, Value: counterExpr(d.Key, d.Value)})
+	}
+	return resourceApplyPipeline(collection, id, set)
+}
+
+// childRefExprs returns aggregation expressions telling whether adding (or
+// removing) childId to (or from) an array field changes it, and the resulting
+// array. Fields stored as null (nil Go slices) are handled as empty arrays,
+// which $addToSet and $pull refuse to operate on.
+func childRefExprs(field, childId string, add bool) (changes, newRefs, refs bson.D) {
+	refs = bson.D{bson.E{Key: "$ifNull", Value: bson.A{"$" + field, bson.A{}}}}
+	present := bson.D{bson.E{Key: "$in", Value: bson.A{childId, refs}}}
+	if add {
+		changes = bson.D{bson.E{Key: "$not", Value: bson.A{present}}}
+		newRefs = bson.D{bson.E{Key: "$concatArrays", Value: bson.A{refs, bson.A{childId}}}}
+		return changes, newRefs, refs
+	}
+	changes = present
+	newRefs = bson.D{bson.E{Key: "$filter", Value: bson.D{
+		bson.E{Key: "input", Value: refs},
+		bson.E{Key: "cond", Value: bson.D{bson.E{Key: "$ne", Value: bson.A{"$$this", childId}}}},
+	}}}
+	return changes, newRefs, refs
+}
+
+// childRefSetExpr returns the $set stage entry adding (or removing) childId
+// to (or from) an array field.
+func childRefSetExpr(field, childId string, add bool) bson.E {
+	changes, newRefs, refs := childRefExprs(field, childId, add)
+	return bson.E{Key: field, Value: bson.D{bson.E{Key: "$cond", Value: bson.A{changes, newRefs, refs}}}}
+}
+
+// resourceUpdateChildRefAndCounters atomically adds (or removes) childId
+// to (or from) a resource's child references array field and, only if that
+// actually changed the references, applies the counter deltas (negated on
+// removal, floored at 0). Adding an already referenced child or removing an
+// unreferenced one is thus a no-op, and counters can't drift.
+func resourceUpdateChildRefAndCounters(collection string, id bson.ObjectID, field, childId string, add bool, deltas bson.D) error {
+	changes, _, _ := childRefExprs(field, childId, add)
+	set := bson.D{childRefSetExpr(field, childId, add)}
+	for _, d := range deltas {
+		delta := d.Value
+		if !add {
+			delta = bson.D{bson.E{Key: "$multiply", Value: bson.A{d.Value, -1}}}
+		}
+		set = append(set, bson.E{Key: d.Key, Value: bson.D{bson.E{Key: "$cond", Value: bson.A{
+			changes,
+			counterExpr(d.Key, delta),
+			bson.D{bson.E{Key: "$ifNull", Value: bson.A{"$" + d.Key, 0}}},
+		}}}})
+	}
+	return resourceApplyPipeline(collection, id, set)
 }
 
 // resourceDelete removes a resource from the database and invalidates its cache entry,

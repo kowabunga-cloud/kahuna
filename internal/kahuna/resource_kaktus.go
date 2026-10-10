@@ -7,6 +7,8 @@
 package kahuna
 
 import (
+	"go.mongodb.org/mongo-driver/v2/bson"
+
 	"github.com/kowabunga-cloud/common"
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/common/proto"
@@ -410,12 +412,8 @@ func (k *Kaktus) Instance(id string) (*Instance, error) {
 func (k *Kaktus) AddInstance(id string) error {
 	klog.Debugf("Adding instance %s to kaktus %s", id, k.String())
 	AddChildRef(&k.InstanceIDs, id)
-	err := k.Save() // save DB before looking back
-	if err != nil {
-		return err
-	}
 
-	// find instance again
+	// find instance
 	instance, err := k.Instance(id)
 	if err != nil {
 		klog.Error(err)
@@ -427,14 +425,21 @@ func (k *Kaktus) AddInstance(id string) error {
 	k.Usage.VCPUs += uint16(instance.CPU)         // #nosec G115 -- vcpu count never overflows uint16
 	k.Usage.MemorySize += uint64(instance.Memory) // #nosec G115 -- memory is always positive
 
-	return k.Save()
+	return resourceUpdateChildRefAndCounters(MongoCollectionKaktusName, k.ID, "instance_ids", id, true, bson.D{
+		bson.E{Key: "usage.instances", Value: 1},
+		bson.E{Key: "usage.vcpus", Value: instance.CPU},
+		bson.E{Key: "usage.memory", Value: instance.Memory},
+	})
 }
 
 func (k *Kaktus) UpdateInstanceUsage(cpu, mem int64) error {
 	// increase usage counters
 	k.Usage.VCPUs += uint16(cpu)      // #nosec G115 -- vcpu count never overflows uint16
 	k.Usage.MemorySize += uint64(mem) // #nosec G115 -- memory is always positive
-	return k.Save()
+	return resourceIncCounters(MongoCollectionKaktusName, k.ID, bson.D{
+		bson.E{Key: "usage.vcpus", Value: cpu},
+		bson.E{Key: "usage.memory", Value: mem},
+	})
 }
 
 func (k *Kaktus) RemoveInstance(id string) error {
@@ -453,5 +458,9 @@ func (k *Kaktus) RemoveInstance(id string) error {
 	k.Usage.MemorySize -= uint64(ist.Memory) // #nosec G115 -- memory is always positive
 
 	RemoveChildRef(&k.InstanceIDs, id)
-	return k.Save()
+	return resourceUpdateChildRefAndCounters(MongoCollectionKaktusName, k.ID, "instance_ids", id, false, bson.D{
+		bson.E{Key: "usage.instances", Value: 1},
+		bson.E{Key: "usage.vcpus", Value: ist.CPU},
+		bson.E{Key: "usage.memory", Value: ist.Memory},
+	})
 }
