@@ -894,13 +894,87 @@ func (s *ProjectService) ListProjectKwarantines(ctx context.Context, projectId s
 	return HttpOK(payload)
 }
 
+// filterResourceIDs returns the resource IDs for which keep() is true. The
+// result is never nil, so that it's always serialized as a JSON array.
+func filterResourceIDs(ids []string, keep func(id string) bool) []string {
+	res := []string{}
+	for _, id := range ids {
+		if keep(id) {
+			res = append(res, id)
+		}
+	}
+	return res
+}
+
+// instanceLocation returns the zone and region IDs an instance runs in.
+func instanceLocation(instanceId string) (string, string, error) {
+	i, err := FindInstanceByID(instanceId)
+	if err != nil {
+		return "", "", err
+	}
+	k, err := i.Kaktus()
+	if err != nil {
+		return "", "", err
+	}
+	z, err := k.Zone()
+	if err != nil {
+		return "", "", err
+	}
+	return z.String(), z.RegionID, nil
+}
+
+// komputeLocation returns the zone and region IDs a Kompute runs in.
+func komputeLocation(komputeId string) (string, string, error) {
+	k, err := FindKomputeByID(komputeId)
+	if err != nil {
+		return "", "", err
+	}
+	return instanceLocation(k.InstanceID)
+}
+
+// konveyRunsInZone tells whether any of the Konvey's Komputes runs in zone.
+func konveyRunsInZone(konveyId, zoneId string) bool {
+	k, err := FindKonveyByID(konveyId)
+	if err != nil {
+		return false
+	}
+	har, err := k.HAR()
+	if err != nil {
+		return false
+	}
+	for _, id := range har.KomputeIDs {
+		zone, _, err := komputeLocation(id)
+		if err == nil && zone == zoneId {
+			return true
+		}
+	}
+	return false
+}
+
+// kyloMatches tells whether the Kylo is served from the region, and from
+// the given NFS storage if any.
+func kyloMatches(kyloId, regionId, nfsId string) bool {
+	k, err := FindKyloByID(kyloId)
+	if err != nil {
+		return false
+	}
+	if nfsId != "" && k.NfsID != nfsId {
+		return false
+	}
+	nfs, err := k.Nfs()
+	return err == nil && nfs.RegionID == regionId
+}
+
 func (s *ProjectService) ListProjectZoneInstances(ctx context.Context, projectId string, zoneId string) (sdk.ImplResponse, error) {
 	p, err := FindProjectByID(projectId)
 	if err != nil {
 		return HttpNotFound(err)
 	}
 
-	payload := p.Instances()
+	payload := filterResourceIDs(p.Instances(), func(id string) bool {
+		zone, _, err := instanceLocation(id)
+		return err == nil && zone == zoneId
+	})
 	return HttpOK(payload)
 }
 
@@ -910,7 +984,10 @@ func (s *ProjectService) ListProjectRegionInstances(ctx context.Context, project
 		return HttpNotFound(err)
 	}
 
-	payload := p.Instances()
+	payload := filterResourceIDs(p.Instances(), func(id string) bool {
+		_, region, err := instanceLocation(id)
+		return err == nil && region == regionId
+	})
 	return HttpOK(payload)
 }
 
@@ -920,7 +997,10 @@ func (s *ProjectService) ListProjectRegionKomputes(ctx context.Context, projectI
 		return HttpNotFound(err)
 	}
 
-	payload := p.Komputes()
+	payload := filterResourceIDs(p.Komputes(), func(id string) bool {
+		_, region, err := komputeLocation(id)
+		return err == nil && region == regionId
+	})
 	return HttpOK(payload)
 }
 
@@ -930,7 +1010,10 @@ func (s *ProjectService) ListProjectZoneKomputes(ctx context.Context, projectId 
 		return HttpNotFound(err)
 	}
 
-	payload := p.Komputes()
+	payload := filterResourceIDs(p.Komputes(), func(id string) bool {
+		zone, _, err := komputeLocation(id)
+		return err == nil && zone == zoneId
+	})
 	return HttpOK(payload)
 }
 
@@ -940,7 +1023,9 @@ func (s *ProjectService) ListProjectZoneKonveys(ctx context.Context, projectId s
 		return HttpNotFound(err)
 	}
 
-	payload := p.Konveys()
+	payload := filterResourceIDs(p.Konveys(), func(id string) bool {
+		return konveyRunsInZone(id, zoneId)
+	})
 	return HttpOK(payload)
 }
 
@@ -950,7 +1035,9 @@ func (s *ProjectService) ListProjectRegionKylos(ctx context.Context, projectId s
 		return HttpNotFound(err)
 	}
 
-	payload := p.Kylos()
+	payload := filterResourceIDs(p.Kylos(), func(id string) bool {
+		return kyloMatches(id, regionId, nfsId)
+	})
 	return HttpOK(payload)
 }
 
@@ -960,7 +1047,14 @@ func (s *ProjectService) ListProjectRegionKawaiis(ctx context.Context, projectId
 		return HttpNotFound(err)
 	}
 
-	payload := p.Kawaiis()
+	payload := filterResourceIDs(p.Kawaiis(), func(id string) bool {
+		k, err := FindKawaiiByID(id)
+		if err != nil {
+			return false
+		}
+		mzr, err := k.MZR()
+		return err == nil && mzr.RegionID == regionId
+	})
 	return HttpOK(payload)
 }
 
@@ -970,7 +1064,14 @@ func (s *ProjectService) ListProjectRegionKonveys(ctx context.Context, projectId
 		return HttpNotFound(err)
 	}
 
-	payload := p.Konveys()
+	payload := filterResourceIDs(p.Konveys(), func(id string) bool {
+		k, err := FindKonveyByID(id)
+		if err != nil {
+			return false
+		}
+		har, err := k.HAR()
+		return err == nil && har.RegionID == regionId
+	})
 	return HttpOK(payload)
 }
 
@@ -980,7 +1081,14 @@ func (s *ProjectService) ListProjectRegionVolumes(ctx context.Context, projectId
 		return HttpNotFound(err)
 	}
 
-	payload := p.Volumes()
+	payload := filterResourceIDs(p.Volumes(), func(id string) bool {
+		v, err := FindVolumeByID(id)
+		if err != nil {
+			return false
+		}
+		pool, err := v.StoragePool()
+		return err == nil && pool.RegionID == regionId
+	})
 	return HttpOK(payload)
 }
 
