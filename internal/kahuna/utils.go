@@ -21,6 +21,7 @@ import (
 	emailverifier "github.com/AfterShip/email-verifier"
 	"github.com/apparentlymart/go-cidr/cidr"
 	"github.com/inhies/go-bytesize"
+	"golang.org/x/crypto/ssh"
 )
 
 const (
@@ -88,6 +89,7 @@ var (
 	emailVerifier = emailverifier.NewVerifier()
 	domainRegex   = regexp.MustCompile(`^(?i)[a-z0-9-]+(\.[a-z0-9-]+)+\.?$`)
 	hostnameRegex = regexp.MustCompile(HostnameRegexStringRFC1123)
+	usernameRegex = regexp.MustCompile(`^[a-z_][a-z0-9_-]{0,31}$`)
 )
 
 func VerifyEmail(email string) error {
@@ -105,6 +107,37 @@ func VerifyDomain(name string) bool {
 
 func VerifyHostname(name string) bool {
 	return hostnameRegex.MatchString(name)
+}
+
+// VerifyUnixUsername tells whether name is a portable Unix user name, safe to
+// be rendered into cloud-init templates.
+func VerifyUnixUsername(name string) bool {
+	return usernameRegex.MatchString(name)
+}
+
+// VerifySSHPublicKey ensures key is a single, valid authorized_keys entry, safe
+// to be rendered into cloud-init templates.
+func VerifySSHPublicKey(key string) error {
+	if strings.ContainsAny(key, "\r\n") {
+		return fmt.Errorf("SSH public key must fit on a single line")
+	}
+	_, _, _, _, err := ssh.ParseAuthorizedKey([]byte(key))
+	if err != nil {
+		return fmt.Errorf("invalid SSH public key: %w", err)
+	}
+	return nil
+}
+
+// verifyBootstrapSettings validates the service user settings that get
+// rendered into instances cloud-init user-data.
+func verifyBootstrapSettings(user, pubkey string) error {
+	if user != "" && !VerifyUnixUsername(user) {
+		return fmt.Errorf("invalid bootstrap user name: %s", user)
+	}
+	if pubkey != "" {
+		return VerifySSHPublicKey(pubkey)
+	}
+	return nil
 }
 
 func HasChildRef(children *[]string, childId string) bool {

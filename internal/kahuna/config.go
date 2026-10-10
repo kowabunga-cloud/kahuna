@@ -115,6 +115,10 @@ func ParseConfig(f *os.File) (KowabungaConfig, error) {
 	if config.Global.Bootstrap.User == "" || config.Global.Bootstrap.Pubkey == "" {
 		return config, fmt.Errorf("missing config bootstrap parameters")
 	}
+	err = verifyBootstrapSettings(config.Global.Bootstrap.User, config.Global.Bootstrap.Pubkey)
+	if err != nil {
+		return config, fmt.Errorf("invalid config bootstrap parameters: %w", err)
+	}
 
 	// ensure JWT settings are usable: an empty HMAC key would let anyone forge tokens
 	if config.Global.JWT.Signature == "" {

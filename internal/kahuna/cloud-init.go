@@ -123,6 +123,19 @@ type UserDataSettings struct {
 }
 
 func (ci *CloudInit) SetUserData(name, domain, pwd, user, pubkey, profile string, adapters []string) error {
+	// values are rendered as-is into YAML templates: never let one alter the
+	// document structure (e.g. a newline injecting extra cloud-config)
+	if !VerifyUnixUsername(user) {
+		return fmt.Errorf("invalid bootstrap user name: %s", user)
+	}
+	err := VerifySSHPublicKey(pubkey)
+	if err != nil {
+		return err
+	}
+	if domain != "" && !VerifyDomain(domain) {
+		return fmt.Errorf("invalid domain name: %s", domain)
+	}
+
 	metadataAlias := fmt.Sprintf(`#!/bin/bash
 
 KW_ENDPOINT="$(cloud-init query ds.meta_data.kowabunga_metadata_uri)"

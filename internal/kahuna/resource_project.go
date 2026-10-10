@@ -126,6 +126,11 @@ func NewProject(name, desc, domain, pwd, user, pubkey string, teams, regions, ta
 		return nil, err
 	}
 
+	err := verifyBootstrapSettings(user, pubkey)
+	if err != nil {
+		return nil, err
+	}
+
 	// if unspecified by project, use Kowabunga's global settings
 	if user == "" {
 		user = GetCfg().Global.Bootstrap.User
@@ -163,7 +168,7 @@ func NewProject(name, desc, domain, pwd, user, pubkey string, teams, regions, ta
 	}
 	p.Quotas.Update(quotas)
 
-	err := p.AllocatePrivateSubnets(subnetSize)
+	err = p.AllocatePrivateSubnets(subnetSize)
 	if err != nil {
 		klog.Error(err)
 		return nil, err
@@ -338,6 +343,11 @@ func (p *Project) NotifiableUsers() []*User {
 }
 
 func (p *Project) Update(name, desc, pwd, user, pubkey string, teams, regions, tags []string, meta map[string]string, quotas sdk.ProjectResources) error {
+	err := verifyBootstrapSettings(user, pubkey)
+	if err != nil {
+		return err
+	}
+
 	p.UpdateResourceDefaults(name, desc)
 	SetFieldStr(&p.RootPassword, pwd)
 	SetFieldStr(&p.BootstrapUser, user)
@@ -347,7 +357,7 @@ func (p *Project) Update(name, desc, pwd, user, pubkey string, teams, regions, t
 	p.Quotas.Update(quotas)
 	p.TeamIDs = teams
 	p.RegionIDs = regions
-	err := p.AssignZoneGatewayAddresses()
+	err = p.AssignZoneGatewayAddresses()
 	if err != nil {
 		klog.Error(err)
 		return err

