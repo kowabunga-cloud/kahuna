@@ -602,10 +602,16 @@ func (i *Instance) CreateInstance() error {
 		reply.GuestEmulator, i.Memory, i.CPU, i.Uefi)
 
 	// discover and attach disks/volumes
-	d.SetDisks(i.Disks, i.CloudInitVolumeId)
+	err = d.SetDisks(i.Disks, i.CloudInitVolumeId)
+	if err != nil {
+		return err
+	}
 
 	// discover and attach interfaces/adapters
-	d.SetInterfaces(i.Interfaces)
+	err = d.SetInterfaces(i.Interfaces)
+	if err != nil {
+		return err
+	}
 
 	data, err := d.XML()
 	if err != nil {
@@ -820,7 +826,10 @@ func (i *Instance) Update(name, desc string, cpu, mem int64, adapters, volumes [
 		if !reflect.DeepEqual(i.Interfaces, interfaces) {
 			i.Interfaces = interfaces
 			// discover and attach interfaces/adapters
-			d.SetInterfaces(i.Interfaces)
+			err = d.SetInterfaces(i.Interfaces)
+			if err != nil {
+				return err
+			}
 			hasChanged = true
 		}
 	}
@@ -835,7 +844,10 @@ func (i *Instance) Update(name, desc string, cpu, mem int64, adapters, volumes [
 		if !reflect.DeepEqual(i.Disks, disks) {
 			i.Disks = disks
 			// discover and attach disks/volumes
-			d.SetDisks(i.Disks, i.CloudInitVolumeId)
+			err = d.SetDisks(i.Disks, i.CloudInitVolumeId)
+			if err != nil {
+				return err
+			}
 			hasChanged = true
 		}
 	}

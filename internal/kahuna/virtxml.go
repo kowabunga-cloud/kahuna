@@ -32,12 +32,22 @@ func (desc *VirtualInstanceDescription) SetMemory(memBytes int64) {
 	desc.domain.Memory.Value = uint(memBytes) // #nosec G115 -- memory bytes always fit in uint on 64-bit systems
 }
 
-func (desc *VirtualInstanceDescription) SetInterfaces(interfaces map[string]string) {
-	desc.domain.Devices.Interfaces = newVirtualInterfaces(interfaces, desc.domain.VCPU.Value)
+func (desc *VirtualInstanceDescription) SetInterfaces(interfaces map[string]string) error {
+	ifaces, err := newVirtualInterfaces(interfaces, desc.domain.VCPU.Value)
+	if err != nil {
+		return fmt.Errorf("unable to define network interfaces: %w", err)
+	}
+	desc.domain.Devices.Interfaces = ifaces
+	return nil
 }
 
-func (desc *VirtualInstanceDescription) SetDisks(disks map[string]string, cloudInitVolumeId string) {
-	desc.domain.Devices.Disks = newVirtualDisks(disks, cloudInitVolumeId)
+func (desc *VirtualInstanceDescription) SetDisks(disks map[string]string, cloudInitVolumeId string) error {
+	d, err := newVirtualDisks(disks, cloudInitVolumeId)
+	if err != nil {
+		return fmt.Errorf("unable to define disks: %w", err)
+	}
+	desc.domain.Devices.Disks = d
+	return nil
 }
 
 var ptySerialPort uint = 0
@@ -554,7 +564,7 @@ func virtInterface(address, iface string, queues uint) virtxml.DomainInterface {
 	}
 }
 
-func newVirtualInterfaces(interfaces map[string]string, vcpus uint) []virtxml.DomainInterface {
+func newVirtualInterfaces(interfaces map[string]string, vcpus uint) ([]virtxml.DomainInterface, error) {
 	ifaces := make([]virtxml.DomainInterface, 0, len(interfaces))
 	queues := min(vcpus, maxNetworkQueues)
 	if queues == 0 {
@@ -577,27 +587,27 @@ func newVirtualInterfaces(interfaces map[string]string, vcpus uint) []virtxml.Do
 
 		a, err := FindAdapterByID(adapterId)
 		if err != nil {
-			continue
+			return nil, err
 		}
 
 		s, err := a.Subnet()
 		if err != nil {
-			continue
+			return nil, err
 		}
 
 		v, err := s.VNet()
 		if err != nil {
-			continue
+			return nil, err
 		}
 
 		iface := virtInterface(a.MAC, v.Interface, queues)
 		ifaces = append(ifaces, iface)
 	}
 
-	return ifaces
+	return ifaces, nil
 }
 
-func newVirtualDisks(disks map[string]string, cloudInitVolumeId string) []virtxml.DomainDisk {
+func newVirtualDisks(disks map[string]string, cloudInitVolumeId string) ([]virtxml.DomainDisk, error) {
 	// copy existing disks map
 	extraCap := 0
 	if cloudInitVolumeId != "" {
@@ -630,12 +640,12 @@ func newVirtualDisks(disks map[string]string, cloudInitVolumeId string) []virtxm
 
 		v, err := FindVolumeByID(volumeId)
 		if err != nil {
-			continue
+			return nil, err
 		}
 
 		p, err := v.StoragePool()
 		if err != nil {
-			continue
+			return nil, err
 		}
 
 		// create libvirt disk
@@ -643,7 +653,7 @@ func newVirtualDisks(disks map[string]string, cloudInitVolumeId string) []virtxm
 		disksList = append(disksList, d)
 	}
 
-	return disksList
+	return disksList, nil
 }
 
 func virtDisk(device string) virtxml.DomainDisk {

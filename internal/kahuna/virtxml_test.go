@@ -237,3 +237,15 @@ func TestVirtualInstanceDescription_Windows11Topology(t *testing.T) {
 		t.Errorf("expected localtime offset for Windows, got %q", descWinEnforced.domain.Clock.Offset)
 	}
 }
+
+func TestVirtualInstanceRejectsUnresolvableDevices(t *testing.T) {
+	GetCache().Init(true, CacheTypeInMemory, 16, 15)
+	d := NewVirtualInstanceDescription(TemplateOsLinux, "vm", "", "x86_64", "q35", "/usr/bin/qemu-system-x86_64", 1024, 1, false)
+
+	if err := d.SetDisks(map[string]string{"vda": "cccccccccccccccccccccccc"}, ""); err == nil {
+		t.Error("SetDisks should fail when a volume can't be found, not drop the disk")
+	}
+	if err := d.SetInterfaces(map[string]string{"eth0": "cccccccccccccccccccccccc"}); err == nil {
+		t.Error("SetInterfaces should fail when an adapter can't be found, not drop the NIC")
+	}
+}
