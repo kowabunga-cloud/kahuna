@@ -7,13 +7,33 @@
 package kahuna
 
 import (
+	"encoding/hex"
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
 )
+
+// isMissingResource tells whether a resource lookup error means that the
+// resource doesn't exist (as opposed to e.g. the database being unavailable).
+func isMissingResource(err error) bool {
+	var invalidByte hex.InvalidByteError
+	return errors.Is(err, mongo.ErrNoDocuments) || errors.Is(err, bson.ErrInvalidHex) || errors.As(err, &invalidByte)
+}
+
+// ignoreMissing returns nil if err means that a looked up resource doesn't
+// exist, e.g. so that deleting an already deleted child isn't an error, and
+// a partially failed deletion can be resumed.
+func ignoreMissing(err error) error {
+	if isMissingResource(err) {
+		return nil
+	}
+	return err
+}
 
 // resourceUpdate writes obj to the database and invalidates its cache entry.
 // It is the single authoritative place that couples a DB write with cache invalidation,

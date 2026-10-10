@@ -426,13 +426,12 @@ func (a *Adapter) Delete() error {
 		return nil
 	}
 
-	// remove zone's reference from parents
+	// remove adapter's reference from parent, if still around
 	s, err := a.Subnet()
-	if err != nil {
-		return err
+	if err == nil {
+		err = s.RemoveAdapter(a.String())
 	}
-	err = s.RemoveAdapter(a.String())
-	if err != nil {
+	if ignoreMissing(err) != nil {
 		return err
 	}
 

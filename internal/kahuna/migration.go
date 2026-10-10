@@ -13,22 +13,10 @@ package kahuna
 */
 
 import (
-	"encoding/hex"
-	"errors"
 	"fmt"
-
-	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
 
 	"github.com/kowabunga-cloud/common/klog"
 )
-
-// isMissingResource tells whether a resource lookup error means that the
-// resource doesn't exist (as opposed to e.g. the database being unavailable).
-func isMissingResource(err error) bool {
-	var invalidByte hex.InvalidByteError
-	return errors.Is(err, mongo.ErrNoDocuments) || errors.Is(err, bson.ErrInvalidHex) || errors.As(err, &invalidByte)
-}
 
 // findDanglingRefs returns the child references from ids whose resource no
 // longer exists. Any other lookup error aborts, so that a transient failure

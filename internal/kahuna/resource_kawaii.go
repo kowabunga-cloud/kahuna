@@ -382,12 +382,11 @@ func (k *Kawaii) Delete() error {
 	}
 
 	mzr, err := k.MZR()
-	if err != nil {
-		klog.Error(err)
-		return err
+	if err == nil {
+		err = mzr.Delete()
 	}
-	err = mzr.Delete()
-	if err != nil {
+	if ignoreMissing(err) != nil {
+		klog.Error(err)
 		return err
 	}
 
@@ -403,13 +402,12 @@ func (k *Kawaii) Delete() error {
 			klog.Debugf("Could not delete ipsec child.")
 		}
 	}
-	// remove kawaii's reference from parents
+	// remove kawaii's reference from parents, if still around
 	prj, err := k.Project()
-	if err != nil {
-		return err
+	if err == nil {
+		err = prj.RemoveKawaii(k.String())
 	}
-	err = prj.RemoveKawaii(k.String())
-	if err != nil {
+	if ignoreMissing(err) != nil {
 		return err
 	}
 

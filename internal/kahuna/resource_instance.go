@@ -986,13 +986,11 @@ func (i *Instance) Delete() error {
 	case CloudinitProfileKawaii, CloudinitProfileKonvey:
 		if i.AgentID != "" {
 			a, err := FindAgentByID(i.AgentID)
-			if err != nil {
-				return err
+			if err == nil {
+				// remove agent
+				err = a.Delete()
 			}
-
-			// remove agent
-			err = a.Delete()
-			if err != nil {
+			if ignoreMissing(err) != nil {
 				return err
 			}
 
@@ -1008,22 +1006,20 @@ func (i *Instance) Delete() error {
 		// should not be a blocker
 	}
 
-	// remove zone's reference from parents
+	// remove instance's reference from parents, if still around
 	prj, err := i.Project()
-	if err != nil {
-		return err
+	if err == nil {
+		err = prj.RemoveInstance(i.String())
 	}
-	err = prj.RemoveInstance(i.String())
-	if err != nil {
+	if ignoreMissing(err) != nil {
 		return err
 	}
 
 	k, err := i.Kaktus()
-	if err != nil {
-		return err
+	if err == nil {
+		err = k.RemoveInstance(i.String())
 	}
-	err = k.RemoveInstance(i.String())
-	if err != nil {
+	if ignoreMissing(err) != nil {
 		return err
 	}
 

@@ -444,6 +444,10 @@ func (k *Kaktus) UpdateInstanceUsage(cpu, mem int64) error {
 
 func (k *Kaktus) RemoveInstance(id string) error {
 	klog.Debugf("Removing instance %s from kaktus %s", id, k.String())
+	if !HasChildRef(&k.InstanceIDs, id) {
+		// already removed
+		return nil
+	}
 
 	// ensure instance exists in kaktus
 	ist, err := k.Instance(id)

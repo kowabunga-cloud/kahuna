@@ -703,6 +703,10 @@ func (p *Project) UpdateInstanceUsage(cpu, mem int64) error {
 
 func (p *Project) RemoveInstance(id string) error {
 	klog.Debugf("Removing instance %s from project %s", id, p.String())
+	if !HasChildRef(&p.InstanceIDs, id) {
+		// already removed
+		return nil
+	}
 
 	// ensure instance exists in project
 	ist, err := p.Instance(id)
@@ -785,6 +789,10 @@ func (p *Project) UpdateVolumeUsage(size int64) error {
 
 func (p *Project) RemoveVolume(id string) error {
 	klog.Debugf("Removing volume %s from project %s", id, p.String())
+	if !HasChildRef(&p.VolumeIDs, id) {
+		// already removed
+		return nil
+	}
 
 	// ensure volume exists in project
 	vol, err := p.Volume(id)

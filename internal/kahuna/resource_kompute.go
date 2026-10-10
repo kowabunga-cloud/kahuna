@@ -328,11 +328,15 @@ func (k *Kompute) Delete() error {
 		return nil
 	}
 
-	// find associated instance
+	// find associated instance, which may already be gone if a previous
+	// deletion attempt partially failed
 	i, err := k.Instance()
 	if err != nil {
-		klog.Error(err)
-		return err
+		if ignoreMissing(err) != nil {
+			klog.Error(err)
+			return err
+		}
+		return k.deleteSelf()
 	}
 
 	// shutdown instance
@@ -381,13 +385,17 @@ func (k *Kompute) Delete() error {
 		return err
 	}
 
-	// remove kompute's reference from parents
+	return k.deleteSelf()
+}
+
+// deleteSelf removes the Kompute's references from its parents, if still
+// around, then the Kompute itself.
+func (k *Kompute) deleteSelf() error {
 	prj, err := k.Project()
-	if err != nil {
-		return err
+	if err == nil {
+		err = prj.RemoveKompute(k.String())
 	}
-	err = prj.RemoveKompute(k.String())
-	if err != nil {
+	if ignoreMissing(err) != nil {
 		return err
 	}
 

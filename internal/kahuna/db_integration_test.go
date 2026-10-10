@@ -241,3 +241,47 @@ func TestIntegrationConcurrentAllocations(t *testing.T) {
 		t.Fatalf("subnet claimed by %d projects", winners)
 	}
 }
+
+func TestIntegrationResumableDeletions(t *testing.T) {
+	db := requireTestDB(t)
+
+	prj := Project{Resource: NewResource("project", "", MongoCollectionProjectSchemaVersion), VrrpIDs: []int{1, 2}}
+	if _, err := db.Insert(MongoCollectionProjectName, prj); err != nil {
+		t.Fatal(err)
+	}
+	subnet := Subnet{Resource: NewResource("subnet", "", MongoCollectionSubnetSchemaVersion), CIDR: "10.0.0.0/24", Gateway: "10.0.0.1"}
+	if _, err := db.Insert(MongoCollectionSubnetName, subnet); err != nil {
+		t.Fatal(err)
+	}
+	vip, err := NewAdapter(subnet.String(), "vip", "", "", nil, false, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// a previous deletion attempt already destroyed the Kompute and one VIP
+	// adapter, then failed
+	mzr := MultiZonesResource{
+		Resource:          NewResource("mzr", "", MongoCollectionMzrSchemaVersion),
+		ProjectID:         prj.String(),
+		KomputeIDs:        []string{"aaaaaaaaaaaaaaaaaaaaaaaa"},
+		PrivateAdapterIDs: map[string]string{"z1": "bbbbbbbbbbbbbbbbbbbbbbbb", "z2": vip.String()},
+		VirtualIPs:        []VirtualIP{{VRRP: 1}, {VRRP: 2}},
+	}
+	if _, err := db.Insert(MongoCollectionMzrName, mzr); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := mzr.Delete(); err != nil {
+		t.Fatalf("resumed MZR deletion failed: %v", err)
+	}
+	if _, err := FindAdapterByID(vip.String()); err == nil {
+		t.Error("remaining VIP adapter should have been deleted")
+	}
+	p, _ := FindProjectByID(prj.String())
+	if len(p.VrrpIDs) != 0 {
+		t.Errorf("VRRP IDs not released: %v", p.VrrpIDs)
+	}
+	if _, err := FindMZRByID(mzr.String()); err == nil {
+		t.Error("MZR should have been deleted")
+	}
+}

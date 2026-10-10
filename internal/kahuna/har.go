@@ -283,41 +283,52 @@ func (har *HighlyAvailableResource) GetVirtualIP() {
 }
 
 func (har *HighlyAvailableResource) Delete() error {
+	err := har.releaseResources()
+	if err != nil {
+		return err
+	}
+	return resourceDelete(MongoCollectionHarName, har.ID)
+}
 
+// releaseResources destroys the HAR's Komputes and VIP adapter and releases
+// its VRRP ID. Already released ones are skipped, so that it can be resumed
+// after a partial failure, or used to roll back a partial creation.
+func (har *HighlyAvailableResource) releaseResources() error {
 	klog.Debugf("Deleting HAR Kompute instances %s", har.String())
 
 	// Destroy underlying Komputes
 	for _, komputeId := range har.KomputeIDs {
 		kompute, err := FindKomputeByID(komputeId)
-		if err != nil {
-			klog.Error(err)
-			return err
+		if err == nil {
+			err = kompute.Delete()
 		}
-		err = kompute.Delete()
-		if err != nil {
+		if ignoreMissing(err) != nil {
+			klog.Error(err)
 			return err
 		}
 	}
 
 	// Destroy VIP adapter
-	a, err := FindAdapterByID(har.PrivateAdapterID)
-	if err != nil {
-		return err
-	}
-	err = a.Delete()
-	if err != nil {
-		return err
+	if har.PrivateAdapterID != "" {
+		a, err := FindAdapterByID(har.PrivateAdapterID)
+		if err == nil {
+			err = a.Delete()
+		}
+		if ignoreMissing(err) != nil {
+			return err
+		}
 	}
 
 	// drop VRRP ID from project
-	prj, err := har.Project()
-	if err != nil {
-		return err
-	}
-	err = prj.RemoveVRID(har.VirtualIP.VRRP)
-	if err != nil {
-		return err
+	if har.VirtualIP.VRRP != 0 {
+		prj, err := har.Project()
+		if err == nil {
+			err = prj.RemoveVRID(har.VirtualIP.VRRP)
+		}
+		if ignoreMissing(err) != nil {
+			return err
+		}
 	}
 
-	return resourceDelete(MongoCollectionHarName, har.ID)
+	return nil
 }

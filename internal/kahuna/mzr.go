@@ -453,18 +453,27 @@ func (mzr *MultiZonesResource) Save() error {
 }
 
 func (mzr *MultiZonesResource) Delete() error {
+	err := mzr.releaseResources()
+	if err != nil {
+		return err
+	}
+	return resourceDelete(MongoCollectionMzrName, mzr.ID)
+}
 
+// releaseResources destroys the MZR's Komputes and VIP adapters and releases
+// its VRRP IDs. Already released ones are skipped, so that it can be resumed
+// after a partial failure, or used to roll back a partial creation.
+func (mzr *MultiZonesResource) releaseResources() error {
 	klog.Debugf("Deleting MZR Kompute instances %s", mzr.String())
 
 	// Destroy underlying Komputes
 	for _, komputeId := range mzr.KomputeIDs {
 		kompute, err := FindKomputeByID(komputeId)
-		if err != nil {
-			klog.Error(err)
-			return err
+		if err == nil {
+			err = kompute.Delete()
 		}
-		err = kompute.Delete()
-		if err != nil {
+		if ignoreMissing(err) != nil {
+			klog.Error(err)
 			return err
 		}
 	}
@@ -479,28 +488,29 @@ func (mzr *MultiZonesResource) Delete() error {
 	}
 	for _, adapterId := range adapters {
 		a, err := FindAdapterByID(adapterId)
-		if err != nil {
-			return err
+		if err == nil {
+			err = a.Delete()
 		}
-		err = a.Delete()
-		if err != nil {
+		if ignoreMissing(err) != nil {
 			return err
 		}
 	}
 
 	// drop VRRP IDs from project
+	prj, err := mzr.Project()
+	if err != nil {
+		return ignoreMissing(err)
+	}
 	for _, vip := range mzr.VirtualIPs {
-		// read project reference multiple times, it's been updated at each iteration
-		prj, err := mzr.Project()
-		if err != nil {
-			return err
+		if vip.VRRP == 0 {
+			// not an allocated VRRP ID
+			continue
 		}
-
 		err = prj.RemoveVRID(vip.VRRP)
 		if err != nil {
 			return err
 		}
 	}
 
-	return resourceDelete(MongoCollectionMzrName, mzr.ID)
+	return nil
 }

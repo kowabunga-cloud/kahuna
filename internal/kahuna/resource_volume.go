@@ -575,22 +575,17 @@ func (v *Volume) Delete() error {
 	}
 
 	if v.Type != VolumeTypeTemplate {
-		// remove volume's reference from parents
+		// remove volume's reference from parents, if still around
 		prj, err := v.Project()
-		if err != nil {
-			return err
+		if err == nil {
+			err = prj.RemoveVolume(v.String())
 		}
-		err = prj.RemoveVolume(v.String())
-		if err != nil {
+		if ignoreMissing(err) != nil {
 			return err
 		}
 	}
 
-	p, err := v.StoragePool()
-	if err != nil {
-		return err
-	}
-	err = p.RemoveVolume(v.String())
+	err = pool.RemoveVolume(v.String())
 	if err != nil {
 		return err
 	}

@@ -250,22 +250,20 @@ func (k *Konvey) Delete() error {
 	}
 
 	har, err := k.HAR()
-	if err != nil {
+	if err == nil {
+		err = har.Delete()
+	}
+	if ignoreMissing(err) != nil {
 		klog.Error(err)
 		return err
 	}
-	err = har.Delete()
-	if err != nil {
-		return err
-	}
 
-	// remove konvey's reference from parents
+	// remove konvey's reference from parents, if still around
 	prj, err := k.Project()
-	if err != nil {
-		return err
+	if err == nil {
+		err = prj.RemoveKonvey(k.String())
 	}
-	err = prj.RemoveKonvey(k.String())
-	if err != nil {
+	if ignoreMissing(err) != nil {
 		return err
 	}
 
