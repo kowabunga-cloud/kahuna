@@ -287,7 +287,7 @@ func (db *KowabungaDB) EnsureIndexes() error {
 		MongoCollectionVolumeName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
 			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
-			{Keys: bson.D{bson.E{Key: "pool_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "storage_pool_id", Value: 1}}},
 		},
 		MongoCollectionSubnetName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
@@ -337,6 +337,7 @@ func (db *KowabungaDB) EnsureIndexes() error {
 		MongoCollectionKyloName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
 			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "nfs_id", Value: 1}}},
 		},
 		MongoCollectionKonveyName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
@@ -356,6 +357,7 @@ func (db *KowabungaDB) EnsureIndexes() error {
 		},
 		MongoCollectionTemplateName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "storage_pool_id", Value: 1}}},
 		},
 		MongoCollectionTeamName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
@@ -365,6 +367,16 @@ func (db *KowabungaDB) EnsureIndexes() error {
 		},
 		MongoCollectionDnsRecordName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "region_id", Value: 1}}},
+		},
+		MongoCollectionIPsecName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "kawaii_id", Value: 1}}},
+		},
+		MongoCollectionKwarantineName: {
+			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "project_id", Value: 1}}},
 		},
 	}
 
