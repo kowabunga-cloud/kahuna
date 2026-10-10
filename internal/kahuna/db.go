@@ -188,14 +188,6 @@ func (db *KowabungaDB) Find(collection, k, v string, result interface{}) error {
 	return c.FindOne(context.TODO(), bson.D{bson.E{Key: k, Value: v}}, nil).Decode(result)
 }
 
-func (db *KowabungaDB) FindByArrayContains(collection, k, v string, result interface{}) error {
-	if db.DB == nil {
-		return ErrDbNotConnected
-	}
-	c := db.DB.Collection(collection)
-	return c.FindOne(context.TODO(), bson.D{bson.E{Key: k, Value: "{$all: [" + v + "]}"}}, nil).Decode(result)
-}
-
 func (db *KowabungaDB) FindByID(collection, id string, result interface{}) error {
 	// look into cache first
 	err := GetCache().Get(collection, id, result)
