@@ -607,10 +607,11 @@ func (p *Project) GetCost() (sdk.Cost, error) {
 		p.Cost.Currency = v.Cost.Currency
 	}
 
-	// save cost back to DB, if changed
+	// save cost back to DB, if changed (only the cost: the project
+	// document might have been concurrently updated since read)
 	if price != p.Cost.Price {
 		p.Cost.Price = price
-		err := p.Save()
+		err := resourceSetFields(MongoCollectionProjectName, p.ID, bson.D{bson.E{Key: "cost", Value: p.Cost}})
 		if err != nil {
 			return sdk.Cost{}, err
 		}
