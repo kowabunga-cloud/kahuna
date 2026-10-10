@@ -185,6 +185,7 @@ func NewProject(name, desc, domain, pwd, user, pubkey string, teams, regions, ta
 	if err != nil {
 		return nil, err
 	}
+	invalidateUserResources()
 
 	klog.Debugf("Created new project %s", p.String())
 
@@ -498,6 +499,7 @@ func (p *Project) DeleteDnsZone() error {
 
 func (p *Project) Save() error {
 	p.Updated()
+	defer invalidateUserResources()
 	return resourceUpdate(MongoCollectionProjectName, p.ID, p)
 }
 
@@ -520,6 +522,7 @@ func (p *Project) Delete() error {
 		// not a blocker
 	}
 
+	defer invalidateUserResources()
 	return resourceDelete(MongoCollectionProjectName, p.ID)
 }
 

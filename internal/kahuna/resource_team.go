@@ -63,6 +63,7 @@ func NewTeam(name, desc string, users []string) (*Team, error) {
 	if err != nil {
 		return nil, err
 	}
+	invalidateUserResources()
 
 	klog.Debugf("Created new users team %s (%s)", g.String(), g.Name)
 
@@ -165,6 +166,7 @@ func (t *Team) Update(name, desc string, users []string) error {
 
 func (t *Team) Save() error {
 	t.Updated()
+	defer invalidateUserResources()
 	return resourceUpdate(MongoCollectionTeamName, t.ID, t)
 }
 
@@ -175,6 +177,7 @@ func (t *Team) Delete() error {
 		return nil
 	}
 
+	defer invalidateUserResources()
 	return resourceDelete(MongoCollectionTeamName, t.ID)
 }
 

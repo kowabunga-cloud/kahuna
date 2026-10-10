@@ -374,6 +374,7 @@ func (u *User) Update(name, desc, email, role string, notifications bool) error 
 
 func (u *User) Save() error {
 	u.Updated()
+	defer invalidateUserResources()
 	return resourceUpdate(MongoCollectionUserName, u.ID, u)
 }
 
@@ -392,6 +393,7 @@ func (u *User) Delete() error {
 		}
 	}
 
+	defer invalidateUserResources()
 	return resourceDelete(MongoCollectionUserName, u.ID)
 }
 

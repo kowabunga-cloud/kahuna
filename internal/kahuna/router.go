@@ -445,7 +445,8 @@ func reqIsAuthorized(r *http.Request) bool {
 
 	// checked for cached user resources mapping
 	userAllowedResources := []string{}
-	err := GetCache().Get(CacheNsUserResources, userId, &userAllowedResources)
+	cacheKey := userResourcesCacheKey(userId)
+	err := GetCache().Get(CacheNsUserResources, cacheKey, &userAllowedResources)
 	if err != nil {
 		// cache miss: crawl over DB
 
@@ -478,7 +479,7 @@ func reqIsAuthorized(r *http.Request) bool {
 		}
 
 		// store in cache
-		GetCache().Set(CacheNsUserResources, userId, userAllowedResources)
+		GetCache().Set(CacheNsUserResources, cacheKey, userAllowedResources)
 	}
 
 	// Check if request path contains one of the resource IDs from the projects user's part of

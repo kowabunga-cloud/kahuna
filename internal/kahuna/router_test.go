@@ -31,7 +31,7 @@ const (
 func authzRequest(t *testing.T, method, target string) bool {
 	t.Helper()
 	GetCache().Init(true, CacheTypeInMemory, 16, 15)
-	GetCache().Set(CacheNsUserResources, testAuthzUserId, []string{testAuthzOwnedId})
+	GetCache().Set(CacheNsUserResources, userResourcesCacheKey(testAuthzUserId), []string{testAuthzOwnedId})
 
 	r := httptest.NewRequest(method, target, nil)
 	r = r.WithContext(ctxSetUserId(r.Context(), testAuthzUserId))
@@ -63,5 +63,23 @@ func TestReqIsAuthorized(t *testing.T) {
 		if got := authzRequest(t, c.method, c.target); got != c.expected {
 			t.Errorf("%s: %s %s authorized = %v, want %v", c.name, c.method, c.target, got, c.expected)
 		}
+	}
+}
+
+func TestUserResourcesCacheInvalidation(t *testing.T) {
+	GetCache().Init(true, CacheTypeInMemory, 16, 15)
+	GetCache().Set(CacheNsUserResources, userResourcesCacheKey(testAuthzUserId), []string{testAuthzOwnedId})
+
+	r := httptest.NewRequest("GET", SdkBaseRoute+"/instance/"+testAuthzOwnedId, nil)
+	r = r.WithContext(ctxSetUserId(r.Context(), testAuthzUserId))
+	if !reqIsAuthorized(r) {
+		t.Fatal("owned resource should be authorized from cached mapping")
+	}
+
+	// once invalidated, the stale mapping must no longer be used (and with no
+	// DB connection, the user can't be resolved, so access is denied)
+	invalidateUserResources()
+	if reqIsAuthorized(r) {
+		t.Error("stale user resources mapping should not be used after invalidation")
 	}
 }
