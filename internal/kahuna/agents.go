@@ -12,17 +12,12 @@ import (
 	"math/big"
 	"slices"
 	"sync"
-	"time"
 
 	"github.com/kowabunga-cloud/common"
 	"github.com/kowabunga-cloud/common/agents"
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/common/wsrpc"
 )
-
-// longer than it takes for a closed WebSocket session's keepalive routine to
-// notice (ping period + write timeout)
-const agentSessionDrainTimeout = 30 * time.Second
 
 type KowabungaAgent struct {
 	ID          string
@@ -37,21 +32,9 @@ type KowabungaAgent struct {
 // unregisters the agent, unless it has meanwhile been replaced by a newer
 // session (agent reconnection) or disconnected on purpose.
 func (agent *KowabungaAgent) WatchKeepalive() {
-	<-agent.Client.Terminated
+	<-agent.Client.Done()
 	klog.Infof("Disconnection of %s agent %s has been detected. Unregistering ...", agent.Type, agent.ID)
 	unregisterAgentSession(agent)
-
-	// each of the WebSocket client's message pump and keepalive routines
-	// signal termination on their way out, through a 1-slot channel: keep
-	// draining it for a while so that none of them stays blocked forever
-	timeout := time.After(agentSessionDrainTimeout)
-	for {
-		select {
-		case <-agent.Client.Terminated:
-		case <-timeout:
-			return
-		}
-	}
 }
 
 // agents singleton
