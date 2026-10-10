@@ -120,7 +120,7 @@ func FindTemplates() []Template {
 }
 
 func FindTemplatesByStoragePool(poolId string) ([]Template, error) {
-	return FindResourcesByKey[Template](MongoCollectionTemplateName, "pool_id", poolId)
+	return FindResourcesByKey[Template](MongoCollectionTemplateName, "storage_pool_id", poolId)
 }
 
 func FindTemplateByID(id string) (*Template, error) {
