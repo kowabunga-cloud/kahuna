@@ -57,6 +57,9 @@ func (s *VolumeService) UpdateVolume(ctx context.Context, volumeId string, volum
 	if volume.Name == "" && volume.Description == "" && volume.Size == 0 {
 		return HttpBadParams(nil)
 	}
+	if volume.Size < 0 {
+		return HttpBadParams(nil)
+	}
 
 	// ensure volume exists
 	v, err := FindVolumeByID(volumeId)

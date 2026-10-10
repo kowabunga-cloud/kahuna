@@ -211,6 +211,9 @@ func (s *KomputeService) UpdateKompute(ctx context.Context, komputeId string, ko
 	if kompute.Name == "" && kompute.Memory == 0 && kompute.Vcpus == 0 && kompute.Disk == 0 {
 		return HttpBadParams(nil)
 	}
+	if kompute.Memory < 0 || kompute.Vcpus < 0 || kompute.Disk < 0 || kompute.DataDisk < 0 {
+		return HttpBadParams(nil)
+	}
 
 	// ensure Kompute exists
 	k, err := FindKomputeByID(komputeId)

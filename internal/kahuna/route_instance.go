@@ -230,6 +230,9 @@ func (s *InstanceService) UpdateInstance(ctx context.Context, instanceId string,
 	if instance.Name == "" && instance.Memory == 0 && instance.Vcpus == 0 {
 		return HttpBadParams(nil)
 	}
+	if instance.Memory < 0 || instance.Vcpus < 0 {
+		return HttpBadParams(nil)
+	}
 
 	// ensure instance exists
 	i, err := FindInstanceByID(instanceId)

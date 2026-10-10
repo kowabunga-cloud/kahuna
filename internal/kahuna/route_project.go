@@ -137,7 +137,7 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	}
 
 	// check for params
-	if instance.Name == "" || instance.Memory == 0 || instance.Vcpus == 0 {
+	if instance.Name == "" || instance.Memory <= 0 || instance.Vcpus <= 0 {
 		return HttpBadParams(nil)
 	}
 
@@ -193,7 +193,7 @@ func (s *ProjectService) CreateProjectRegionInstance(ctx context.Context, projec
 	}
 
 	// check for params
-	if instance.Name == "" || instance.Memory == 0 || instance.Vcpus == 0 {
+	if instance.Name == "" || instance.Memory <= 0 || instance.Vcpus <= 0 {
 		return HttpBadParams(nil)
 	}
 
@@ -255,7 +255,7 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	}
 
 	// check for params
-	if kompute.Name == "" || kompute.Memory == 0 || kompute.Vcpus == 0 || kompute.Disk == 0 {
+	if kompute.Name == "" || kompute.Memory <= 0 || kompute.Vcpus <= 0 || kompute.Disk <= 0 || kompute.DataDisk < 0 {
 		return HttpBadParams(nil)
 	}
 
@@ -343,7 +343,7 @@ func (s *ProjectService) CreateProjectRegionKompute(ctx context.Context, project
 	}
 
 	// check for params
-	if kompute.Name == "" || kompute.Memory == 0 || kompute.Vcpus == 0 || kompute.Disk == 0 {
+	if kompute.Name == "" || kompute.Memory <= 0 || kompute.Vcpus <= 0 || kompute.Disk <= 0 || kompute.DataDisk < 0 {
 		return HttpBadParams(nil)
 	}
 
@@ -821,7 +821,7 @@ func (s *ProjectService) CreateProjectRegionVolume(ctx context.Context, projectI
 	}
 
 	// check for params
-	if volume.Name == "" || volume.Type == "" || volume.Size == 0 {
+	if volume.Name == "" || volume.Type == "" || volume.Size <= 0 {
 		return HttpBadParams(nil)
 	}
 
