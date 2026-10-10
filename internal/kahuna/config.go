@@ -116,6 +116,14 @@ func ParseConfig(f *os.File) (KowabungaConfig, error) {
 		return config, fmt.Errorf("missing config bootstrap parameters")
 	}
 
+	// ensure JWT settings are usable: an empty HMAC key would let anyone forge tokens
+	if config.Global.JWT.Signature == "" {
+		return config, fmt.Errorf("missing config JWT signature")
+	}
+	if config.Global.JWT.Lifetime <= 0 {
+		return config, fmt.Errorf("invalid config JWT lifetime: %d hours", config.Global.JWT.Lifetime)
+	}
+
 	// ensure cloud-init template files exist
 	templates := []string{
 		config.CloudInit.Linux.UserData,
