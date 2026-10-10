@@ -861,7 +861,7 @@ func (s *ProjectService) DeleteProject(ctx context.Context, projectId string) (s
 	}
 
 	// check if project still has children referenced
-	if len(p.Instances()) != 0 || len(p.Volumes()) != 0 {
+	if p.HasChildren() {
 		return HttpConflict(nil)
 	}
 

@@ -36,3 +36,17 @@ func TestCreateProjectZoneKomputeRejectsNegativeSizes(t *testing.T) {
 		}
 	}
 }
+
+func TestDeleteProjectWithChildrenConflicts(t *testing.T) {
+	GetCache().Init(true, CacheTypeInMemory, 16, 15)
+	prj := Project{
+		Resource:  NewResource("project", "", MongoCollectionProjectSchemaVersion),
+		KawaiiIDs: []string{"cccccccccccccccccccccccc"},
+	}
+	GetCache().Set(MongoCollectionProjectName, prj.String(), &prj)
+
+	res, _ := (&ProjectService{}).DeleteProject(t.Context(), prj.String())
+	if res.Code != http.StatusConflict {
+		t.Errorf("deleting a project with a Kawaii returned %d, want %d", res.Code, http.StatusConflict)
+	}
+}
