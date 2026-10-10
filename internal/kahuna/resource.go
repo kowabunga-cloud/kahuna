@@ -9,6 +9,7 @@ package kahuna
 import (
 	"encoding/hex"
 	"errors"
+	"slices"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -79,11 +80,54 @@ func (rb *rollback) runUnlessDone() {
 	}
 }
 
+// atomicallyManagedFields lists, per collection, the document fields that are
+// only ever updated through atomic operations (child references, usage
+// counters, allocations, defaults ...), possibly concurrently. resourceUpdate()
+// never writes them, so that saving an object read earlier can't overwrite
+// concurrent changes to them with stale values.
+var atomicallyManagedFields = map[string][]string{
+	MongoCollectionProjectName: {"instance_ids", "volume_ids", "kompute_ids", "kawaii_ids", "konvey_ids", "kylo_ids",
+		"record_ids", "kwarantine_ids", "usage", "reserved_vrrp_ids", "cost", "private_subnets"},
+	MongoCollectionKaktusName:      {"instance_ids", "usage"},
+	MongoCollectionSubnetName:      {"adapter_ids", "project_id"},
+	MongoCollectionRegionName:      {"zone_ids", "kiwi_ids", "vnet_ids", "storage_pool_ids", "nfs_ids", "record_ids", "defaults", "virtual_resources"},
+	MongoCollectionZoneName:        {"kaktus_ids", "virtual_resources"},
+	MongoCollectionVNetName:        {"subnet_ids", "defaults"},
+	MongoCollectionStoragePoolName: {"template_ids", "volume_ids", "defaults"},
+	MongoCollectionNfsName:         {"kylo_ids", "exports"},
+	MongoCollectionUserName:        {"team_ids"},
+	MongoCollectionKawaiiName:      {"ipsec_ids"},
+	MongoCollectionKwarantineName:  {"instance_ids", "kompute_ids"},
+}
+
 // resourceUpdate writes obj to the database and invalidates its cache entry.
 // It is the single authoritative place that couples a DB write with cache invalidation,
 // keeping db.go free of cache knowledge.
+//
+// All of obj's fields are written, except the collection's atomically managed
+// ones (see atomicallyManagedFields), which must be updated through their
+// dedicated atomic helpers.
 func resourceUpdate(collection string, id bson.ObjectID, obj interface{}) error {
-	_, err := GetDB().Update(collection, id, obj)
+	raw, err := bson.Marshal(obj)
+	if err != nil {
+		return err
+	}
+	var doc bson.D
+	err = bson.Unmarshal(raw, &doc)
+	if err != nil {
+		return err
+	}
+
+	managed := atomicallyManagedFields[collection]
+	fields := make(bson.D, 0, len(doc))
+	for _, e := range doc {
+		if e.Key == "_id" || slices.Contains(managed, e.Key) {
+			continue
+		}
+		fields = append(fields, e)
+	}
+
+	err = GetDB().UpdateFields(collection, id, bson.D{bson.E{Key: "$set", Value: fields}})
 	if err != nil {
 		return err
 	}

@@ -50,18 +50,18 @@ func kawaiiCleanupDereferencedChildren() error {
 	for _, prj := range FindProjects() {
 		owner := "Project " + prj.Name
 		refs := []struct {
-			ids  *[]string
-			find func(id string) error
-			kind string
+			ids   *[]string
+			field string
+			find  func(id string) error
+			kind  string
 		}{
-			{&prj.InstanceIDs, lookup(FindInstanceByID), "instance"},
-			{&prj.VolumeIDs, lookup(FindVolumeByID), "volume"},
-			{&prj.KomputeIDs, lookup(FindKomputeByID), "Kompute"},
-			{&prj.KawaiiIDs, lookup(FindKawaiiByID), "Kawaii"},
-			{&prj.KyloIDs, lookup(FindKyloByID), "Kylo"},
+			{&prj.InstanceIDs, "instance_ids", lookup(FindInstanceByID), "instance"},
+			{&prj.VolumeIDs, "volume_ids", lookup(FindVolumeByID), "volume"},
+			{&prj.KomputeIDs, "kompute_ids", lookup(FindKomputeByID), "Kompute"},
+			{&prj.KawaiiIDs, "kawaii_ids", lookup(FindKawaiiByID), "Kawaii"},
+			{&prj.KyloIDs, "kylo_ids", lookup(FindKyloByID), "Kylo"},
 		}
 
-		updated := false
 		for _, ref := range refs {
 			dangling, err := findDanglingRefs(*ref.ids, ref.find, owner, ref.kind)
 			if err != nil {
@@ -69,14 +69,10 @@ func kawaiiCleanupDereferencedChildren() error {
 			}
 			for _, id := range dangling {
 				RemoveChildRef(ref.ids, id)
-				updated = true
-			}
-		}
-
-		if updated {
-			err := prj.Save()
-			if err != nil {
-				return err
+				err := resourceRemoveChildRef(MongoCollectionProjectName, prj.ID, ref.field, id)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -87,15 +83,12 @@ func kawaiiCleanupDereferencedChildren() error {
 		if err != nil {
 			return err
 		}
-		if len(dangling) == 0 {
-			continue
-		}
 		for _, id := range dangling {
 			RemoveChildRef(&subnet.AdapterIDs, id)
-		}
-		err = subnet.Save()
-		if err != nil {
-			return err
+			err := resourceRemoveChildRef(MongoCollectionSubnetName, subnet.ID, "adapter_ids", id)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

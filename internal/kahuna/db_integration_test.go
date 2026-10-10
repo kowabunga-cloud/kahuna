@@ -324,3 +324,42 @@ func TestIntegrationProjectCreationRollback(t *testing.T) {
 		t.Errorf("subnet still reserved by failed project creation: %q", got.ProjectID)
 	}
 }
+
+func TestIntegrationSaveDoesNotOverwriteAtomicFields(t *testing.T) {
+	db := requireTestDB(t)
+
+	prj := Project{Resource: NewResource("project", "", MongoCollectionProjectSchemaVersion)}
+	if _, err := db.Insert(MongoCollectionProjectName, prj); err != nil {
+		t.Fatal(err)
+	}
+	vm := Instance{Resource: NewResource("vm", "", MongoCollectionInstanceSchemaVersion), CPU: 2, Memory: 1024}
+	if _, err := db.Insert(MongoCollectionInstanceName, vm); err != nil {
+		t.Fatal(err)
+	}
+
+	// a request reads the project ...
+	stale, err := FindProjectByID(prj.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// ... while a concurrent one adds an instance to it ...
+	current, _ := FindProjectByID(prj.String())
+	if err := current.AddInstance(vm.String()); err != nil {
+		t.Fatal(err)
+	}
+
+	// ... then the first one saves its (stale) copy
+	stale.Description = "updated"
+	if err := stale.Save(); err != nil {
+		t.Fatal(err)
+	}
+
+	got, _ := FindProjectByID(prj.String())
+	if got.Description != "updated" {
+		t.Errorf("regular field not saved: %q", got.Description)
+	}
+	if len(got.InstanceIDs) != 1 || got.Usage.InstancesCount != 1 {
+		t.Errorf("concurrent instance addition lost: %v, usage %+v", got.InstanceIDs, got.Usage)
+	}
+}
