@@ -761,6 +761,8 @@ func (i *Instance) update(data string) error {
 	return i.RPC(proto.RpcKaktusUpdateInstance, args, &reply)
 }
 
+// Update applies a partial update: zero CPU or memory and nil (i.e. omitted)
+// adapters or volumes lists leave the current settings untouched.
 func (i *Instance) Update(name, desc string, cpu, mem int64, adapters, volumes []string, kMotionEnabled bool) error {
 	i.UpdateResourceDefaults(name, desc)
 	i.KMotionEnabled = kMotionEnabled
@@ -786,6 +788,13 @@ func (i *Instance) Update(name, desc string, cpu, mem int64, adapters, volumes [
 		return err
 	}
 
+	if cpu <= 0 {
+		cpu = i.CPU
+	}
+	if mem <= 0 {
+		mem = i.Memory
+	}
+
 	hasChanged := false
 	cpuDelta := cpu - i.CPU
 	memDelta := mem - i.Memory
@@ -802,29 +811,33 @@ func (i *Instance) Update(name, desc string, cpu, mem int64, adapters, volumes [
 	}
 
 	// check if list of adapters has changed
-	interfaces, err := i.NewInterfaceMap(adapters)
-	if err != nil {
-		return err
-	}
+	if adapters != nil {
+		interfaces, err := i.NewInterfaceMap(adapters)
+		if err != nil {
+			return err
+		}
 
-	if !reflect.DeepEqual(i.Interfaces, interfaces) {
-		i.Interfaces = interfaces
-		// discover and attach interfaces/adapters
-		d.SetInterfaces(i.Interfaces)
-		hasChanged = true
+		if !reflect.DeepEqual(i.Interfaces, interfaces) {
+			i.Interfaces = interfaces
+			// discover and attach interfaces/adapters
+			d.SetInterfaces(i.Interfaces)
+			hasChanged = true
+		}
 	}
 
 	// check if list of volumes has changed
-	disks, err := i.NewDiskMap(volumes)
-	if err != nil {
-		return err
-	}
+	if volumes != nil {
+		disks, err := i.NewDiskMap(volumes)
+		if err != nil {
+			return err
+		}
 
-	if !reflect.DeepEqual(i.Disks, disks) {
-		i.Disks = disks
-		// discover and attach disks/volumes
-		d.SetDisks(i.Disks, i.CloudInitVolumeId)
-		hasChanged = true
+		if !reflect.DeepEqual(i.Disks, disks) {
+			i.Disks = disks
+			// discover and attach disks/volumes
+			d.SetDisks(i.Disks, i.CloudInitVolumeId)
+			hasChanged = true
+		}
 	}
 
 	if hasChanged {

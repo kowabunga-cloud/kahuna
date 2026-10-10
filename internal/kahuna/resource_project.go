@@ -352,8 +352,12 @@ func (p *Project) Update(name, desc, pwd, user, pubkey string, teams, regions, t
 	SetFieldStr(&p.RootPassword, pwd)
 	SetFieldStr(&p.BootstrapUser, user)
 	SetFieldStr(&p.BootstrapPubkey, pubkey)
-	p.Tags = tags
-	p.Meta = getMetadatas(meta)
+	if tags != nil {
+		p.Tags = tags
+	}
+	if meta != nil {
+		p.Meta = getMetadatas(meta)
+	}
 	p.Quotas.Update(quotas)
 	p.TeamIDs = teams
 	p.RegionIDs = regions

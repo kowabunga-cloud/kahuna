@@ -479,10 +479,33 @@ func (s *Subnet) FreeIPsCount() int {
 	return count
 }
 
+// Update applies a partial update: empty strings and nil (i.e. omitted) lists
+// leave the current settings untouched, while explicitly empty lists clear them.
 func (s *Subnet) Update(name, desc, gw, dns string, reserved, gwPool []sdk.IpRange, routes []string, app string) error {
 	s.UpdateResourceDefaults(name, desc)
 	SetFieldStr(&s.Gateway, gw)
 	SetFieldStr(&s.DNS, dns)
+	if reserved != nil {
+		err := s.updateReservedRanges(reserved)
+		if err != nil {
+			return err
+		}
+	}
+	if gwPool != nil {
+		err := s.updateGwPoolRanges(gwPool)
+		if err != nil {
+			return err
+		}
+	}
+	if routes != nil {
+		s.Routes = routes
+	}
+	SetFieldStr(&s.Application, app)
+	// we forbid change of CIDR or privacy, makes no sense
+	return s.Save()
+}
+
+func (s *Subnet) updateReservedRanges(reserved []sdk.IpRange) error {
 	reservedRanges := []*IPRange{}
 	for _, r := range reserved {
 		if r.First != "" && r.Last != "" {
@@ -496,6 +519,10 @@ func (s *Subnet) Update(name, desc, gw, dns string, reserved, gwPool []sdk.IpRan
 		}
 	}
 	s.Reserved = reservedRanges
+	return nil
+}
+
+func (s *Subnet) updateGwPoolRanges(gwPool []sdk.IpRange) error {
 	gwPoolRanges := []*IPRange{}
 	for _, g := range gwPool {
 		if g.First != "" && g.Last != "" {
@@ -509,15 +536,7 @@ func (s *Subnet) Update(name, desc, gw, dns string, reserved, gwPool []sdk.IpRan
 		}
 	}
 	s.GwPool = gwPoolRanges
-	err := s.IsValidGwPool()
-	if err != nil {
-		return err
-	}
-
-	s.Routes = routes
-	s.Application = app
-	// we forbid change of CIDR or privacy, makes no sense
-	return s.Save()
+	return s.IsValidGwPool()
 }
 
 func (s *Subnet) Save() error {

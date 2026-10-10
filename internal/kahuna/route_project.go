@@ -1042,10 +1042,13 @@ func (s *ProjectService) UpdateProject(ctx context.Context, projectId string, pr
 		return HttpNotFound(err)
 	}
 
-	// update project
-	metas := map[string]string{}
-	for _, m := range project.Metadatas {
-		metas[m.Key] = m.Value
+	// update project, leaving metadata untouched if omitted
+	var metas map[string]string
+	if project.Metadatas != nil {
+		metas = map[string]string{}
+		for _, m := range project.Metadatas {
+			metas[m.Key] = m.Value
+		}
 	}
 	err = p.Update(project.Name, project.Description, project.RootPassword, project.BootstrapUser, project.BootstrapPubkey, project.Teams, project.Regions, project.Tags, metas, project.Quotas)
 	if err != nil {

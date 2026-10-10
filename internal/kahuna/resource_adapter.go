@@ -309,7 +309,16 @@ func (a *Adapter) Subnet() (*Subnet, error) {
 	return FindSubnetByID(a.SubnetID)
 }
 
+// Update applies a partial update: an empty MAC address and a nil (i.e.
+// omitted) addresses list leave the current settings untouched.
 func (a *Adapter) Update(name, desc, mac string, addresses []string, reserved bool) error {
+	if mac == "" {
+		mac = a.MAC
+	}
+	if addresses == nil {
+		addresses = a.Addresses
+	}
+
 	// ensure the requested adapter is correctly flagged
 	err := verifyAdapterSettings(a.SubnetID, mac, addresses, true)
 	if err != nil {
@@ -318,7 +327,7 @@ func (a *Adapter) Update(name, desc, mac string, addresses []string, reserved bo
 	}
 
 	a.UpdateResourceDefaults(name, desc)
-	SetFieldStr(&a.MAC, mac)
+	a.MAC = mac
 	a.Addresses = addresses
 	a.Reserved = reserved
 	return a.Save()
