@@ -56,3 +56,18 @@ func TestDiskLetterForIndexMonotonic(t *testing.T) {
 		prev = curr
 	}
 }
+
+func TestInstanceRejectsForeignProjectResources(t *testing.T) {
+	i := &Instance{Resource: NewResource("vm", "", MongoCollectionInstanceSchemaVersion), ProjectID: "bbbbbbbbbbbbbbbbbbbbbbbb"}
+
+	v := &Volume{Resource: NewResource("disk", "", MongoCollectionVolumeSchemaVersion), ProjectID: "cccccccccccccccccccccccc"}
+	if err := i.verifyVolumeOwnership(v); err == nil {
+		t.Error("volume from another project should be rejected")
+	}
+
+	a := &Adapter{Resource: NewResource("nic", "", MongoCollectionAdapterSchemaVersion)}
+	s := &Subnet{Resource: NewResource("subnet", "", MongoCollectionSubnetSchemaVersion), ProjectID: "cccccccccccccccccccccccc"}
+	if err := i.verifyAdapterOwnership(a, s); err == nil {
+		t.Error("adapter on another project's subnet should be rejected")
+	}
+}

@@ -12,6 +12,8 @@ import (
 	"slices"
 	"time"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
+
 	"github.com/kowabunga-cloud/common"
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/common/proto"
@@ -77,6 +79,61 @@ type InstanceCost struct {
 	Currency string  `bson:"currency"`
 }
 
+// findOtherInstanceUsing returns the first instance, other than i, whose
+// interfaces or disks map (as given by field) references the resource ID.
+func (i *Instance) findOtherInstanceUsing(field, id string) (*Instance, error) {
+	values := bson.D{bson.E{Key: "$map", Value: bson.D{
+		bson.E{Key: "input", Value: bson.D{bson.E{Key: "$objectToArray", Value: bson.D{
+			bson.E{Key: "$ifNull", Value: bson.A{"$" + field, bson.D{}}},
+		}}}},
+		bson.E{Key: "in", Value: "$$this.v"},
+	}}}
+	instances, err := FindResourcesByFilter[Instance](MongoCollectionInstanceName, bson.D{
+		bson.E{Key: "_id", Value: bson.D{bson.E{Key: "$ne", Value: i.ID}}},
+		bson.E{Key: "$expr", Value: bson.D{bson.E{Key: "$in", Value: bson.A{id, values}}}},
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(instances) == 0 {
+		return nil, nil
+	}
+	return &instances[0], nil
+}
+
+// verifyAdapterOwnership ensures that an adapter can be attached to the
+// instance: it must either sit on a subnet from the instance's project or on
+// a shared (e.g. public) one, and must not be in use by another instance.
+func (i *Instance) verifyAdapterOwnership(a *Adapter, s *Subnet) error {
+	if s.ProjectID != "" && s.ProjectID != i.ProjectID {
+		return fmt.Errorf("adapter %s does not belong to project %s", a.String(), i.ProjectID)
+	}
+	other, err := i.findOtherInstanceUsing("interfaces", a.String())
+	if err != nil {
+		return err
+	}
+	if other != nil {
+		return fmt.Errorf("adapter %s is already in use by instance %s", a.String(), other.String())
+	}
+	return nil
+}
+
+// verifyVolumeOwnership ensures that a volume belongs to the instance's
+// project and is not attached to another instance.
+func (i *Instance) verifyVolumeOwnership(v *Volume) error {
+	if v.ProjectID != i.ProjectID {
+		return fmt.Errorf("volume %s does not belong to project %s", v.String(), i.ProjectID)
+	}
+	other, err := i.findOtherInstanceUsing("disks", v.String())
+	if err != nil {
+		return err
+	}
+	if other != nil {
+		return fmt.Errorf("volume %s is already in use by instance %s", v.String(), other.String())
+	}
+	return nil
+}
+
 func (i *Instance) NewInterfaceMap(adapters []string) (map[string]string, error) {
 	interfaces := map[string]string{}
 
@@ -90,6 +147,11 @@ func (i *Instance) NewInterfaceMap(adapters []string) (map[string]string, error)
 		}
 
 		s, err := a.Subnet()
+		if err != nil {
+			return interfaces, err
+		}
+
+		err = i.verifyAdapterOwnership(a, s)
 		if err != nil {
 			return interfaces, err
 		}
@@ -153,6 +215,11 @@ func (i *Instance) NewDiskMap(volumes []string) (map[string]string, error) {
 	dataVolumes := []Volume{}
 	for _, volumeId := range volumes {
 		v, err := FindVolumeByID(volumeId)
+		if err != nil {
+			return disks, err
+		}
+
+		err = i.verifyVolumeOwnership(v)
 		if err != nil {
 			return disks, err
 		}
