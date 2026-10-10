@@ -8,8 +8,7 @@ Wants=network-online.target
 Restart=always
 User=kahuna
 ExecStart=/usr/bin/kahuna -c /etc/kowabunga/kahuna.yml
-ExecReload=/bin/kill -HUP $MAINPID
-TimeoutStopSec=20s
+TimeoutStopSec=90s
 SendSIGKILL=no
 
 [Install]
