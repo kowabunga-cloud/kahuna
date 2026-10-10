@@ -27,6 +27,11 @@ Run a single test:
 go test ./internal/kahuna/... -run TestWindowsUserDataTemplate -v
 ```
 
+MongoDB integration tests (`db_integration_test.go`) are skipped unless `KAHUNA_TEST_MONGO_URI` points to a disposable MongoDB server (they use, and drop, a `kahuna_integration_tests` database):
+```bash
+KAHUNA_TEST_MONGO_URI=mongodb://127.0.0.1:27017 go test -race ./internal/kahuna/... -run TestIntegration -v
+```
+
 ## Architecture
 
 ### Entry Point & Startup Sequence
