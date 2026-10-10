@@ -348,7 +348,7 @@ func FindInstancesByProject(projectId string) ([]Instance, error) {
 }
 
 func FindInstancesByKaktus(kaktusId string) ([]Instance, error) {
-	return FindResourcesByKey[Instance](MongoCollectionKaktusName, "kaktus_id", kaktusId)
+	return FindResourcesByKey[Instance](MongoCollectionInstanceName, "kaktus_id", kaktusId)
 }
 
 func FindInstanceByID(id string) (*Instance, error) {
