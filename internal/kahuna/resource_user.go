@@ -375,6 +375,7 @@ func (u *User) Update(name, desc, email, role string, notifications bool) error 
 func (u *User) Save() error {
 	u.Updated()
 	defer invalidateUserResources()
+	defer apiKeyAuthCache.flush()
 	return resourceUpdate(MongoCollectionUserName, u.ID, u)
 }
 
@@ -394,6 +395,7 @@ func (u *User) Delete() error {
 	}
 
 	defer invalidateUserResources()
+	defer apiKeyAuthCache.flush()
 	return resourceDelete(MongoCollectionUserName, u.ID)
 }
 

@@ -15,7 +15,6 @@ import (
 	"regexp"
 	"slices"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/kowabunga-cloud/common"
@@ -55,18 +54,6 @@ func buildApiOperations(ops []ApiOperation) []ApiOperation {
 // userIdInPath extracts the ObjectID hex string from a /user/<id> URL segment.
 var userIdInPath = regexp.MustCompile(`/user/([0-9a-f]{24})`)
 var objectIdPattern = regexp.MustCompile(`[0-9a-fA-F]{24}`)
-
-type cachedTokenAuth struct {
-	userId       string
-	superAdmin   bool
-	projectAdmin bool
-	expiresAt    time.Time
-}
-
-var (
-	tokenAuthCacheLock sync.RWMutex
-	tokenAuthCache     = make(map[string]cachedTokenAuth)
-)
 
 var noAuthApiOperations = []string{
 	"Login",
@@ -284,10 +271,8 @@ func reqIsAuthenticated(r *http.Request) (*http.Request, bool) {
 		}
 
 		// check in-memory cache for validated API key
-		tokenAuthCacheLock.RLock()
-		cached, found := tokenAuthCache[apikey]
-		tokenAuthCacheLock.RUnlock()
-		if found && time.Now().Before(cached.expiresAt) {
+		cached, found := apiKeyAuthCache.get(apikey)
+		if found {
 			ctx = ctxSetAuthMethod(ctx, HttpHeaderAuthApiKey)
 			ctx = ctxSetUserId(ctx, cached.userId)
 			if cached.superAdmin {
@@ -325,14 +310,11 @@ func reqIsAuthenticated(r *http.Request) (*http.Request, bool) {
 			ctx = ctxSetProjectAdminRole(ctx)
 		}
 
-		tokenAuthCacheLock.Lock()
-		tokenAuthCache[apikey] = cachedTokenAuth{
+		apiKeyAuthCache.set(apikey, cachedTokenAuth{
 			userId:       u.String(),
 			superAdmin:   u.IsSuperAdmin(),
 			projectAdmin: u.IsProjectAdmin(),
-			expiresAt:    time.Now().Add(5 * time.Minute),
-		}
-		tokenAuthCacheLock.Unlock()
+		})
 
 		klog.Debugf("API-key based authentication")
 		return r.WithContext(ctx), true

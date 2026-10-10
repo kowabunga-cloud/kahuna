@@ -7,8 +7,10 @@
 package kahuna
 
 import (
+	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestReqIsAuthenticatedRejectsNonBearerScheme(t *testing.T) {
@@ -81,5 +83,50 @@ func TestUserResourcesCacheInvalidation(t *testing.T) {
 	invalidateUserResources()
 	if reqIsAuthorized(r) {
 		t.Error("stale user resources mapping should not be used after invalidation")
+	}
+}
+
+func TestTokenAuthCache(t *testing.T) {
+	c := newTokenAuthCache()
+	c.set("key1", cachedTokenAuth{userId: testAuthzUserId, projectAdmin: true})
+
+	entry, found := c.get("key1")
+	if !found || entry.userId != testAuthzUserId || !entry.projectAdmin {
+		t.Fatalf("expected cached entry for key1, got %+v (found=%v)", entry, found)
+	}
+	if _, found := c.get("key2"); found {
+		t.Error("unknown key should not be found")
+	}
+	for k := range c.entries {
+		if k == "key1" {
+			t.Error("plain-text API key should not be used as cache key")
+		}
+	}
+
+	c.flush()
+	if _, found := c.get("key1"); found {
+		t.Error("entry should be gone after flush")
+	}
+}
+
+func TestTokenAuthCacheExpiry(t *testing.T) {
+	c := newTokenAuthCache()
+	c.set("key1", cachedTokenAuth{userId: testAuthzUserId})
+	c.entries[apiKeyDigest("key1")] = cachedTokenAuth{userId: testAuthzUserId, expiresAt: time.Now().Add(-time.Second)}
+	if _, found := c.get("key1"); found {
+		t.Error("expired entry should not be returned")
+	}
+}
+
+func TestTokenAuthCacheBounded(t *testing.T) {
+	c := newTokenAuthCache()
+	for i := range tokenAuthCacheMaxEntries + 10 {
+		c.set(fmt.Sprintf("key%d", i), cachedTokenAuth{userId: testAuthzUserId})
+	}
+	if len(c.entries) > tokenAuthCacheMaxEntries {
+		t.Errorf("cache grew to %d entries, max is %d", len(c.entries), tokenAuthCacheMaxEntries)
+	}
+	if _, found := c.get(fmt.Sprintf("key%d", tokenAuthCacheMaxEntries+9)); !found {
+		t.Error("most recently set entry should be cached")
 	}
 }

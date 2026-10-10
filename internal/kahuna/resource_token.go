@@ -347,6 +347,7 @@ func (t *Token) Update(name, desc string, expire bool, expirationDate string) er
 
 func (t *Token) Save() error {
 	t.Updated()
+	defer apiKeyAuthCache.flush()
 	return resourceUpdate(MongoCollectionTokenName, t.ID, t)
 }
 
@@ -371,6 +372,7 @@ func (t *Token) Delete() error {
 	default:
 	}
 
+	defer apiKeyAuthCache.flush()
 	return resourceDelete(MongoCollectionTokenName, t.ID)
 }
 
