@@ -13,82 +13,79 @@ package kahuna
 */
 
 import (
+	"encoding/hex"
+	"errors"
 	"fmt"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 
 	"github.com/kowabunga-cloud/common/klog"
 )
 
+// isMissingResource tells whether a resource lookup error means that the
+// resource doesn't exist (as opposed to e.g. the database being unavailable).
+func isMissingResource(err error) bool {
+	var invalidByte hex.InvalidByteError
+	return errors.Is(err, mongo.ErrNoDocuments) || errors.Is(err, bson.ErrInvalidHex) || errors.As(err, &invalidByte)
+}
+
+// findDanglingRefs returns the child references from ids whose resource no
+// longer exists. Any other lookup error aborts, so that a transient failure
+// never makes valid references being dropped.
+func findDanglingRefs(ids []string, find func(id string) error, owner, kind string) ([]string, error) {
+	dangling := []string{}
+	for _, id := range ids {
+		err := find(id)
+		if err == nil {
+			continue
+		}
+		if !isMissingResource(err) {
+			return nil, fmt.Errorf("unable to verify %s %s referenced by %s: %w", kind, id, owner, err)
+		}
+		klog.Errorf("%s is referencing %s %s, which doesn't seem to exists anymore, dropping it ...", owner, kind, id)
+		dangling = append(dangling, id)
+	}
+	return dangling, nil
+}
+
+// lookup adapts a typed resource finder to findDanglingRefs()
+func lookup[T any](find func(id string) (*T, error)) func(id string) error {
+	return func(id string) error {
+		_, err := find(id)
+		return err
+	}
+}
+
 func kawaiiCleanupDereferencedChildren() error {
 	// projects
 	for _, prj := range FindProjects() {
+		owner := "Project " + prj.Name
+		refs := []struct {
+			ids  *[]string
+			find func(id string) error
+			kind string
+		}{
+			{&prj.InstanceIDs, lookup(FindInstanceByID), "instance"},
+			{&prj.VolumeIDs, lookup(FindVolumeByID), "volume"},
+			{&prj.KomputeIDs, lookup(FindKomputeByID), "Kompute"},
+			{&prj.KawaiiIDs, lookup(FindKawaiiByID), "Kawaii"},
+			{&prj.KyloIDs, lookup(FindKyloByID), "Kylo"},
+		}
+
 		updated := false
-
-		instancesToRemove := []string{}
-		for _, instanceId := range prj.Instances() {
-			instance, err := FindInstanceByID(instanceId)
-			if err != nil || instance.String() == ResourceUnknown {
-				klog.Errorf("Project %s is referencing instance %s, which doesn't seem to exists anymore, dropping it ...", prj.Name, instanceId)
-				updated = true
-				instancesToRemove = append(instancesToRemove, instanceId)
+		for _, ref := range refs {
+			dangling, err := findDanglingRefs(*ref.ids, ref.find, owner, ref.kind)
+			if err != nil {
+				return err
 			}
-		}
-
-		volumesToRemove := []string{}
-		for _, volumeId := range prj.Volumes() {
-			volume, err := FindVolumeByID(volumeId)
-			if err != nil || volume.String() == ResourceUnknown {
-				klog.Errorf("Project %s is referencing volume %s, which doesn't seem to exists anymore, dropping it ...", prj.Name, volumeId)
+			for _, id := range dangling {
+				RemoveChildRef(ref.ids, id)
 				updated = true
-				volumesToRemove = append(volumesToRemove, volumeId)
-			}
-		}
-
-		komputesToRemove := []string{}
-		for _, komputeId := range prj.Komputes() {
-			kompute, err := FindKomputeByID(komputeId)
-			if err != nil || kompute.String() == ResourceUnknown {
-				klog.Errorf("Project %s is referencing Kompute %s, which doesn't seem to exists anymore, dropping it ...", prj.Name, komputeId)
-				updated = true
-				komputesToRemove = append(komputesToRemove, komputeId)
-			}
-		}
-
-		kawaiisToRemove := []string{}
-		for _, kawaiiId := range prj.Kawaiis() {
-			kawaii, err := FindKawaiiByID(kawaiiId)
-			if err != nil || kawaii.String() == ResourceUnknown {
-				klog.Errorf("Project %s is referencing Kawaii %s, which doesn't seem to exists anymore, dropping it ...", prj.Name, kawaiiId)
-				updated = true
-				kawaiisToRemove = append(kawaiisToRemove, kawaiiId)
-			}
-		}
-
-		kyloToRemove := []string{}
-		for _, kyloId := range prj.Kylos() {
-			kylo, err := FindKyloByID(kyloId)
-			if err != nil || kylo.String() == ResourceUnknown {
-				klog.Errorf("Project %s is referencing Kylo %s, which doesn't seem to exists anymore, dropping it ...", prj.Name, kyloId)
-				updated = true
-				kyloToRemove = append(kyloToRemove, kyloId)
 			}
 		}
 
 		if updated {
-			for _, instanceId := range instancesToRemove {
-				RemoveChildRef(&prj.InstanceIDs, instanceId)
-			}
-			for _, volumeId := range volumesToRemove {
-				RemoveChildRef(&prj.VolumeIDs, volumeId)
-			}
-			for _, komputeId := range komputesToRemove {
-				RemoveChildRef(&prj.KomputeIDs, komputeId)
-			}
-			for _, kawaiiId := range kawaiisToRemove {
-				RemoveChildRef(&prj.KawaiiIDs, kawaiiId)
-			}
-			for _, kyloId := range kyloToRemove {
-				RemoveChildRef(&prj.KyloIDs, kyloId)
-			}
 			err := prj.Save()
 			if err != nil {
 				return err
@@ -98,26 +95,19 @@ func kawaiiCleanupDereferencedChildren() error {
 
 	// subnets
 	for _, subnet := range FindSubnets() {
-		updated := false
-
-		adaptersToRemove := []string{}
-		for _, adapterId := range subnet.Adapters() {
-			adapter, err := FindAdapterByID(adapterId)
-			if err != nil || adapter.String() == ResourceUnknown {
-				klog.Errorf("Subnet %s is referencing adapter %s, which doesn't seem to exists anymore, dropping it ...", subnet.Name, adapterId)
-				updated = true
-				adaptersToRemove = append(adaptersToRemove, adapterId)
-			}
+		dangling, err := findDanglingRefs(subnet.AdapterIDs, lookup(FindAdapterByID), "Subnet "+subnet.Name, "adapter")
+		if err != nil {
+			return err
 		}
-
-		if updated {
-			for _, adapterId := range adaptersToRemove {
-				RemoveChildRef(&subnet.AdapterIDs, adapterId)
-			}
-			err := subnet.Save()
-			if err != nil {
-				return err
-			}
+		if len(dangling) == 0 {
+			continue
+		}
+		for _, id := range dangling {
+			RemoveChildRef(&subnet.AdapterIDs, id)
+		}
+		err = subnet.Save()
+		if err != nil {
+			return err
 		}
 	}
 
