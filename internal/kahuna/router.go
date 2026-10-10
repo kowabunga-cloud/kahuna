@@ -357,6 +357,14 @@ func reqIsAuthenticated(r *http.Request) (*http.Request, bool) {
 	if err != nil {
 		return nil, false
 	}
+
+	// only the user's current session token is valid: logging out or
+	// changing password revokes it, even before it expires
+	if !secretTokenMatches(jwtToken, u.JWT) {
+		klog.Errorf("revoked JWT for user %s", uid)
+		return nil, false
+	}
+
 	if u.IsSuperAdmin() {
 		ctx = ctxSetSuperAdminRole(ctx)
 	}

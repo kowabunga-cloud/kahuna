@@ -303,6 +303,7 @@ func (u *User) UpdatePassword(password string) error {
 	}
 
 	u.PasswordHash = hp
+	u.JWT = "" // revoke current session
 	return u.Save()
 }
 
@@ -349,6 +350,7 @@ func (u *User) ResetPassword() error {
 	}
 
 	u.PasswordHash = hp
+	u.JWT = "" // revoke current session
 	return u.Save()
 }
 

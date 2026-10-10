@@ -12,6 +12,8 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TestReqIsAuthenticatedRejectsNonBearerScheme(t *testing.T) {
@@ -165,5 +167,47 @@ func TestUserTokenHandlersRejectEmptyToken(t *testing.T) {
 		if w.Code != http.StatusForbidden {
 			t.Errorf("%s with empty token returned %d, want %d", route, w.Code, http.StatusForbidden)
 		}
+	}
+}
+
+func TestReqIsAuthenticatedRejectsRevokedJwt(t *testing.T) {
+	cfg := &KowabungaConfig{}
+	cfg.Global.JWT.Signature = "test-signature"
+	cfg.Global.JWT.Lifetime = 1
+	SetCfg(cfg)
+	GetCache().Init(true, CacheTypeInMemory, 16, 15)
+
+	u := User{Resource: NewResource("user", "", MongoCollectionUserSchemaVersion)}
+	sign := func(n int) string {
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"uid": u.String(),
+			"n":   n,
+			"exp": time.Now().Add(time.Hour).Unix(),
+		})
+		s, err := token.SignedString([]byte(cfg.Global.JWT.Signature))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return s
+	}
+	current, revoked := sign(1), sign(2)
+	u.JWT = current
+	GetCache().Set(MongoCollectionUserName, u.String(), &u)
+
+	for token, expected := range map[string]bool{current: true, revoked: false} {
+		r := httptest.NewRequest("GET", SdkBaseRoute+"/region", nil)
+		r.Header.Set(HttpHeaderAuthorization, HttpHeaderAuthBearerPrefix+token)
+		if _, ok := reqIsAuthenticated(r); ok != expected {
+			t.Errorf("JWT authenticated = %v, want %v", ok, expected)
+		}
+	}
+
+	// logged out user: no session token at all
+	u.JWT = ""
+	GetCache().Set(MongoCollectionUserName, u.String(), &u)
+	r := httptest.NewRequest("GET", SdkBaseRoute+"/region", nil)
+	r.Header.Set(HttpHeaderAuthorization, HttpHeaderAuthBearerPrefix+current)
+	if _, ok := reqIsAuthenticated(r); ok {
+		t.Error("JWT of a logged out user should not authenticate")
 	}
 }
