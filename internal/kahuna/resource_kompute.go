@@ -397,7 +397,7 @@ func (k *Kompute) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionKomputeName, k.ID)
+	return resourceDelete(MongoCollectionKomputeName, k.ID)
 }
 
 func (k *Kompute) Model() sdk.Kompute {

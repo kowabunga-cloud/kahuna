@@ -346,7 +346,7 @@ func (a *Adapter) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionAdapterName, a.ID)
+	return resourceDelete(MongoCollectionAdapterName, a.ID)
 }
 
 func (a *Adapter) Model() sdk.Adapter {

@@ -269,7 +269,7 @@ func (k *Konvey) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionKonveyName, k.ID)
+	return resourceDelete(MongoCollectionKonveyName, k.ID)
 }
 
 func (k *Konvey) Model() sdk.Konvey {

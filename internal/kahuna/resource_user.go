@@ -392,7 +392,7 @@ func (u *User) Delete() error {
 		}
 	}
 
-	return GetDB().Delete(MongoCollectionUserName, u.ID)
+	return resourceDelete(MongoCollectionUserName, u.ID)
 }
 
 func (u *User) Model() sdk.User {

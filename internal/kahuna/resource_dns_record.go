@@ -270,7 +270,7 @@ func (r *DnsRecord) Delete() error {
 		}
 	}
 
-	return GetDB().Delete(MongoCollectionDnsRecordName, r.ID)
+	return resourceDelete(MongoCollectionDnsRecordName, r.ID)
 }
 
 func (r *DnsRecord) Model() sdk.DnsRecord {

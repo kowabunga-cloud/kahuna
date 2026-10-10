@@ -397,7 +397,7 @@ func (k *Kylo) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionKyloName, k.ID)
+	return resourceDelete(MongoCollectionKyloName, k.ID)
 }
 
 func (k *Kylo) Model() sdk.Kylo {

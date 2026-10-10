@@ -159,7 +159,7 @@ func (k *Kiwi) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionKiwiName, k.ID)
+	return resourceDelete(MongoCollectionKiwiName, k.ID)
 }
 
 func (k *Kiwi) Model() sdk.Kiwi {

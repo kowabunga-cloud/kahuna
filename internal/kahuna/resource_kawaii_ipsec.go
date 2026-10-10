@@ -245,7 +245,7 @@ func (k *KawaiiIPsec) Delete() error {
 	if err != nil {
 		return err
 	}
-	return GetDB().Delete(MongoCollectionIPsecName, k.ID)
+	return resourceDelete(MongoCollectionIPsecName, k.ID)
 }
 
 func (k *KawaiiIPsec) Metadata() *metadata.KawaiiIPsecConnectionMetadata {

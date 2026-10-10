@@ -27,6 +27,17 @@ func resourceUpdate(collection string, id bson.ObjectID, obj interface{}) error 
 	return nil
 }
 
+// resourceDelete removes a resource from the database and invalidates its cache entry,
+// so that it can no longer be looked up by ID.
+func resourceDelete(collection string, id bson.ObjectID) error {
+	err := GetDB().Delete(collection, id)
+	if err != nil {
+		return err
+	}
+	GetCache().Invalidate(collection, id.Hex())
+	return nil
+}
+
 const (
 	CostCurrencyDefault = "EUR"
 	CostErrorUnknown    = "Unknown Cost"

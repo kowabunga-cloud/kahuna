@@ -203,7 +203,7 @@ func (t *Template) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionTemplateName, t.ID)
+	return resourceDelete(MongoCollectionTemplateName, t.ID)
 }
 
 func (t *Template) Model() sdk.Template {

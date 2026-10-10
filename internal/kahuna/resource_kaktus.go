@@ -360,7 +360,7 @@ func (k *Kaktus) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionKaktusName, k.ID)
+	return resourceDelete(MongoCollectionKaktusName, k.ID)
 }
 
 func (k *Kaktus) Model() sdk.Kaktus {

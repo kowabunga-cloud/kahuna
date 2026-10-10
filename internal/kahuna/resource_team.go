@@ -175,7 +175,7 @@ func (t *Team) Delete() error {
 		return nil
 	}
 
-	return GetDB().Delete(MongoCollectionTeamName, t.ID)
+	return resourceDelete(MongoCollectionTeamName, t.ID)
 }
 
 func (t *Team) Model() sdk.Team {

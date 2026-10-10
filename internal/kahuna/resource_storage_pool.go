@@ -325,7 +325,7 @@ func (p *StoragePool) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionStoragePoolName, p.ID)
+	return resourceDelete(MongoCollectionStoragePoolName, p.ID)
 }
 
 func (p *StoragePool) Model() sdk.StoragePool {

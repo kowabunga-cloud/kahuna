@@ -313,7 +313,7 @@ func (t *Token) Delete() error {
 	default:
 	}
 
-	return GetDB().Delete(MongoCollectionTokenName, t.ID)
+	return resourceDelete(MongoCollectionTokenName, t.ID)
 }
 
 func (t *Token) Model() sdk.ApiToken {

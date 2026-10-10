@@ -298,7 +298,7 @@ func (k *Kwarantine) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionKwarantineName, k.ID)
+	return resourceDelete(MongoCollectionKwarantineName, k.ID)
 }
 
 func (k *Kwarantine) Model() sdk.Kwarantine {

@@ -67,7 +67,7 @@ func (p *KMotionPlan) Delete() error {
 	if p.String() == ResourceUnknown {
 		return nil
 	}
-	return GetDB().Delete(MongoCollectionKMotionPlanName, p.ID)
+	return resourceDelete(MongoCollectionKMotionPlanName, p.ID)
 }
 
 func (p *KMotionPlan) Model() sdk.KMotionPlan {

@@ -216,7 +216,7 @@ func (r *Region) Delete() error {
 		return nil
 	}
 
-	return GetDB().Delete(MongoCollectionRegionName, r.ID)
+	return resourceDelete(MongoCollectionRegionName, r.ID)
 }
 
 func (r *Region) Model() sdk.Region {

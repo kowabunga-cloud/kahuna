@@ -543,7 +543,7 @@ func (s *Subnet) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionSubnetName, s.ID)
+	return resourceDelete(MongoCollectionSubnetName, s.ID)
 }
 
 func (s *Subnet) Model() sdk.Subnet {

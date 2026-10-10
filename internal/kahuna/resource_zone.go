@@ -184,7 +184,7 @@ func (z *Zone) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionZoneName, z.ID)
+	return resourceDelete(MongoCollectionZoneName, z.ID)
 }
 
 func (z *Zone) Model() sdk.Zone {

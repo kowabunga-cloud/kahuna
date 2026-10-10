@@ -520,7 +520,7 @@ func (p *Project) Delete() error {
 		// not a blocker
 	}
 
-	return GetDB().Delete(MongoCollectionProjectName, p.ID)
+	return resourceDelete(MongoCollectionProjectName, p.ID)
 }
 
 func (p *Project) Model() sdk.Project {

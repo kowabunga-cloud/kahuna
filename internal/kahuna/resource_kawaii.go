@@ -410,7 +410,7 @@ func (k *Kawaii) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionKawaiiName, k.ID)
+	return resourceDelete(MongoCollectionKawaiiName, k.ID)
 }
 
 func (k *Kawaii) Model() sdk.Kawaii {

@@ -161,7 +161,7 @@ func (a *Agent) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionAgentName, a.ID)
+	return resourceDelete(MongoCollectionAgentName, a.ID)
 }
 
 func (a *Agent) Model() sdk.Agent {

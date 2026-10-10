@@ -212,7 +212,7 @@ func (n *NFS) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionNfsName, n.ID)
+	return resourceDelete(MongoCollectionNfsName, n.ID)
 }
 
 func (n *NFS) Model() sdk.StorageNfs {

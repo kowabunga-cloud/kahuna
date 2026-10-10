@@ -319,5 +319,5 @@ func (har *HighlyAvailableResource) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionHarName, har.ID)
+	return resourceDelete(MongoCollectionHarName, har.ID)
 }

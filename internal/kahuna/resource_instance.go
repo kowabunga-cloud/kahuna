@@ -941,7 +941,7 @@ func (i *Instance) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionInstanceName, i.ID)
+	return resourceDelete(MongoCollectionInstanceName, i.ID)
 }
 
 func (i *Instance) Model() sdk.Instance {

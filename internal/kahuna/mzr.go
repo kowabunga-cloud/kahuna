@@ -502,5 +502,5 @@ func (mzr *MultiZonesResource) Delete() error {
 		}
 	}
 
-	return GetDB().Delete(MongoCollectionMzrName, mzr.ID)
+	return resourceDelete(MongoCollectionMzrName, mzr.ID)
 }

@@ -181,7 +181,7 @@ func (v *VNet) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionVNetName, v.ID)
+	return resourceDelete(MongoCollectionVNetName, v.ID)
 }
 
 func (v *VNet) Model() sdk.VNet {

@@ -586,7 +586,7 @@ func (v *Volume) Delete() error {
 		return err
 	}
 
-	return GetDB().Delete(MongoCollectionVolumeName, v.ID)
+	return resourceDelete(MongoCollectionVolumeName, v.ID)
 }
 
 func (v *Volume) OverwriteCloudInitVolume(iso *CloudInit) error {
