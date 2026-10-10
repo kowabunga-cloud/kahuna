@@ -8,6 +8,7 @@ package kahuna
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -128,5 +129,41 @@ func TestTokenAuthCacheBounded(t *testing.T) {
 	}
 	if _, found := c.get(fmt.Sprintf("key%d", tokenAuthCacheMaxEntries+9)); !found {
 		t.Error("most recently set entry should be cached")
+	}
+}
+
+func TestSecretTokenMatches(t *testing.T) {
+	cases := []struct {
+		provided, expected string
+		match              bool
+	}{
+		{"", "", false},
+		{"abc", "", false},
+		{"", "abc", false},
+		{"abd", "abc", false},
+		{"abc", "abc", true},
+	}
+	for _, c := range cases {
+		if got := secretTokenMatches(c.provided, c.expected); got != c.match {
+			t.Errorf("secretTokenMatches(%q, %q) = %v, want %v", c.provided, c.expected, got, c.match)
+		}
+	}
+}
+
+func TestUserTokenHandlersRejectEmptyToken(t *testing.T) {
+	GetCache().Init(true, CacheTypeInMemory, 16, 15)
+	u := User{Resource: NewResource("victim", "", MongoCollectionUserSchemaVersion)}
+	GetCache().Set(MongoCollectionUserName, u.String(), &u)
+
+	handlers := map[string]func(http.ResponseWriter, *http.Request){
+		"/confirm":               userRegistrationHandler,
+		"/confirmForgotPassword": userPasswordRenewalHandler,
+	}
+	for route, handler := range handlers {
+		w := httptest.NewRecorder()
+		handler(w, httptest.NewRequest("GET", route+"?user="+u.String()+"&token=", nil))
+		if w.Code != http.StatusForbidden {
+			t.Errorf("%s with empty token returned %d, want %d", route, w.Code, http.StatusForbidden)
+		}
 	}
 }

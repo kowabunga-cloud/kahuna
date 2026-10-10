@@ -109,6 +109,16 @@ func htmlResponse(param string) string {
 		param)
 }
 
+// secretTokenMatches tells whether a caller-provided one-time token matches the
+// expected one. An empty expected token means that no such request is pending,
+// and must never match.
+func secretTokenMatches(provided, expected string) bool {
+	if expected == "" {
+		return false
+	}
+	return subtle.ConstantTimeCompare([]byte(provided), []byte(expected)) == 1
+}
+
 func userRegistrationHandler(w http.ResponseWriter, r *http.Request) {
 	userId := r.URL.Query().Get("user")
 	userToken := r.URL.Query().Get("token")
@@ -122,8 +132,8 @@ func userRegistrationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if userToken != user.RegistrationToken {
-		klog.Error(err)
+	if !secretTokenMatches(userToken, user.RegistrationToken) {
+		klog.Errorf("invalid registration token for user %s", userId)
 		w.WriteHeader(http.StatusForbidden)
 		_, _ = w.Write([]byte(htmlResponse("Invalid user registration token")))
 		return
@@ -155,16 +165,13 @@ func userPasswordRenewalHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if userToken != user.PasswordRenewalToken {
-		klog.Error(err)
+	if !secretTokenMatches(userToken, user.PasswordRenewalToken) {
+		klog.Errorf("invalid password renewal token for user %s", userId)
 		w.WriteHeader(http.StatusForbidden)
 		_, _ = w.Write([]byte(htmlResponse("Invalid user password renewal token")))
 		return
 	}
 
-	// all good, verified
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(htmlResponse("A new user password has been issued")))
 	err = user.ResetPassword()
 	if err != nil {
 		klog.Error(err)
@@ -172,6 +179,10 @@ func userPasswordRenewalHandler(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(htmlResponse("Unable to handle password renewal request")))
 		return
 	}
+
+	// all good, verified
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(htmlResponse("A new user password has been issued")))
 }
 
 func metadataHandler(w http.ResponseWriter, r *http.Request) {
