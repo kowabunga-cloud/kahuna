@@ -27,6 +27,12 @@ const (
 	HttpWriteTimeoutSeconds = 3600
 	HttpIdleTimeoutSeconds  = 60
 	HttpGraceTimeoutSeconds = 60
+
+	// headers must be fully received quickly, whatever the body's transfer time
+	HttpReadHeaderTimeoutSeconds = 30
+
+	// no API request legitimately carries more than a few KBs of JSON
+	HttpMaxRequestBodyBytes = 4 * 1024 * 1024
 )
 
 type HTTPServer struct {
@@ -37,18 +43,28 @@ type HTTPServer struct {
 	httpServer   *http.Server
 }
 
+// limitRequestBody caps the size of request bodies, so that a single request
+// can't exhaust server memory (e.g. unauthenticated login attempts).
+func limitRequestBody(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, HttpMaxRequestBodyBytes)
+		next.ServeHTTP(w, r)
+	})
+}
+
 func NewHTTPServer(ke *KahunaEngine, address string, port int) *HTTPServer {
 	rt := NewRouter(ke)
 	s := HTTPServer{
 		shutdown:  make(chan struct{}),
 		interrupt: make(chan os.Signal, 1),
 		httpServer: &http.Server{
-			Handler:        rt,
-			Addr:           fmt.Sprintf("%s:%d", address, port),
-			MaxHeaderBytes: HttpMaxHeaderBytes,
-			ReadTimeout:    HttpReadTimeoutSeconds * time.Second,
-			WriteTimeout:   HttpWriteTimeoutSeconds * time.Second,
-			IdleTimeout:    HttpIdleTimeoutSeconds * time.Second,
+			Handler:           limitRequestBody(rt),
+			Addr:              fmt.Sprintf("%s:%d", address, port),
+			MaxHeaderBytes:    HttpMaxHeaderBytes,
+			ReadTimeout:       HttpReadTimeoutSeconds * time.Second,
+			ReadHeaderTimeout: HttpReadHeaderTimeoutSeconds * time.Second,
+			WriteTimeout:      HttpWriteTimeoutSeconds * time.Second,
+			IdleTimeout:       HttpIdleTimeoutSeconds * time.Second,
 		},
 	}
 	s.httpServer.SetKeepAlivesEnabled(true)
