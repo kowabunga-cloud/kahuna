@@ -7,10 +7,14 @@
 package kahuna
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/sethvargo/go-password/password"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/kowabunga-cloud/common/klog"
@@ -32,6 +36,8 @@ const (
 	TokenApiKeyHashCost              = 10
 )
 
+var ErrTokenNotFound = errors.New("no such token")
+
 type Token struct {
 	// anonymous field, inheritance
 	Resource `bson:"inline"`
@@ -45,6 +51,7 @@ type Token struct {
 	Expire         bool   `bson:"expire"`
 	ExpirationDate string `bson:"expiration_date"`
 	ApiKeyHash     string `bson:"api_key_hash"`
+	ApiKeyDigest   string `bson:"api_key_digest"`
 
 	// children references
 }
@@ -167,6 +174,56 @@ func FindTokensAllAgents() ([]Token, error) {
 	return findTokensAll(TokenParentTypeAgent)
 }
 
+// apiKeyDigest returns the indexed lookup digest of an API key. Generated API
+// keys are long random strings, so a fast unsalted hash is sufficient to
+// identify them, unlike user-chosen passwords.
+func apiKeyDigest(apiKey string) string {
+	sum := sha256.Sum256([]byte(apiKey))
+	return hex.EncodeToString(sum[:])
+}
+
+// FindUserTokenByApiKey returns the user token matching a plain-text API key,
+// through an indexed lookup on its digest. Tokens created before digests were
+// introduced fall back to bcrypt verification, and get their digest stored
+// on first successful match.
+func FindUserTokenByApiKey(apiKey string) (*Token, error) {
+	digest := apiKeyDigest(apiKey)
+	tokens, err := FindResourcesByFilter[Token](MongoCollectionTokenName, bson.D{
+		bson.E{Key: "parent_type", Value: TokenParentTypeUser},
+		bson.E{Key: "api_key_digest", Value: digest},
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(tokens) > 0 {
+		return &tokens[0], nil
+	}
+
+	// legacy tokens, with no digest yet
+	legacyTokens, err := FindResourcesByFilter[Token](MongoCollectionTokenName, bson.D{
+		bson.E{Key: "parent_type", Value: TokenParentTypeUser},
+		bson.E{Key: "api_key_digest", Value: bson.D{bson.E{Key: "$in", Value: bson.A{nil, ""}}}},
+	})
+	if err != nil {
+		return nil, err
+	}
+	for i := range legacyTokens {
+		t := &legacyTokens[i]
+		if t.Verify(apiKey) != nil {
+			continue
+		}
+
+		t.ApiKeyDigest = digest
+		err := t.Save()
+		if err != nil {
+			klog.Warningf("unable to store API key digest for token %s: %v", t.String(), err)
+		}
+		return t, nil
+	}
+
+	return nil, ErrTokenNotFound
+}
+
 func (t *Token) renameDbField(from, to string) error {
 	return GetDB().Rename(MongoCollectionTokenName, t.ID, from, to)
 }
@@ -246,6 +303,7 @@ func (t *Token) SetNewApiKey(notify bool) (string, error) {
 	}
 
 	t.ApiKeyHash = string(hash)
+	t.ApiKeyDigest = apiKeyDigest(apiKey)
 
 	err = t.Save()
 	if err != nil {

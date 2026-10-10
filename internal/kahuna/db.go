@@ -168,11 +168,15 @@ func (db *KowabungaDB) FindAll(collection string, results interface{}) error {
 }
 
 func (db *KowabungaDB) FindAllByKey(collection, key, value string, results interface{}) error {
+	return db.FindAllByFilter(collection, bson.D{bson.E{Key: key, Value: value}}, results)
+}
+
+func (db *KowabungaDB) FindAllByFilter(collection string, filter bson.D, results interface{}) error {
 	if db.DB == nil {
 		return ErrDbNotConnected
 	}
 	c := db.DB.Collection(collection)
-	cursor, err := c.Find(context.TODO(), bson.D{bson.E{Key: key, Value: value}})
+	cursor, err := c.Find(context.TODO(), filter)
 	if err != nil {
 		return err
 	}
@@ -295,6 +299,7 @@ func (db *KowabungaDB) EnsureIndexes() error {
 			{Keys: bson.D{bson.E{Key: "parent_type", Value: 1}}},
 			{Keys: bson.D{bson.E{Key: "agent_id", Value: 1}}},
 			{Keys: bson.D{bson.E{Key: "user_id", Value: 1}}},
+			{Keys: bson.D{bson.E{Key: "api_key_digest", Value: 1}}},
 		},
 		MongoCollectionUserName: {
 			{Keys: bson.D{bson.E{Key: "name", Value: 1}}},

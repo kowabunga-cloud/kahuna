@@ -69,3 +69,18 @@ func TestTokenVerifyWrongKey(t *testing.T) {
 		t.Error("expected error for wrong key")
 	}
 }
+
+// apiKeyDigest
+
+func TestApiKeyDigest(t *testing.T) {
+	d := apiKeyDigest("mysecretapikey")
+	if len(d) != 64 {
+		t.Errorf("expected 64 hex chars SHA-256 digest, got %d chars", len(d))
+	}
+	if d != apiKeyDigest("mysecretapikey") {
+		t.Error("digest should be deterministic")
+	}
+	if d == apiKeyDigest("othersecretapikey") {
+		t.Error("different keys should have different digests")
+	}
+}

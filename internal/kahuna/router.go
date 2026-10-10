@@ -301,49 +301,41 @@ func reqIsAuthenticated(r *http.Request) (*http.Request, bool) {
 		}
 
 		// check for regular user API key
-		tokens, err := FindTokensAllUsers()
+		t, err := FindUserTokenByApiKey(apikey)
 		if err != nil {
 			return nil, false
 		}
-		for _, t := range tokens {
-			err := t.Verify(apikey)
-			if err != nil {
-				continue
-			}
 
-			// we found the right token, let's verify validity
-			if t.HasExpired() {
-				return nil, false
-			}
-
-			u, err := t.User()
-			if err != nil {
-				return nil, false
-			}
-
-			ctx = ctxSetAuthMethod(ctx, HttpHeaderAuthApiKey)
-			ctx = ctxSetUserId(ctx, u.String())
-			if u.IsSuperAdmin() {
-				ctx = ctxSetSuperAdminRole(ctx)
-			}
-			if u.IsProjectAdmin() {
-				ctx = ctxSetProjectAdminRole(ctx)
-			}
-
-			tokenAuthCacheLock.Lock()
-			tokenAuthCache[apikey] = cachedTokenAuth{
-				userId:       u.String(),
-				superAdmin:   u.IsSuperAdmin(),
-				projectAdmin: u.IsProjectAdmin(),
-				expiresAt:    time.Now().Add(5 * time.Minute),
-			}
-			tokenAuthCacheLock.Unlock()
-
-			klog.Debugf("API-key based authentication")
-			return r.WithContext(ctx), true
+		// we found the right token, let's verify validity
+		if t.HasExpired() {
+			return nil, false
 		}
 
-		return nil, false
+		u, err := t.User()
+		if err != nil {
+			return nil, false
+		}
+
+		ctx = ctxSetAuthMethod(ctx, HttpHeaderAuthApiKey)
+		ctx = ctxSetUserId(ctx, u.String())
+		if u.IsSuperAdmin() {
+			ctx = ctxSetSuperAdminRole(ctx)
+		}
+		if u.IsProjectAdmin() {
+			ctx = ctxSetProjectAdminRole(ctx)
+		}
+
+		tokenAuthCacheLock.Lock()
+		tokenAuthCache[apikey] = cachedTokenAuth{
+			userId:       u.String(),
+			superAdmin:   u.IsSuperAdmin(),
+			projectAdmin: u.IsProjectAdmin(),
+			expiresAt:    time.Now().Add(5 * time.Minute),
+		}
+		tokenAuthCacheLock.Unlock()
+
+		klog.Debugf("API-key based authentication")
+		return r.WithContext(ctx), true
 	}
 
 	// failover, JWT-based auth

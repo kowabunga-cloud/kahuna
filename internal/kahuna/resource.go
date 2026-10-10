@@ -138,6 +138,12 @@ func FindResourcesByKey[T any](collection, key, value string) ([]T, error) {
 	return res, err
 }
 
+func FindResourcesByFilter[T any](collection string, filter bson.D) ([]T, error) {
+	var res []T
+	err := GetDB().FindAllByFilter(collection, filter, &res)
+	return res, err
+}
+
 // Cost
 
 type CostStructure struct {
