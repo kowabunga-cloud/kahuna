@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -22,6 +23,15 @@ import (
 )
 
 var ErrDbNotConnected = errors.New("database not connected")
+
+const (
+	// default upper bound for any single database operation, unless the
+	// connection URI specifies its own "timeoutMS"
+	DbOperationTimeout = 30 * time.Second
+
+	// index builds can legitimately take longer on large collections
+	DbIndexBuildTimeout = 10 * time.Minute
+)
 
 type KowabungaDB struct {
 	Client *mongo.Client
@@ -51,7 +61,12 @@ func GetDB() *KowabungaDB {
 
 func (db *KowabungaDB) Open(uri, database string) error {
 
-	client, err := mongo.Connect(options.Client().ApplyURI(uri).SetWriteConcern(writeconcern.Majority()))
+	opts := options.Client().ApplyURI(uri).SetWriteConcern(writeconcern.Majority())
+	if opts.Timeout == nil {
+		opts.SetTimeout(DbOperationTimeout)
+	}
+
+	client, err := mongo.Connect(opts)
 	if err != nil {
 		return err
 	}
@@ -378,9 +393,12 @@ func (db *KowabungaDB) EnsureIndexes() error {
 		},
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), DbIndexBuildTimeout)
+	defer cancel()
+
 	for collName, indexes := range collectionIndexes {
 		coll := db.DB.Collection(collName)
-		_, err := coll.Indexes().CreateMany(context.Background(), indexes)
+		_, err := coll.Indexes().CreateMany(ctx, indexes)
 		if err != nil {
 			klog.Errorf("Failed to ensure indexes for collection %s: %v", collName, err)
 		}
