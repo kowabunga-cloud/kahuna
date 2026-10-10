@@ -189,14 +189,28 @@ func (s *KawaiiService) CreateKawaiiIpSec(ctx context.Context, kawaiiId string, 
 	return HttpCreated(payload)
 }
 
+// findKawaiiIPsec returns the IPsec connection only if it belongs to the given
+// Kawaii. Request authorization is granted on the Kawaii ID from the path, so
+// an IPsec connection from another Kawaii (and project) must not be reachable.
+func findKawaiiIPsec(kawaiiId, ipsecId string) (*KawaiiIPsec, error) {
+	ipsec, err := FindIPsecByID(ipsecId)
+	if err != nil {
+		return nil, err
+	}
+	if ipsec.KawaiiID != kawaiiId {
+		return nil, fmt.Errorf("IPsec connection %s does not belong to Kawaii %s", ipsecId, kawaiiId)
+	}
+	return ipsec, nil
+}
+
 func (s *KawaiiService) DeleteKawaiiIpSec(ctx context.Context, kawaiiId, ipsecId string) (sdk.ImplResponse, error) {
-	// ensure Kawaii exists
-	k, err := FindIPsecByID(ipsecId)
+	// ensure IPsec connection exists
+	k, err := findKawaiiIPsec(kawaiiId, ipsecId)
 	if err != nil {
 		return HttpNotFound(err)
 	}
 
-	// remove Kawaii
+	// remove IPsec connection
 	err = k.Delete()
 	if err != nil {
 		return HttpServerError(err)
@@ -220,7 +234,7 @@ func (s *KawaiiService) ListKawaiiIpSecs(ctx context.Context, kawaiiId string) (
 
 func (s *KawaiiService) ReadKawaiiIpSec(ctx context.Context, kawaiiId, ipsecId string) (sdk.ImplResponse, error) {
 	// Ensure Ip Sec Conn exists
-	ipsec, err := FindIPsecByID(ipsecId)
+	ipsec, err := findKawaiiIPsec(kawaiiId, ipsecId)
 	if err != nil {
 		return HttpNotFound(err)
 	}
@@ -233,7 +247,7 @@ func (s *KawaiiService) UpdateKawaiiIpSec(ctx context.Context, kawaiiId, ipsecId
 	LogHttpRequest(RA("kawaiiId", kawaiiId), RA("ipsec", ipsecId))
 
 	// Ensure Ip Sec Conn exists
-	ipsecConn, err := FindIPsecByID(ipsecId)
+	ipsecConn, err := findKawaiiIPsec(kawaiiId, ipsecId)
 	if err != nil {
 		return HttpNotFound(err)
 	}
