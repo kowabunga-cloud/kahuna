@@ -154,7 +154,7 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 			}
 			for _, adapterId := range adapters {
 				a, err := FindAdapterByID(adapterId)
-				if err != nil {
+				if err == nil {
 					_ = a.Delete()
 				}
 			}
@@ -174,7 +174,7 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 		}
 		for _, adapterId := range adapters {
 			a, err := FindAdapterByID(adapterId)
-			if err != nil {
+			if err == nil {
 				_ = a.Delete()
 			}
 		}
