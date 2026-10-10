@@ -9,6 +9,7 @@ package kahuna
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
@@ -773,7 +774,8 @@ func (s *ProjectService) CreateProjectRegionKonvey(ctx context.Context, projectI
 		}
 
 		// consider kaktus nodes that were not already assigned in the loop
-		eligibleKaktuses := z.Kaktuses()
+		// (on a copy: Kaktuses() returns the zone's own references slice)
+		eligibleKaktuses := slices.Clone(z.Kaktuses())
 		for _, kaktusId := range kaktusIds {
 			RemoveChildRef(&eligibleKaktuses, kaktusId)
 		}
