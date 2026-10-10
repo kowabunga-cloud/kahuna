@@ -225,6 +225,9 @@ func NewKawaii(projectId, regionId, name, desc string, fw KawaiiFirewall, dnat [
 		publicSubnet = s
 		break
 	}
+	if publicSubnet == nil {
+		return nil, fmt.Errorf("no public subnet available in region %s", regionId)
+	}
 
 	klog.Debug("Creating underlying HA resources for Kawaii")
 
