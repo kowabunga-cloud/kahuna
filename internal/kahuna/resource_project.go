@@ -170,6 +170,11 @@ func NewProject(name, desc, domain, pwd, user, pubkey string, teams, regions, ta
 	}
 	p.Quotas.Update(quotas)
 
+	// on failure, release whatever has been allocated so far
+	rb := newRollback("project " + name)
+	defer rb.runUnlessDone()
+	rb.add("private subnets reservation", p.FreePrivateSubnet)
+
 	err = p.AllocatePrivateSubnets(subnetSize)
 	if err != nil {
 		klog.Error(err)
@@ -187,11 +192,13 @@ func NewProject(name, desc, domain, pwd, user, pubkey string, teams, regions, ta
 		klog.Error(err)
 		return nil, err
 	}
+	rb.add("DNS zone", p.DeleteDnsZone)
 
 	_, err = GetDB().Insert(MongoCollectionProjectName, p)
 	if err != nil {
 		return nil, err
 	}
+	rb.done()
 	invalidateUserResources()
 
 	klog.Debugf("Created new project %s", p.String())
@@ -396,17 +403,15 @@ func (p *Project) FreePrivateSubnet() error {
 
 	for r, subnetId := range p.PrivateSubnets {
 		s, err := FindSubnetByID(subnetId)
-		if err != nil {
-			return err
+		if err == nil {
+			err = s.SetProject("")
 		}
-
-		err = s.SetProject("")
-		if err != nil {
+		if ignoreMissing(err) != nil {
 			return err
 		}
 		delete(p.PrivateSubnets, r)
 	}
-	return p.Save()
+	return resourceSetFields(MongoCollectionProjectName, p.ID, bson.D{bson.E{Key: "private_subnets", Value: p.PrivateSubnets}})
 }
 
 func (p *Project) GetPrivateSubnet(regionId string) (string, error) {

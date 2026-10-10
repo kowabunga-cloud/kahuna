@@ -147,6 +147,12 @@ func NewMultiZonesResource(projectId, regionId, namePrefix, desc, profile, profi
 		VirtualIPs:        []VirtualIP{},
 	}
 
+	// on failure, release whatever has been allocated so far (VIP adapters,
+	// VRRP IDs, Komputes), as they get recorded into the object
+	rb := newRollback("Multi-Zones Resource " + mzr.Name)
+	defer rb.runUnlessDone()
+	rb.add("allocated resources", mzr.releaseResources)
+
 	if mzr.Profile == CloudinitProfileKawaii {
 		// reserve public adapters for virtual IPs
 		// NOTE: NAT rules public IPs are not allocated here,
@@ -170,7 +176,6 @@ func NewMultiZonesResource(projectId, regionId, namePrefix, desc, profile, profi
 	}
 
 	// create a Kompute instance in each zone
-	komputes := []string{}
 	for _, zoneId := range r.Zones() {
 		z, err := FindZoneByID(zoneId)
 		if err != nil {
@@ -190,22 +195,11 @@ func NewMultiZonesResource(projectId, regionId, namePrefix, desc, profile, profi
 		kompute, err := NewKompute(projectId, zoneId, h.String(), poolId, templateId,
 			name, desc, mzr.Profile, profileId, cpu, mem, disk, 0, false, subnetPeerings, true)
 		if err != nil {
-			for _, komputeId := range komputes {
-				komputeToDel, err := FindKomputeByID(komputeId)
-				if err != nil {
-					return nil, err
-				}
-				err = komputeToDel.Delete()
-				if err != nil {
-					klog.Error("Cleaning underlying Kompute " + komputeId + "failed. Continue cleaning " + err.Error() + ". ")
-				}
-			}
 			return nil, err
 		}
 
-		komputes = append(komputes, kompute.String())
+		mzr.KomputeIDs = append(mzr.KomputeIDs, kompute.String())
 	}
-	mzr.KomputeIDs = komputes
 
 	klog.Debugf("Created new Multi-Zones Resource %s", mzr.String())
 	_, err = GetDB().Insert(MongoCollectionMzrName, mzr)
@@ -213,6 +207,7 @@ func NewMultiZonesResource(projectId, regionId, namePrefix, desc, profile, profi
 		return nil, err
 	}
 
+	rb.done()
 	return &mzr, nil
 }
 
@@ -362,12 +357,12 @@ func (mzr *MultiZonesResource) GetVirtualIPs() error {
 			// project will be updated at each iteration so we need updated object
 			prj, err := mzr.Project()
 			if err != nil {
-				continue
+				return err
 			}
 			// mzr.PublicAdapterIDs
 			vrid, err := prj.AllocateVRID()
 			if err != nil {
-				continue
+				return err
 			}
 			vrIDs[zoneName] = vrid
 
@@ -388,12 +383,12 @@ func (mzr *MultiZonesResource) GetVirtualIPs() error {
 		// project will be updated at each iteration so we need updated object
 		prj, err := mzr.Project()
 		if err != nil {
-			continue
+			return err
 		}
 
 		vrid, err := prj.AllocateVRID()
 		if err != nil {
-			continue
+			return err
 		}
 
 		vip := VirtualIP{
@@ -432,9 +427,13 @@ func (mzr *MultiZonesResource) GetVirtualIPs() error {
 			if !ok {
 				continue
 			}
+			vrid, ok := vrIDs[k]
+			if !ok {
+				return fmt.Errorf("no public virtual IP was reserved for zone %s gateway", k)
+			}
 
 			vip := VirtualIP{
-				VRRP:        vrIDs[k],
+				VRRP:        vrid,
 				Interface:   privateInterface,
 				VIP:         gw,
 				Priority:    VrrpPriorityBackup,

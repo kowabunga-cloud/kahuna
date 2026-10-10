@@ -84,6 +84,10 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 		return nil, err
 	}
 
+	// on failure, destroy whatever has been created so far
+	rb := newRollback("Kompute " + name)
+	defer rb.runUnlessDone()
+
 	volumes := []string{}
 
 	// create an OS volume from template
@@ -94,19 +98,19 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 	if err != nil {
 		return nil, err
 	}
+	rb.add("OS volume", osVolume.Delete)
 	volumes = append(volumes, osVolume.String())
 
 	// create an optional data volume
-	var dataVolume *Volume
 	if data > 0 {
 		dataVolumeName := fmt.Sprintf("%s-data", name)
 		dataVolumeDescription := fmt.Sprintf("Data Volume for %s", name)
 		klog.Debugf("Creating data volume for %s", name)
-		dataVolume, err = NewVolume(projectId, poolId, "", dataVolumeName, dataVolumeDescription, VolumeTypeRaw, data)
+		dataVolume, err := NewVolume(projectId, poolId, "", dataVolumeName, dataVolumeDescription, VolumeTypeRaw, data)
 		if err != nil {
-			_ = osVolume.Delete()
 			return nil, err
 		}
+		rb.add("data volume", dataVolume.Delete)
 		volumes = append(volumes, dataVolume.String())
 	}
 
@@ -118,12 +122,9 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 	klog.Debugf("Creating public adapter for %s on subnet %s", name, publicSubnetId)
 	publicAdapter, err := NewAdapter(publicSubnetId, publicAdapterName, publicAdapterDescription, "", []string{}, false, public)
 	if err != nil {
-		_ = osVolume.Delete()
-		if dataVolume != nil {
-			_ = dataVolume.Delete()
-		}
 		return nil, err
 	}
+	rb.add("public adapter", publicAdapter.Delete)
 	adapters = append(adapters, publicAdapter.String())
 
 	// create a private network interface on the requested subnet (auto-assgined private IPv4)
@@ -132,13 +133,9 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 	klog.Debugf("Creating private adapter for %s on subnet %s", name, privateSubnetId)
 	privateAdapter, err := NewAdapter(privateSubnetId, privateAdapterName, privateAdapterDescription, "", []string{}, false, true)
 	if err != nil {
-		_ = osVolume.Delete()
-		if dataVolume != nil {
-			_ = dataVolume.Delete()
-		}
-		_ = publicAdapter.Delete()
 		return nil, err
 	}
+	rb.add("private adapter", privateAdapter.Delete)
 	adapters = append(adapters, privateAdapter.String())
 
 	// optionally create extra private network interfaces on peering subnets for Kawaii (auto-assigned private IPv4)
@@ -148,19 +145,9 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 		klog.Debugf("Creating peering private adapter for %s on subnet %s", name, spId)
 		spAdapter, err := NewAdapter(spId, spAdapterName, spAdapterDescription, "", []string{}, false, true)
 		if err != nil {
-			_ = osVolume.Delete()
-			if dataVolume != nil {
-				_ = dataVolume.Delete()
-			}
-			for _, adapterId := range adapters {
-				a, err := FindAdapterByID(adapterId)
-				if err == nil {
-					_ = a.Delete()
-				}
-			}
-
 			return nil, err
 		}
+		rb.add("peering adapter", spAdapter.Delete)
 		adapters = append(adapters, spAdapter.String())
 	}
 
@@ -168,18 +155,9 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 	klog.Debugf("Creating new instance for %s", name)
 	instance, err := NewInstance(projectId, hostId, name, desc, profile, profileId, cpu, mem, adapters, volumes, uefi)
 	if err != nil {
-		_ = osVolume.Delete()
-		if dataVolume != nil {
-			_ = dataVolume.Delete()
-		}
-		for _, adapterId := range adapters {
-			a, err := FindAdapterByID(adapterId)
-			if err == nil {
-				_ = a.Delete()
-			}
-		}
 		return nil, err
 	}
+	rb.add("instance", instance.Delete)
 
 	kompute := Kompute{
 		Resource:   NewResource(name, desc, MongoCollectionKomputeSchemaVersion),
@@ -191,6 +169,7 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 	if err != nil {
 		return nil, err
 	}
+	rb.add("Kompute", func() error { return resourceDelete(MongoCollectionKomputeName, kompute.ID) })
 
 	klog.Debugf("Created new Kompute virtual machine %s", kompute.String())
 
@@ -206,6 +185,7 @@ func NewKompute(projectId, zoneId, hostId, poolId, templateId, name, desc, profi
 		return nil, err
 	}
 
+	rb.done()
 	return &kompute, nil
 }
 

@@ -338,13 +338,18 @@ func NewInstance(projectId, kaktusId, name, desc, profile, profileId string, cpu
 		return nil, err
 	}
 
+	// on failure, destroy whatever has been created so far: Delete() copes
+	// with partially created instances (DNS record, agent, cloud-init volume,
+	// libvirt domain, parents references)
+	rb := newRollback("instance " + name)
+	defer rb.runUnlessDone()
+	rb.add("instance", instance.Delete)
+
 	switch instance.Profile {
 	case CloudinitProfileKawaii, CloudinitProfileKonvey:
 		err = instance.CreateAgent()
 		if err != nil {
 			klog.Error(err)
-			// cleanup
-			_ = instance.Delete()
 			return nil, err
 		}
 	}
@@ -358,15 +363,11 @@ func NewInstance(projectId, kaktusId, name, desc, profile, profileId string, cpu
 	err = instance.CreateInstance()
 	if err != nil {
 		klog.Error(err)
-		// cleanup
-		_ = instance.Delete()
 		return nil, err
 	}
 
 	_, err = GetDB().Insert(MongoCollectionInstanceName, instance)
 	if err != nil {
-		// cleanup
-		_ = instance.Delete()
 		return nil, err
 	}
 	klog.Infof("Created new instance %s (%s)", instance.String(), instance.Name)
@@ -393,6 +394,8 @@ func NewInstance(projectId, kaktusId, name, desc, profile, profileId string, cpu
 	if err != nil {
 		return nil, err
 	}
+
+	rb.done()
 
 	// notify project's users
 	for _, u := range prj.NotifiableUsers() {

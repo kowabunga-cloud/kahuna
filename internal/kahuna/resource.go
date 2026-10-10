@@ -35,6 +35,50 @@ func ignoreMissing(err error) error {
 	return err
 }
 
+// rollback records the undo actions of a multi-step resource creation, to be
+// run in reverse order should the creation fail halfway, so that no partially
+// created resource (volume, adapter, IP, VRRP ID ...) is leaked.
+type rollback struct {
+	name      string
+	succeeded bool
+	steps     []rollbackStep
+}
+
+type rollbackStep struct {
+	desc string
+	undo func() error
+}
+
+func newRollback(name string) *rollback {
+	return &rollback{name: name}
+}
+
+// add registers the undo action of a just completed creation step.
+func (rb *rollback) add(desc string, undo func() error) {
+	rb.steps = append(rb.steps, rollbackStep{desc: desc, undo: undo})
+}
+
+// done marks the creation as successful: nothing will be rolled back.
+func (rb *rollback) done() {
+	rb.succeeded = true
+}
+
+// runUnlessDone undoes all registered steps, last first, unless the creation
+// succeeded. Meant to be deferred right after newRollback().
+func (rb *rollback) runUnlessDone() {
+	if rb.succeeded {
+		return
+	}
+	for i := len(rb.steps) - 1; i >= 0; i-- {
+		step := rb.steps[i]
+		klog.Infof("Rolling back %s creation: deleting %s ...", rb.name, step.desc)
+		err := step.undo()
+		if err != nil {
+			klog.Errorf("unable to roll back %s creation (%s): %v", rb.name, step.desc, err)
+		}
+	}
+}
+
 // resourceUpdate writes obj to the database and invalidates its cache entry.
 // It is the single authoritative place that couples a DB write with cache invalidation,
 // keeping db.go free of cache knowledge.

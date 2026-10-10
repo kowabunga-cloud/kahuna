@@ -109,13 +109,22 @@ func NewHighAvailableResource(projectId, regionId, namePrefix, desc, profile, pr
 		VirtualIP:        VirtualIP{},
 	}
 
+	// on failure, release whatever has been allocated so far (VIP adapters,
+	// VRRP IDs, Komputes), as they get recorded into the object
+	rb := newRollback("Highly-Available Resource " + har.Name)
+	defer rb.runUnlessDone()
+	rb.add("allocated resources", har.releaseResources)
+
 	// HAR must reserve (and bind) private virtual IP.
 	err = har.RequestPrivateVIP()
 	if err != nil {
 		return nil, err
 	}
 
-	har.GetVirtualIP()
+	err = har.GetVirtualIP()
+	if err != nil {
+		return nil, err
+	}
 
 	// find how many zones we're spread one (defines naming convention)
 	type kaktusZone struct {
@@ -142,7 +151,6 @@ func NewHighAvailableResource(projectId, regionId, namePrefix, desc, profile, pr
 	}
 
 	// create a Kompute instance on each specified kaktus
-	komputes := make([]string, 0, len(resolved))
 	count := 1
 	for _, kz := range resolved {
 		h := kz.kaktus
@@ -159,22 +167,11 @@ func NewHighAvailableResource(projectId, regionId, namePrefix, desc, profile, pr
 		kompute, err := NewKompute(projectId, z.String(), h.String(), poolId, templateId,
 			name, desc, har.Profile, profileId, cpu, mem, disk, 0, false, []string{}, true)
 		if err != nil {
-			for _, komputeId := range komputes {
-				komputeToDel, err := FindKomputeByID(komputeId)
-				if err != nil {
-					return nil, err
-				}
-				err = komputeToDel.Delete()
-				if err != nil {
-					klog.Error("Cleaning underlying Kompute " + komputeId + "failed. Continue cleaning " + err.Error() + ". ")
-				}
-			}
 			return nil, err
 		}
 
-		komputes = append(komputes, kompute.String())
+		har.KomputeIDs = append(har.KomputeIDs, kompute.String())
 	}
-	har.KomputeIDs = komputes
 
 	klog.Debugf("Created new Highly-Available Resource %s", har.String())
 	_, err = GetDB().Insert(MongoCollectionHarName, har)
@@ -182,6 +179,7 @@ func NewHighAvailableResource(projectId, regionId, namePrefix, desc, profile, pr
 		return nil, err
 	}
 
+	rb.done()
 	return &har, nil
 }
 
@@ -253,22 +251,22 @@ func (har *HighlyAvailableResource) RequestPrivateVIP() error {
 	return nil
 }
 
-func (har *HighlyAvailableResource) GetVirtualIP() {
+func (har *HighlyAvailableResource) GetVirtualIP() error {
 	// perform various checks before going any further ...
 	privateInterface := fmt.Sprintf("%s%d", AdapterOsNicLinuxPrefix, AdapterOsNicLinuxStartIndex+1)
 	privateSubnet, err := FindSubnetByID(har.PrivateSubnetID)
 	if err != nil {
-		return
+		return err
 	}
 
 	prj, err := har.Project()
 	if err != nil {
-		return
+		return err
 	}
 
 	vrid, err := prj.AllocateVRID()
 	if err != nil {
-		return
+		return err
 	}
 
 	vip := VirtualIP{
@@ -280,6 +278,7 @@ func (har *HighlyAvailableResource) GetVirtualIP() {
 		Public:      false,
 	}
 	har.VirtualIP = vip
+	return nil
 }
 
 func (har *HighlyAvailableResource) Delete() error {

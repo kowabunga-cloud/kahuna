@@ -11,6 +11,8 @@ import (
 	"os"
 	"sync"
 	"testing"
+
+	"github.com/kowabunga-cloud/kahuna/internal/sdk"
 )
 
 // requireTestDB connects to the MongoDB instance pointed to by the
@@ -283,5 +285,42 @@ func TestIntegrationResumableDeletions(t *testing.T) {
 	}
 	if _, err := FindMZRByID(mzr.String()); err == nil {
 		t.Error("MZR should have been deleted")
+	}
+}
+
+func TestIntegrationProjectCreationRollback(t *testing.T) {
+	db := requireTestDB(t)
+
+	zone := Zone{Resource: NewResource("z1", "", MongoCollectionZoneSchemaVersion)}
+	subnet := Subnet{Resource: NewResource("private", "", MongoCollectionSubnetSchemaVersion), CIDR: "10.0.0.0/26", Gateway: "10.0.0.1"}
+	vnet := VNet{Resource: NewResource("vnet", "", MongoCollectionVNetSchemaVersion), Private: true, SubnetIDs: []string{subnet.String()}}
+	region := Region{Resource: NewResource("r1", "", MongoCollectionRegionSchemaVersion), ZoneIDs: []string{zone.String()}, VNetIDs: []string{vnet.String()}}
+	zone.RegionID = region.String()
+	subnet.VNetID = vnet.String()
+	for coll, doc := range map[string]any{
+		MongoCollectionZoneName:   zone,
+		MongoCollectionSubnetName: subnet,
+		MongoCollectionVNetName:   vnet,
+		MongoCollectionRegionName: region,
+	} {
+		if _, err := db.Insert(coll, doc); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// subnet has no gateway pool: zone gateways assignment fails after the
+	// subnet got reserved
+	const pubkey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP6uPgayxgfvqC0PdKBFEFFhkFs/joe341L9QEZAbieY test"
+	_, err := NewProject("p", "", "", "", "admin", pubkey, nil, []string{region.String()}, nil, nil, sdk.ProjectResources{}, 26)
+	if err == nil {
+		t.Fatal("project creation should have failed")
+	}
+
+	got, err := FindSubnetByID(subnet.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.ProjectID != "" {
+		t.Errorf("subnet still reserved by failed project creation: %q", got.ProjectID)
 	}
 }

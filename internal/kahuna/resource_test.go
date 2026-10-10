@@ -149,3 +149,30 @@ func TestResourceMetadataModel(t *testing.T) {
 		t.Errorf("expected Value=%q, got %q", "us-east-1", sdk.Value)
 	}
 }
+
+func TestRollback(t *testing.T) {
+	order := []string{}
+	step := func(name string) func() error {
+		return func() error {
+			order = append(order, name)
+			return nil
+		}
+	}
+
+	rb := newRollback("test")
+	rb.add("first", step("first"))
+	rb.add("second", step("second"))
+	rb.runUnlessDone()
+	if len(order) != 2 || order[0] != "second" || order[1] != "first" {
+		t.Errorf("rollback should undo steps in reverse order, got %v", order)
+	}
+
+	order = nil
+	rb = newRollback("test")
+	rb.add("first", step("first"))
+	rb.done()
+	rb.runUnlessDone()
+	if len(order) != 0 {
+		t.Errorf("successful creation should not be rolled back, got %v", order)
+	}
+}
