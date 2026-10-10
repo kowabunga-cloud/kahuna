@@ -572,7 +572,13 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	client := wsrpc.NewWsRpcClient(c, false)
 	err = RegisterAgent(agentType, agentId, client)
 	if err != nil {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		// connection has already been hijacked by the WebSocket upgrade:
+		// no HTTP error can be written, just drop it
+		klog.Errorf("unable to register %s agent %s: %v", agentType, agentId, err)
+		err = client.Close()
+		if err != nil {
+			klog.Error(err)
+		}
 	}
 }
 

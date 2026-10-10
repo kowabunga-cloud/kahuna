@@ -12,6 +12,7 @@ import (
 	"math/big"
 	"slices"
 	"sync"
+	"time"
 
 	"github.com/kowabunga-cloud/common"
 	"github.com/kowabunga-cloud/common/agents"
@@ -19,21 +20,38 @@ import (
 	"github.com/kowabunga-cloud/common/wsrpc"
 )
 
+// longer than it takes for a closed WebSocket session's keepalive routine to
+// notice (ping period + write timeout)
+const agentSessionDrainTimeout = 30 * time.Second
+
 type KowabungaAgent struct {
 	ID          string
 	Client      *wsrpc.WsRpcClient
 	Type        string
 	IsConnected bool
-	Interrupted chan bool
 	Version     string
 	Methods     []string
 }
 
+// WatchKeepalive waits for the agent's WebSocket session to terminate and
+// unregisters the agent, unless it has meanwhile been replaced by a newer
+// session (agent reconnection) or disconnected on purpose.
 func (agent *KowabungaAgent) WatchKeepalive() {
 	<-agent.Client.Terminated
 	klog.Infof("Disconnection of %s agent %s has been detected. Unregistering ...", agent.Type, agent.ID)
-	agent.Interrupted <- true
-	UnregisterAgent(agent.ID)
+	unregisterAgentSession(agent)
+
+	// each of the WebSocket client's message pump and keepalive routines
+	// signal termination on their way out, through a 1-slot channel: keep
+	// draining it for a while so that none of them stays blocked forever
+	timeout := time.After(agentSessionDrainTimeout)
+	for {
+		select {
+		case <-agent.Client.Terminated:
+		case <-timeout:
+			return
+		}
+	}
 }
 
 // agents singleton
@@ -50,13 +68,23 @@ func GetAgents() map[string]*KowabungaAgent {
 	return kAgents
 }
 
+// DisconnectAgent forcibly closes the agent's current WebSocket session, if
+// any, e.g. when the agent is deleted or its API key changes. The agent has to
+// reconnect and authenticate again.
 func DisconnectAgent(agentId string) {
-	ag := GetAgent(agentId)
+	agentsLock.Lock()
+	ag := GetAgents()[agentId]
+	delete(GetAgents(), agentId)
+	agentsLock.Unlock()
+
 	if ag == nil {
 		return
 	}
-	ag.Interrupted <- true
-	ag.Client.Terminated <- true
+	klog.Infof("Disconnecting %s agent %s ...", ag.Type, agentId)
+	err := ag.Client.Close()
+	if err != nil {
+		klog.Error(err)
+	}
 }
 
 func GetAgent(agentId string) *KowabungaAgent {
@@ -102,29 +130,15 @@ func GetEligibleAgent(candidateAgents []string, method string) *KowabungaAgent {
 	return candidates[n.Int64()]
 }
 
+// RegisterAgent registers a newly connected agent WebSocket session,
+// replacing (and closing) any previous session from the same agent. An error
+// means the session couldn't be registered, and is to be closed by the caller.
 func RegisterAgent(agentType, agentId string, client *wsrpc.WsRpcClient) error {
-	// check for an already registered agent
-	ag := GetAgent(agentId)
-	if ag != nil {
-		// agent already exists, check for status
-		if ag.IsConnected {
-			// close previous session
-			klog.Infof("A previous agent WebSocket connection from %s was referenced. Closing ...", agentId)
-			err := ag.Client.Close()
-			if err != nil {
-				klog.Error(err)
-			}
-		}
-		ag.Client = client
-		return nil
-	}
-
-	ag = &KowabungaAgent{
+	ag := &KowabungaAgent{
 		ID:          agentId,
 		Client:      client,
 		Type:        agentType,
 		IsConnected: true,
-		Interrupted: make(chan bool, 1),
 	}
 
 	// discover agent's RPC capabilities
@@ -139,12 +153,30 @@ func RegisterAgent(agentType, agentId string, client *wsrpc.WsRpcClient) error {
 	ag.Version = reply.Version
 	ag.Methods = reply.Methods
 
-	klog.Infof("Registering new %s agent %s WebSocket connection ...", agentType, agentId)
+	klog.Infof("Registering %s agent %s WebSocket connection ...", agentType, agentId)
 	agentsLock.Lock()
+	previous := GetAgents()[agentId]
 	GetAgents()[agentId] = ag
 	agentsLock.Unlock()
 	go ag.WatchKeepalive()
 
+	if previous != nil {
+		// close previous session, its watcher won't unregister the new one
+		klog.Infof("A previous agent WebSocket connection from %s was referenced. Closing ...", agentId)
+		err := previous.Client.Close()
+		if err != nil {
+			klog.Error(err)
+		}
+	}
+
+	// the session is registered: post-registration failures are not fatal
+	ag.onRegistered()
+	return nil
+}
+
+// onRegistered (re)synchronizes the resources managed by a newly connected agent.
+func (ag *KowabungaAgent) onRegistered() {
+	agentId := ag.ID
 	switch ag.Type {
 	case common.KowabungaKiwiAgent:
 		kiwis := FindKiwis()
@@ -152,7 +184,7 @@ func RegisterAgent(agentType, agentId string, client *wsrpc.WsRpcClient) error {
 			if slices.Contains(k.AgentIDs, agentId) {
 				err := k.Reload()
 				if err != nil {
-					return err
+					klog.Errorf("unable to reload Kiwi %s: %v", k.String(), err)
 				}
 			}
 		}
@@ -185,19 +217,21 @@ func RegisterAgent(agentType, agentId string, client *wsrpc.WsRpcClient) error {
 	case common.KowabungaControllerAgent:
 		args := agents.KontrollerReloadArgs{}
 		var reply agents.KontrollerReloadReply
-		err = RPC([]string{agentId}, "Reload", args, &reply)
+		err := RPC([]string{agentId}, "Reload", args, &reply)
 		if err != nil {
-			return err
+			klog.Errorf("unable to reload controller agent %s: %v", agentId, err)
 		}
 	}
-
-	return nil
 }
 
-func UnregisterAgent(agentId string) {
+// unregisterAgentSession removes the agent from registered ones, only if
+// that very session is still the registered one.
+func unregisterAgentSession(ag *KowabungaAgent) {
 	agentsLock.Lock()
-	delete(GetAgents(), agentId)
-	agentsLock.Unlock()
+	defer agentsLock.Unlock()
+	if current := GetAgents()[ag.ID]; current != nil && current.Client == ag.Client {
+		delete(GetAgents(), ag.ID)
+	}
 }
 
 func VerifyAgents(candidates []string, kind string) []string {
