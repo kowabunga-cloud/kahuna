@@ -39,13 +39,14 @@ type ApiOperation struct {
 	compiled *regexp.Regexp
 }
 
-// buildApiOperations pre-compiles regex patterns for each operation.
+// buildApiOperations pre-compiles regex patterns for each operation, anchored
+// to the start of the URL path.
 // {userId} placeholders are replaced with the ObjectID hex character class so
 // the pattern can be matched statically; the actual userId is verified
 // separately via userIdInPath.
 func buildApiOperations(ops []ApiOperation) []ApiOperation {
 	for i, op := range ops {
-		pattern := SdkBaseRoute + strings.ReplaceAll(op.Route, "{userId}", "[0-9a-f]{24}")
+		pattern := "^" + SdkBaseRoute + strings.ReplaceAll(op.Route, "{userId}", "[0-9a-f]{24}")
 		ops[i].compiled = regexp.MustCompile(pattern)
 	}
 	return ops
@@ -404,6 +405,10 @@ func validMethod(method string, op ApiOperation) bool {
 func reqIsAuthorized(r *http.Request) bool {
 	ctx := r.Context()
 
+	// only consider the URL path: the query string is caller-controlled and
+	// must never influence route or resource matching
+	path := r.URL.Path
+
 	// check for almighty god rights
 	superAdmin := ctxGetSuperAdminRole(ctx)
 	if superAdmin {
@@ -414,7 +419,7 @@ func reqIsAuthorized(r *http.Request) bool {
 	projectAdmin := ctxGetProjectAdminRole(ctx)
 	if projectAdmin {
 		for _, route := range projectAdminAllowedRoutes {
-			if route.compiled.MatchString(r.RequestURI) && validMethod(r.Method, route) {
+			if route.compiled.MatchString(path) && validMethod(r.Method, route) {
 				return true
 			}
 		}
@@ -424,12 +429,12 @@ func reqIsAuthorized(r *http.Request) bool {
 	userId := ctxGetUserId(ctx)
 	if userId != "" {
 		for _, route := range userAllowedRoutes {
-			if !route.compiled.MatchString(r.RequestURI) || !validMethod(r.Method, route) {
+			if !route.compiled.MatchString(path) || !validMethod(r.Method, route) {
 				continue
 			}
 			// For user-scoped routes, verify the userId in the URL matches the authenticated user.
 			if strings.Contains(route.Route, "{userId}") {
-				m := userIdInPath.FindStringSubmatch(r.RequestURI)
+				m := userIdInPath.FindStringSubmatch(path)
 				if len(m) < 2 || m[1] != userId {
 					continue
 				}
@@ -476,18 +481,13 @@ func reqIsAuthorized(r *http.Request) bool {
 		GetCache().Set(CacheNsUserResources, userId, userAllowedResources)
 	}
 
-	// Check if request url contains one of the resource IDs from the projects user's part of
+	// Check if request path contains one of the resource IDs from the projects user's part of
 	allowedSet := make(map[string]struct{}, len(userAllowedResources))
 	for _, res := range userAllowedResources {
 		allowedSet[res] = struct{}{}
 	}
-	for _, id := range objectIdPattern.FindAllString(r.RequestURI, -1) {
+	for _, id := range objectIdPattern.FindAllString(path, -1) {
 		if _, ok := allowedSet[id]; ok {
-			return true
-		}
-	}
-	for _, res := range userAllowedResources {
-		if strings.Contains(r.RequestURI, res) {
 			return true
 		}
 	}
