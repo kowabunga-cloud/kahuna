@@ -352,7 +352,11 @@ func reqIsAuthenticated(r *http.Request) (*http.Request, bool) {
 		return nil, false
 	}
 
-	jwtToken := authHeader[len(HttpHeaderAuthBearerPrefix):]
+	jwtToken, found := strings.CutPrefix(authHeader, HttpHeaderAuthBearerPrefix)
+	if !found {
+		// Unsupported authentication scheme
+		return nil, false
+	}
 	_, uid, err := VerifyJwt(jwtToken)
 	if err != nil {
 		klog.Error(err)
