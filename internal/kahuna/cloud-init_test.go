@@ -180,3 +180,22 @@ func TestCloudInitTemplateCacheAndWriteISO(t *testing.T) {
 		t.Errorf("expected ISO image to exist: %v", err)
 	}
 }
+
+func TestCloudInitSetDataReportsRenderingErrors(t *testing.T) {
+	ci, err := NewCloudInit("test-vm", CloudinitProfileLinux)
+	if err != nil {
+		t.Fatalf("NewCloudInit failed: %v", err)
+	}
+	defer func() {
+		_ = ci.Delete()
+	}()
+
+	tplPath := filepath.Join(t.TempDir(), "broken.yml")
+	if err := os.WriteFile(tplPath, []byte("hostname: {{ .Hostname.Missing }}\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	err = ci.SetData(tplPath, "kw_broken_tests", UserDataSettings{Hostname: "vm"})
+	if err == nil {
+		t.Error("SetData should report template execution errors")
+	}
+}

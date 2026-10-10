@@ -98,17 +98,16 @@ func (ci *CloudInit) SetData(src, dst string, values any) error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		_ = out.Close()
-	}()
 
-	// Render Template with input values
+	// Render Template with input values, never ship a partially rendered file
 	err = tpl.Execute(out, values)
 	if err != nil {
 		klog.Error(err)
+		_ = out.Close()
+		return fmt.Errorf("unable to render cloud-init %s: %w", dst, err)
 	}
 
-	return nil
+	return out.Close()
 }
 
 type UserDataSettings struct {
