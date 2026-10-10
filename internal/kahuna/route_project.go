@@ -153,6 +153,10 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	}
 
 	// now find the best-suited kaktus node
+	err = ValidateKwarantineGroups(projectId, instance.Kwarantines)
+	if err != nil {
+		return HttpBadParams(err)
+	}
 	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(instance.Kwarantines)
 	h, err := zone.ElectMostFavorableKaktus(instance.Name, zone.Kaktuses(), excludedKaktuses, excludedZones)
 	if err != nil {
@@ -205,6 +209,10 @@ func (s *ProjectService) CreateProjectRegionInstance(ctx context.Context, projec
 	}
 
 	// now find the best-suited kaktus node, across the whole region
+	err = ValidateKwarantineGroups(projectId, instance.Kwarantines)
+	if err != nil {
+		return HttpBadParams(err)
+	}
 	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(instance.Kwarantines)
 	h, err := region.ElectMostFavorableKaktus(instance.Name, excludedKaktuses, excludedZones)
 	if err != nil {
@@ -291,6 +299,10 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	}
 
 	// now find the best-suited kaktus node
+	err = ValidateKwarantineGroups(projectId, kompute.Kwarantines)
+	if err != nil {
+		return HttpBadParams(err)
+	}
 	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(kompute.Kwarantines)
 	h, err := zone.ElectMostFavorableKaktus(kompute.Name, zone.Kaktuses(), excludedKaktuses, excludedZones)
 	if err != nil {
@@ -375,6 +387,10 @@ func (s *ProjectService) CreateProjectRegionKompute(ctx context.Context, project
 	}
 
 	// now find the best-suited kaktus node, across the whole region
+	err = ValidateKwarantineGroups(projectId, kompute.Kwarantines)
+	if err != nil {
+		return HttpBadParams(err)
+	}
 	excludedKaktuses, excludedZones := KwarantineExclusionsForGroups(kompute.Kwarantines)
 	h, err := region.ElectMostFavorableKaktus(kompute.Name, excludedKaktuses, excludedZones)
 	if err != nil {
@@ -640,6 +656,11 @@ func (s *ProjectService) CreateProjectRegionKawaii(ctx context.Context, projectI
 		vpcSubnet, err := FindSubnetByID(peer.Subnet)
 		if err != nil {
 			return HttpBadParams(err)
+		}
+
+		// only peer with the project's own subnets or shared (projectless) ones
+		if vpcSubnet.ProjectID != "" && vpcSubnet.ProjectID != projectId {
+			return HttpBadParams(fmt.Errorf("subnet %s does not belong to project %s", peer.Subnet, projectId))
 		}
 
 		// enforce application's ports if specified at subnet's level

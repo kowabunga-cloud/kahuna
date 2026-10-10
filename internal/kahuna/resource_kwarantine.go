@@ -7,6 +7,8 @@
 package kahuna
 
 import (
+	"fmt"
+
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
 )
@@ -110,6 +112,22 @@ func kwarantineIDs(groups []Kwarantine) []string {
 		ids = append(ids, g.String())
 	}
 	return ids
+}
+
+// ValidateKwarantineGroups ensures that every requested Kwarantine group
+// exists and belongs to the project the new member is created into, so that
+// one can't alter another project's placement constraints.
+func ValidateKwarantineGroups(projectId string, groupIds []string) error {
+	for _, id := range groupIds {
+		g, err := FindKwarantineByID(id)
+		if err != nil {
+			return fmt.Errorf("no such kwarantine group %s", id)
+		}
+		if g.ProjectID != projectId {
+			return fmt.Errorf("kwarantine group %s does not belong to project %s", id, projectId)
+		}
+	}
+	return nil
 }
 
 // registerMemberWithKwarantines adds memberId as a member of every
