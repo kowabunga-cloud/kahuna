@@ -7,10 +7,13 @@
 package kahuna
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"sync"
 	"testing"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
 )
@@ -427,5 +430,44 @@ func TestIntegrationProjectRegionsUpdate(t *testing.T) {
 	}
 	if s, _ := FindSubnetByID(s2.String()); s.ProjectID != "" {
 		t.Fatalf("removed region's subnet not released: %q", s.ProjectID)
+	}
+}
+
+func TestIntegrationAgentInstanceMetadataRequiresCredentials(t *testing.T) {
+	db := requireTestDB(t)
+
+	const apiKey = "agent-secret-api-key"
+	hash, err := bcrypt.GenerateFromPassword([]byte(apiKey), bcrypt.MinCost)
+	if err != nil {
+		t.Fatal(err)
+	}
+	token := Token{Resource: NewResource("token", "", MongoCollectionTokenSchemaVersion), ParentType: TokenParentTypeAgent, ApiKeyHash: string(hash)}
+	agent := Agent{Resource: NewResource("agent", "", MongoCollectionAgentSchemaVersion), TokenID: token.String()}
+	token.AgentID = agent.String()
+	kawaii := Instance{Resource: NewResource("kawaii", "", MongoCollectionInstanceSchemaVersion), LocalIP: "10.0.0.10", AgentID: agent.String(), Profile: CloudinitProfileKawaii}
+	for coll, doc := range map[string]any{
+		MongoCollectionTokenName:    token,
+		MongoCollectionAgentName:    agent,
+		MongoCollectionInstanceName: kawaii,
+	} {
+		if _, err := db.Insert(coll, doc); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	cases := []struct {
+		name, agentId, apiKey string
+		authorized            bool
+	}{
+		{"no credentials", "", "", false},
+		{"wrong key", agent.String(), "guessed", false},
+		{"other agent", "cccccccccccccccccccccccc", apiKey, false},
+		{"own credentials", agent.String(), apiKey, true},
+	}
+	for _, c := range cases {
+		_, err := GetInstanceMetadata(kawaii.LocalIP, kawaii.String(), c.agentId, c.apiKey)
+		if unauthorized := errors.Is(err, ErrMetadataUnauthorized); unauthorized == c.authorized {
+			t.Errorf("%s: authorized = %v, want %v (%v)", c.name, !unauthorized, c.authorized, err)
+		}
 	}
 }

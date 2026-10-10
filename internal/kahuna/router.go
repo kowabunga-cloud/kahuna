@@ -10,6 +10,7 @@ import (
 	"context"
 	"crypto/subtle"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -188,9 +189,14 @@ func userPasswordRenewalHandler(w http.ResponseWriter, r *http.Request) {
 func metadataHandler(w http.ResponseWriter, r *http.Request) {
 	sourceHeader := r.Header.Get(common.HttpHeaderKowabungaSourceIP)
 	src := strings.Split(sourceHeader, ":")
-	meta, err := GetInstanceMetadata(src[0], r.Header.Get(common.HttpHeaderKowabungaInstanceID))
+	meta, err := GetInstanceMetadata(src[0], r.Header.Get(common.HttpHeaderKowabungaInstanceID),
+		r.Header.Get(ws.WsHeaderAgentId), r.Header.Get(ws.WsHeaderAgentApiKey))
 	if err != nil {
 		klog.Error(err)
+		if errors.Is(err, ErrMetadataUnauthorized) {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -522,12 +528,6 @@ func verifyAgentHeaders(w http.ResponseWriter, r *http.Request) (string, string,
 		return agentType, agentId, fmt.Errorf("unspecified Kowabunga agent ID")
 	}
 
-	ag, err := FindAgentByID(agentId)
-	if err != nil {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return agentType, agentId, fmt.Errorf("unsupported Kowabunga agent ID")
-	}
-
 	// check for agent API key authentication
 	apiKey := r.Header.Get(ws.WsHeaderAgentApiKey)
 	if apiKey == "" {
@@ -535,25 +535,38 @@ func verifyAgentHeaders(w http.ResponseWriter, r *http.Request) (string, string,
 		return agentType, agentId, fmt.Errorf("unspecified Kowabunga agent API key")
 	}
 
-	token, err := ag.Token()
+	err := verifyAgentCredentials(agentId, apiKey)
 	if err != nil {
 		http.Error(w, "Forbidden", http.StatusForbidden)
-		return agentType, agentId, fmt.Errorf("no api key token associated to agent")
+		return agentType, agentId, err
+	}
+
+	return agentType, agentId, nil
+}
+
+// verifyAgentCredentials ensures that apiKey is the agent's valid API key.
+func verifyAgentCredentials(agentId, apiKey string) error {
+	ag, err := FindAgentByID(agentId)
+	if err != nil {
+		return fmt.Errorf("unsupported Kowabunga agent ID")
+	}
+
+	token, err := ag.Token()
+	if err != nil {
+		return fmt.Errorf("no api key token associated to agent")
 	}
 
 	err = token.Verify(apiKey)
 	if err != nil {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return agentType, agentId, fmt.Errorf("API key does not match")
+		return fmt.Errorf("API key does not match")
 	}
 
 	// verify token's validity
 	if token.HasExpired() {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return agentType, agentId, fmt.Errorf("API key has expired")
+		return fmt.Errorf("API key has expired")
 	}
 
-	return agentType, agentId, nil
+	return nil
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {

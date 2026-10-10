@@ -7,13 +7,20 @@
 package kahuna
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/kowabunga-cloud/common/klog"
 	"github.com/kowabunga-cloud/common/metadata"
 )
 
-func GetInstanceMetadata(srcIp, instanceId string) (metadata.InstanceMetadata, error) {
+var ErrMetadataUnauthorized = errors.New("unauthorized metadata request")
+
+// GetInstanceMetadata returns the metadata of the instance identified by its
+// local IP address and ID. Agent-managed instances (e.g. Kawaii, Konvey),
+// whose metadata holds secrets, must also present their own agent
+// credentials.
+func GetInstanceMetadata(srcIp, instanceId, agentId, agentApiKey string) (metadata.InstanceMetadata, error) {
 	meta := metadata.InstanceMetadata{}
 	var err error
 	i, err := FindInstanceByIP(srcIp)
@@ -23,6 +30,16 @@ func GetInstanceMetadata(srcIp, instanceId string) (metadata.InstanceMetadata, e
 
 	if i.String() != instanceId {
 		return meta, fmt.Errorf("mismatch between instance ID and local IP at metadata retrieval")
+	}
+
+	if i.AgentID != "" {
+		if agentId != i.AgentID {
+			return meta, fmt.Errorf("%w: instance %s requires its agent credentials", ErrMetadataUnauthorized, i.String())
+		}
+		err = verifyAgentCredentials(agentId, agentApiKey)
+		if err != nil {
+			return meta, fmt.Errorf("%w: %v", ErrMetadataUnauthorized, err)
+		}
 	}
 
 	meta.ID = i.String()

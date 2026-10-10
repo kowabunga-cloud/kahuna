@@ -21,6 +21,7 @@ import (
 
 	"github.com/kowabunga-cloud/common"
 	"github.com/kowabunga-cloud/common/klog"
+	"github.com/kowabunga-cloud/common/ws"
 )
 
 const (
@@ -143,8 +144,16 @@ KW_ENDPOINT="$(cloud-init query ds.meta_data.kowabunga_metadata_uri)"
 KW_INSTANCE_ID="$(cloud-init query instance_id)"
 KW_LOCAL_IP="$(cloud-init query ds.meta_data.kowabunga_local_ip)"
 
-curl -s ${KW_ENDPOINT} -H "%s: ${KW_LOCAL_IP}" -H "%s: ${KW_INSTANCE_ID}"
-`, common.HttpHeaderKowabungaSourceIP, common.HttpHeaderKowabungaInstanceID)
+# agent-managed instances must authenticate with their agent credentials
+KW_AUTH=()
+KW_AGENT_ID="$(cloud-init query ds.meta_data.kowabunga_controller_agent_id 2>/dev/null)"
+if [ -n "${KW_AGENT_ID}" ]; then
+  KW_AGENT_TOKEN="$(cloud-init query ds.meta_data.kowabunga_controller_agent_token 2>/dev/null)"
+  KW_AUTH=(-H "%s: ${KW_AGENT_ID}" -H "%s: ${KW_AGENT_TOKEN}")
+fi
+
+curl -s "${KW_ENDPOINT}" -H "%s: ${KW_LOCAL_IP}" -H "%s: ${KW_INSTANCE_ID}" "${KW_AUTH[@]}"
+`, ws.WsHeaderAgentId, ws.WsHeaderAgentApiKey, common.HttpHeaderKowabungaSourceIP, common.HttpHeaderKowabungaInstanceID)
 
 	data := UserDataSettings{
 		Hostname:          name,
