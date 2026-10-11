@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIST="${DIST:=noble}"
+DIST="${DIST:=resolute}"
 
 export CURRENT_VERSION=$(git tag --sort=-committerdate | head -1)
 export PREVIOUS_VERSION=$(git tag --sort=-committerdate | head -2 | awk '{split($0, tags, "\n")} END {print tags[1]}')
