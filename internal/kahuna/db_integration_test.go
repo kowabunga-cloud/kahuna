@@ -9,6 +9,8 @@ package kahuna
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"sync"
 	"testing"
@@ -469,5 +471,15 @@ func TestIntegrationAgentInstanceMetadataRequiresCredentials(t *testing.T) {
 		if unauthorized := errors.Is(err, ErrMetadataUnauthorized); unauthorized == c.authorized {
 			t.Errorf("%s: authorized = %v, want %v (%v)", c.name, !unauthorized, c.authorized, err)
 		}
+	}
+}
+
+func TestIntegrationReadiness(t *testing.T) {
+	requireTestDB(t)
+
+	rec := httptest.NewRecorder()
+	readinessHandler(rec, httptest.NewRequest(http.MethodGet, HealthRouteReadiness, nil))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("got HTTP %d with a reachable database", rec.Code)
 	}
 }

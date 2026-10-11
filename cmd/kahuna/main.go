@@ -36,6 +36,7 @@ func main() {
 			Level:   logLevel,
 		},
 	})
+	klog.Infof("Starting Kowabunga Kahuna %s", kahuna.Version)
 
 	// register everything
 	var ae = &kahuna.KahunaEngine{}

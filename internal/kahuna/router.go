@@ -637,6 +637,8 @@ func NewRouter(ke *KahunaEngine) *mux.Router {
 	router.HandleFunc("/confirm", userRegistrationHandler)
 	router.HandleFunc("/confirmForgotPassword", userPasswordRenewalHandler)
 	router.HandleFunc("/latest/meta-data", metadataHandler)
+	router.HandleFunc(HealthRouteLiveness, livenessHandler).Methods(http.MethodGet)
+	router.HandleFunc(HealthRouteReadiness, readinessHandler).Methods(http.MethodGet)
 	router.Handle("/metrics", ke.Exporter.HttpHandler())
 	router.HandleFunc(ws.WsRouterEndpoint, wsHandler)
 

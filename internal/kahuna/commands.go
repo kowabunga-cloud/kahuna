@@ -26,6 +26,7 @@ func ParseCommands() (*os.File, bool, bool) {
 	debug := kingpin.Flag("debug", flagDescDebug).Short('d').Bool()
 	migrate := kingpin.Flag("migrate", flagDescMigrate).Short('m').Bool()
 
+	kingpin.Version(Version)
 	kingpin.Parse()
 
 	return *configFile, *debug, *migrate

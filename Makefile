@@ -30,6 +30,10 @@ GOSEC = $(BINDIR)/gosec
 
 PKGS = ./cmd/kahuna/... ./internal/kahuna/...
 
+# release version, embedded in binary (CI passes the version being released)
+VERSION ?= $(shell git describe --tags --always 2>/dev/null | sed 's/^v//')
+VERSION_VAR = github.com/kowabunga-cloud/kahuna/internal/kahuna.Version
+
 V = 0
 Q = $(if $(filter 1,$V),,@)
 PROD = 0
@@ -99,7 +103,7 @@ bin: ; $(info $(M) create local bin directory) @
 build: bin ; $(info $(M) building Kahuna orchestrator…) @
 	$Q go build \
 		-gcflags="internal/...=-e" \
-		-ldflags='$(DEBUG)' \
+		-ldflags='$(DEBUG) -X $(VERSION_VAR)=$(VERSION)' \
 		-o $(BINDIR) ./cmd/kahuna
 
 .PHONY: tests

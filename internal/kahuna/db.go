@@ -83,6 +83,14 @@ func (db *KowabungaDB) Open(uri, database string) error {
 	return nil
 }
 
+// Ping checks the primary database server is reachable.
+func (db *KowabungaDB) Ping(ctx context.Context) error {
+	if db.Client == nil {
+		return errors.New("database is not connected")
+	}
+	return db.Client.Ping(ctx, readpref.Primary())
+}
+
 func (db *KowabungaDB) Admin() *mongo.Database {
 	return db.Client.Database("admin")
 }
