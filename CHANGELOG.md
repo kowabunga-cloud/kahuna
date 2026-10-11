@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.66.0](https://github.com/kowabunga-cloud/kahuna/compare/v0.65.0...v0.66.0) (2026-10-11)
+
+### Features
+
+* update to API v0.58.0 ([c45fb06](https://github.com/kowabunga-cloud/kahuna/commit/c45fb0692c67cc57d8d789be3ae969d2d0568abf))
+
 ## [0.65.0](https://github.com/kowabunga-cloud/kahuna/compare/v0.64.2...v0.65.0) (2026-10-11)
 
 ### Features
