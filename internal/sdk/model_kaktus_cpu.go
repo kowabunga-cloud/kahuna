@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -32,13 +32,13 @@ type KaktusCpu struct {
 	Vendor string `json:"vendor"`
 
 	// The Kaktus computing node CPU number of sockets.
-	Sockets int64 `json:"sockets"`
+	Sockets int32 `json:"sockets"`
 
 	// The Kaktus computing node CPU number of cores.
-	Cores int64 `json:"cores"`
+	Cores int32 `json:"cores"`
 
 	// The Kaktus computing node CPU number of threads.
-	Threads int64 `json:"threads"`
+	Threads int32 `json:"threads"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into KaktusCpu
 func (o *KaktusCpu) UnmarshalJSON(data []byte) (err error) {
@@ -136,10 +136,34 @@ func (o *KaktusCpu) UnmarshalJSON(data []byte) (err error) {
 // AssertKaktusCpuRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKaktusCpuRequired(obj KaktusCpu) error {
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertKaktusCpuConstraints checks if the values respects the defined constraints
 func AssertKaktusCpuConstraints(obj KaktusCpu) error {
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }

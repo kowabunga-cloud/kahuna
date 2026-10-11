@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -13,6 +13,7 @@ package sdk
 
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 )
@@ -26,7 +27,7 @@ type KonveyEndpoint struct {
 	Name string `json:"name"`
 
 	// The port to be exposed.
-	Port int64 `json:"port"`
+	Port int32 `json:"port"`
 
 	// The transport layer protocol to be exposed.
 	Protocol string `json:"protocol"`
@@ -123,16 +124,38 @@ func AssertKonveyEndpointRequired(obj KonveyEndpoint) error {
 		}
 	}
 
+
+
+
+
+
+
+
 	if err := AssertKonveyBackendsRequired(obj.Backends); err != nil {
 		return err
 	}
+
 	return nil
 }
 
 // AssertKonveyEndpointConstraints checks if the values respects the defined constraints
 func AssertKonveyEndpointConstraints(obj KonveyEndpoint) error {
+
+
+	if obj.Port < 1 {
+		return &ParsingError{Param: "Port", Err: errors.New(errMsgMinValueConstraint)}
+	}
+	if obj.Port > 65535 {
+		return &ParsingError{Param: "Port", Err: errors.New(errMsgMaxValueConstraint)}
+	}
+
+
+
+
+
 	if err := AssertKonveyBackendsConstraints(obj.Backends); err != nil {
 		return err
 	}
+
 	return nil
 }

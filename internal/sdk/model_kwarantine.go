@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // Kwarantine - A Kwarantine is an anti-affinity mechanism that ensures its member virtual machine instances or Kompute resources are never co-scheduled on the same Kaktus computing node (host policy) or the same availability zone (zone policy), regardless of Kaktus host scheduling score, so that critical redundant resources stay properly spread out.
 type Kwarantine struct {
 
-	// The Kwarantine ID (auto-generated).
+	// The Kwarantine ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The Kwarantine name.
@@ -34,10 +34,10 @@ type Kwarantine struct {
 	// The anti-affinity enforcement policy. Use \"host\" to guarantee no two group members are ever scheduled on the same Kaktus computing node, or \"zone\" to guarantee no two group members are ever scheduled within the same availability zone.
 	Policy string `json:"policy,omitempty"`
 
-	// A list of existing virtual machine instance IDs that are part of the Kwarantine group. Members are guaranteed to never be co-scheduled according to the group policy, regardless of Kaktus host scheduling score.
+	// A list of existing virtual machine instance IDs that are part of the Kwarantine group. Members are guaranteed to never be co-scheduled according to the group policy, regardless of Kaktus host scheduling score. Managed through the dedicated add/remove operations (read-only).
 	Instances []string `json:"instances,omitempty"`
 
-	// A list of existing Kompute IDs that are part of the Kwarantine group. Members are guaranteed to never be co-scheduled according to the group policy, regardless of Kaktus host scheduling score.
+	// A list of existing Kompute IDs that are part of the Kwarantine group. Members are guaranteed to never be co-scheduled according to the group policy, regardless of Kaktus host scheduling score. Managed through the dedicated add/remove operations (read-only).
 	Komputes []string `json:"komputes,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into Kwarantine
@@ -126,10 +126,22 @@ func (o *Kwarantine) UnmarshalJSON(data []byte) (err error) {
 // AssertKwarantineRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKwarantineRequired(obj Kwarantine) error {
+
+
+
+
+
+
 	return nil
 }
 
 // AssertKwarantineConstraints checks if the values respects the defined constraints
 func AssertKwarantineConstraints(obj Kwarantine) error {
+
+
+
+
+
+
 	return nil
 }

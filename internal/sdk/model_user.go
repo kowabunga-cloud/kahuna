@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // User - A Kowabunga user.
 type User struct {
 
-	// The Kowabunga user ID (auto-generated).
+	// The Kowabunga user ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The Kowabunga user name.
@@ -38,7 +38,7 @@ type User struct {
 	Role string `json:"role"`
 
 	// Whether or not to receive email notifications on events.
-	Notifications bool `json:"notifications,omitempty"`
+	Notifications *bool `json:"notifications,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into User
 func (o *User) UnmarshalJSON(data []byte) (err error) {
@@ -130,10 +130,34 @@ func (o *User) UnmarshalJSON(data []byte) (err error) {
 // AssertUserRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertUserRequired(obj User) error {
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertUserConstraints checks if the values respects the defined constraints
 func AssertUserConstraints(obj User) error {
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }

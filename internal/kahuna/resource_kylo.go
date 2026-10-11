@@ -15,6 +15,10 @@ import (
 )
 
 const (
+	KyloAccessDefault = "RW"
+	KyloProtocolNfsV3 = 3
+	KyloProtocolNfsV4 = 4
+
 	MongoCollectionKyloSchemaVersion = 2
 	MongoCollectionKyloName          = "kylo"
 )
@@ -296,8 +300,10 @@ func (k *Kylo) Update(name, desc, access string, protocols []int32) error {
 	}
 
 	// update values
-	k.AccessType = access
-	k.Protocols = protocols
+	SetFieldStr(&k.AccessType, access)
+	if protocols != nil {
+		k.Protocols = protocols
+	}
 
 	// update NFS export from all Ganesha backends
 	err = k.updateNfsBackends(nfs, k.ExportID, k.SubVolume.Name, k.SubVolume.Path, k.Clients)

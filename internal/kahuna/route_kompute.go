@@ -13,7 +13,7 @@ import (
 )
 
 func NewKomputeRouter() sdk.Router {
-	return sdk.NewKomputeAPIController(&KomputeService{})
+	return sdk.NewKomputeAPIController(&KomputeService{}, sdk.WithKomputeAPIErrorHandler(ApiErrorHandler))
 }
 
 type KomputeService struct{}
@@ -71,7 +71,7 @@ func (s *KomputeService) PlanKomputeKMotion(ctx context.Context, komputeId strin
 		return HttpNotFound(err)
 	}
 
-	p, err := k.PlanMigration(plan.Destination, plan.Kaktus, plan.Live)
+	p, err := k.PlanMigration(plan.Destination, plan.Kaktus, valueOr(plan.Live, true))
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -204,13 +204,10 @@ func (s *KomputeService) SuspendKompute(ctx context.Context, komputeId string) (
 	return HttpOK(nil)
 }
 
-func (s *KomputeService) UpdateKompute(ctx context.Context, komputeId string, kompute sdk.Kompute) (sdk.ImplResponse, error) {
+func (s *KomputeService) UpdateKompute(ctx context.Context, komputeId string, kompute sdk.KomputeUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("komputeId", komputeId), RA("kompute", kompute))
 
 	// check for params
-	if kompute.Name == "" && kompute.Memory == 0 && kompute.Vcpus == 0 && kompute.Disk == 0 {
-		return HttpBadParams(nil)
-	}
 	if kompute.Memory < 0 || kompute.Vcpus < 0 || kompute.Disk < 0 || kompute.DataDisk < 0 {
 		return HttpBadParams(nil)
 	}
@@ -234,7 +231,7 @@ func (s *KomputeService) UpdateKompute(ctx context.Context, komputeId string, ko
 	}
 
 	// ensure we're allowed by quotas
-	cpuDelta := kompute.Vcpus - i.CPU
+	cpuDelta := int64(kompute.Vcpus) - i.CPU
 	memDelta := kompute.Memory - i.Memory
 	if cpuDelta > 0 || memDelta > 0 {
 		if !prj.AllowInstanceCreationOrUpdate(0, cpuDelta, memDelta) {
@@ -257,7 +254,7 @@ func (s *KomputeService) UpdateKompute(ctx context.Context, komputeId string, ko
 	}
 
 	// update Kompute
-	err = k.Update(kompute.Name, kompute.Description, kompute.Vcpus, kompute.Memory, kompute.Disk, kompute.DataDisk, kompute.KmotionEnabled)
+	err = k.Update(kompute.Name, kompute.Description, int64(kompute.Vcpus), kompute.Memory, kompute.Disk, kompute.DataDisk, valueOr(kompute.KmotionEnabled, i.KMotionEnabled))
 	if err != nil {
 		return HttpServerError(err)
 	}

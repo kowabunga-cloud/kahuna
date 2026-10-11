@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -42,6 +42,9 @@ func (s *KawaiiAPIService) ListKawaiis(ctx context.Context) (ImplResponse, error
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	return Response(http.StatusNotImplemented, nil), errors.New("ListKawaiis method not implemented")
 }
 
@@ -59,6 +62,9 @@ func (s *KawaiiAPIService) ReadKawaii(ctx context.Context, kawaiiId string) (Imp
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -66,7 +72,7 @@ func (s *KawaiiAPIService) ReadKawaii(ctx context.Context, kawaiiId string) (Imp
 }
 
 // UpdateKawaii -
-func (s *KawaiiAPIService) UpdateKawaii(ctx context.Context, kawaiiId string, kawaii Kawaii) (ImplResponse, error) {
+func (s *KawaiiAPIService) UpdateKawaii(ctx context.Context, kawaiiId string, kawaiiUpdate KawaiiUpdate) (ImplResponse, error) {
 	// TODO - update UpdateKawaii with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -81,6 +87,9 @@ func (s *KawaiiAPIService) UpdateKawaii(ctx context.Context, kawaiiId string, ka
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -108,6 +117,9 @@ func (s *KawaiiAPIService) DeleteKawaii(ctx context.Context, kawaiiId string) (I
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -134,6 +146,9 @@ func (s *KawaiiAPIService) ListKawaiiIpSecs(ctx context.Context, kawaiiId string
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	return Response(http.StatusNotImplemented, nil), errors.New("ListKawaiiIpSecs method not implemented")
 }
 
@@ -153,6 +168,9 @@ func (s *KawaiiAPIService) CreateKawaiiIpSec(ctx context.Context, kawaiiId strin
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -183,6 +201,9 @@ func (s *KawaiiAPIService) ReadKawaiiIpSec(ctx context.Context, kawaiiId string,
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -190,7 +211,7 @@ func (s *KawaiiAPIService) ReadKawaiiIpSec(ctx context.Context, kawaiiId string,
 }
 
 // UpdateKawaiiIpSec -
-func (s *KawaiiAPIService) UpdateKawaiiIpSec(ctx context.Context, kawaiiId string, kawaiiIpSecId string, kawaiiIpSec KawaiiIpSec) (ImplResponse, error) {
+func (s *KawaiiAPIService) UpdateKawaiiIpSec(ctx context.Context, kawaiiId string, kawaiiIpSecId string, kawaiiIpSecUpdate KawaiiIpSecUpdate) (ImplResponse, error) {
 	// TODO - update UpdateKawaiiIpSec with the required logic for this service method.
 	// Add api_kawaii_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -205,6 +226,9 @@ func (s *KawaiiAPIService) UpdateKawaiiIpSec(ctx context.Context, kawaiiId strin
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -231,6 +255,9 @@ func (s *KawaiiAPIService) DeleteKawaiiIpSec(ctx context.Context, kawaiiId strin
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil

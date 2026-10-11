@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -99,10 +99,22 @@ func (o *ApiErrorNotFound) UnmarshalJSON(data []byte) (err error) {
 // AssertApiErrorNotFoundRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertApiErrorNotFoundRequired(obj ApiErrorNotFound) error {
+
+
+
+
+
+
 	return nil
 }
 
 // AssertApiErrorNotFoundConstraints checks if the values respects the defined constraints
 func AssertApiErrorNotFoundConstraints(obj ApiErrorNotFound) error {
+
+
+
+
+
+
 	return nil
 }

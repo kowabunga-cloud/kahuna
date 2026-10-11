@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -28,9 +28,9 @@ func NewKaktusAPIService() *KaktusAPIService {
 	return &KaktusAPIService{}
 }
 
-// ListKaktuss -
-func (s *KaktusAPIService) ListKaktuss(ctx context.Context) (ImplResponse, error) {
-	// TODO - update ListKaktuss with the required logic for this service method.
+// ListKaktuses -
+func (s *KaktusAPIService) ListKaktuses(ctx context.Context) (ImplResponse, error) {
+	// TODO - update ListKaktuses with the required logic for this service method.
 	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []string{}) or use other options such as http.Ok ...
@@ -42,7 +42,10 @@ func (s *KaktusAPIService) ListKaktuss(ctx context.Context) (ImplResponse, error
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ListKaktuss method not implemented")
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("ListKaktuses method not implemented")
 }
 
 // ReadKaktus -
@@ -59,6 +62,9 @@ func (s *KaktusAPIService) ReadKaktus(ctx context.Context, kaktusId string) (Imp
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -66,7 +72,7 @@ func (s *KaktusAPIService) ReadKaktus(ctx context.Context, kaktusId string) (Imp
 }
 
 // UpdateKaktus -
-func (s *KaktusAPIService) UpdateKaktus(ctx context.Context, kaktusId string, kaktus Kaktus) (ImplResponse, error) {
+func (s *KaktusAPIService) UpdateKaktus(ctx context.Context, kaktusId string, kaktusUpdate KaktusUpdate) (ImplResponse, error) {
 	// TODO - update UpdateKaktus with the required logic for this service method.
 	// Add api_kaktus_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -81,6 +87,9 @@ func (s *KaktusAPIService) UpdateKaktus(ctx context.Context, kaktusId string, ka
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -108,6 +117,9 @@ func (s *KaktusAPIService) DeleteKaktus(ctx context.Context, kaktusId string) (I
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -134,6 +146,9 @@ func (s *KaktusAPIService) EnableKaktusMaintenance(ctx context.Context, kaktusId
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -156,6 +171,9 @@ func (s *KaktusAPIService) DisableKaktusMaintenance(ctx context.Context, kaktusI
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -180,6 +198,9 @@ func (s *KaktusAPIService) ReadKaktusCaps(ctx context.Context, kaktusId string) 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -199,6 +220,9 @@ func (s *KaktusAPIService) ListKaktusInstances(ctx context.Context, kaktusId str
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil

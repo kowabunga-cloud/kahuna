@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -13,6 +13,7 @@ package sdk
 
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 )
@@ -22,7 +23,7 @@ import (
 // Volume - A storage volume.
 type Volume struct {
 
-	// The storage volume ID (auto-generated).
+	// The storage volume ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The storage volume name.
@@ -31,10 +32,10 @@ type Volume struct {
 	// The storage volume description.
 	Description string `json:"description,omitempty"`
 
-	// The storage volume type.
+	// The storage volume type. Can only be set at creation time, ignored on updates.
 	Type string `json:"type"`
 
-	// The storage volume size (in bytes).
+	// The storage volume size (in bytes), can only be increased.
 	Size int64 `json:"size"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into Volume
@@ -121,10 +122,29 @@ func (o *Volume) UnmarshalJSON(data []byte) (err error) {
 // AssertVolumeRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertVolumeRequired(obj Volume) error {
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertVolumeConstraints checks if the values respects the defined constraints
 func AssertVolumeConstraints(obj Volume) error {
+
+
+
+
+
+
+	if obj.Size < 0 {
+		return &ParsingError{Param: "Size", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
 	return nil
 }

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // Zone - A availability zone.
 type Zone struct {
 
-	// The availability zone ID (auto-generated).
+	// The availability zone ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The availability zone name.
@@ -99,10 +99,18 @@ func (o *Zone) UnmarshalJSON(data []byte) (err error) {
 // AssertZoneRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertZoneRequired(obj Zone) error {
+
+
+
+
 	return nil
 }
 
 // AssertZoneConstraints checks if the values respects the defined constraints
 func AssertZoneConstraints(obj Zone) error {
+
+
+
+
 	return nil
 }

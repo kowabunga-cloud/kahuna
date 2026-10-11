@@ -8,12 +8,13 @@ package kahuna
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/kowabunga-cloud/kahuna/internal/sdk"
 )
 
 func NewKwarantineRouter() sdk.Router {
-	return sdk.NewKwarantineAPIController(&KwarantineService{})
+	return sdk.NewKwarantineAPIController(&KwarantineService{}, sdk.WithKwarantineAPIErrorHandler(ApiErrorHandler))
 }
 
 type KwarantineService struct{}
@@ -119,26 +120,22 @@ func (s *KwarantineService) RemoveKwarantineKompute(ctx context.Context, kwarant
 	return HttpOK(nil)
 }
 
-func (s *KwarantineService) UpdateKwarantine(ctx context.Context, kwarantineId string, kwarantine sdk.Kwarantine) (sdk.ImplResponse, error) {
+func (s *KwarantineService) UpdateKwarantine(ctx context.Context, kwarantineId string, kwarantine sdk.KwarantineUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("kwarantineId", kwarantineId), RA("kwarantine", kwarantine))
-
-	// check for params
-	if kwarantine.Name == "" {
-		return HttpBadParams(nil)
-	}
-
-	policy := kwarantine.Policy
-	if policy == "" {
-		policy = KwarantinePolicyHost
-	}
-	if policy != KwarantinePolicyHost && policy != KwarantinePolicyZone {
-		return HttpBadParams(nil)
-	}
 
 	// ensure Kwarantine exists
 	k, err := FindKwarantineByID(kwarantineId)
 	if err != nil {
 		return HttpNotFound(err)
+	}
+
+	// unspecified policy is left unchanged
+	policy := kwarantine.Policy
+	if policy == "" {
+		policy = k.Policy
+	}
+	if policy != KwarantinePolicyHost && policy != KwarantinePolicyZone {
+		return HttpBadParams(fmt.Errorf("invalid Kwarantine policy: %s", policy))
 	}
 
 	err = k.Update(kwarantine.Name, kwarantine.Description, policy)

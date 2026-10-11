@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -33,8 +33,8 @@ func (s *UserAPIService) Login(ctx context.Context, userCredentials UserCredenti
 	// TODO - update Login with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
-	// TODO: Uncomment the next line to return response Response(201, UserCredentials{}) or use other options such as http.Ok ...
-	// return Response(201, UserCredentials{}), nil
+	// TODO: Uncomment the next line to return response Response(200, UserCredentials{}) or use other options such as http.Ok ...
+	// return Response(200, UserCredentials{}), nil
 
 	// TODO: Uncomment the next line to return response Response(400, ApiErrorBadRequest{}) or use other options such as http.Ok ...
 	// return Response(400, ApiErrorBadRequest{}), nil
@@ -42,20 +42,8 @@ func (s *UserAPIService) Login(ctx context.Context, userCredentials UserCredenti
 	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
 	// return Response(401, ApiErrorUnauthorized{}), nil
 
-	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
-	// return Response(403, ApiErrorForbidden{}), nil
-
-	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
-	// return Response(404, ApiErrorNotFound{}), nil
-
-	// TODO: Uncomment the next line to return response Response(409, ApiErrorConflict{}) or use other options such as http.Ok ...
-	// return Response(409, ApiErrorConflict{}), nil
-
-	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
-	// return Response(422, ApiErrorUnprocessableEntity{}), nil
-
-	// TODO: Uncomment the next line to return response Response(507, ApiErrorInsufficientResource{}) or use other options such as http.Ok ...
-	// return Response(507, ApiErrorInsufficientResource{}), nil
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("Login method not implemented")
 }
@@ -68,26 +56,11 @@ func (s *UserAPIService) Logout(ctx context.Context) (ImplResponse, error) {
 	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
 	// return Response(204, nil),nil
 
-	// TODO: Uncomment the next line to return response Response(400, ApiErrorBadRequest{}) or use other options such as http.Ok ...
-	// return Response(400, ApiErrorBadRequest{}), nil
-
 	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
 	// return Response(401, ApiErrorUnauthorized{}), nil
 
-	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
-	// return Response(403, ApiErrorForbidden{}), nil
-
-	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
-	// return Response(404, ApiErrorNotFound{}), nil
-
-	// TODO: Uncomment the next line to return response Response(409, ApiErrorConflict{}) or use other options such as http.Ok ...
-	// return Response(409, ApiErrorConflict{}), nil
-
-	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
-	// return Response(422, ApiErrorUnprocessableEntity{}), nil
-
-	// TODO: Uncomment the next line to return response Response(507, ApiErrorInsufficientResource{}) or use other options such as http.Ok ...
-	// return Response(507, ApiErrorInsufficientResource{}), nil
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("Logout method not implemented")
 }
@@ -103,20 +76,8 @@ func (s *UserAPIService) ResetPassword(ctx context.Context, userEmail UserEmail)
 	// TODO: Uncomment the next line to return response Response(400, ApiErrorBadRequest{}) or use other options such as http.Ok ...
 	// return Response(400, ApiErrorBadRequest{}), nil
 
-	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
-	// return Response(401, ApiErrorUnauthorized{}), nil
-
-	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
-	// return Response(403, ApiErrorForbidden{}), nil
-
-	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
-	// return Response(404, ApiErrorNotFound{}), nil
-
-	// TODO: Uncomment the next line to return response Response(422, ApiErrorUnprocessableEntity{}) or use other options such as http.Ok ...
-	// return Response(422, ApiErrorUnprocessableEntity{}), nil
-
-	// TODO: Uncomment the next line to return response Response(507, ApiErrorInsufficientResource{}) or use other options such as http.Ok ...
-	// return Response(507, ApiErrorInsufficientResource{}), nil
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("ResetPassword method not implemented")
 }
@@ -134,6 +95,9 @@ func (s *UserAPIService) ListUsers(ctx context.Context) (ImplResponse, error) {
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("ListUsers method not implemented")
 }
@@ -154,6 +118,9 @@ func (s *UserAPIService) CreateUser(ctx context.Context, user User) (ImplRespons
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -184,6 +151,9 @@ func (s *UserAPIService) ReadUser(ctx context.Context, userId string) (ImplRespo
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -191,7 +161,7 @@ func (s *UserAPIService) ReadUser(ctx context.Context, userId string) (ImplRespo
 }
 
 // UpdateUser -
-func (s *UserAPIService) UpdateUser(ctx context.Context, userId string, user User) (ImplResponse, error) {
+func (s *UserAPIService) UpdateUser(ctx context.Context, userId string, userUpdate UserUpdate) (ImplResponse, error) {
 	// TODO - update UpdateUser with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -206,6 +176,9 @@ func (s *UserAPIService) UpdateUser(ctx context.Context, userId string, user Use
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -232,6 +205,9 @@ func (s *UserAPIService) DeleteUser(ctx context.Context, userId string) (ImplRes
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -262,6 +238,9 @@ func (s *UserAPIService) SetUserPassword(ctx context.Context, userId string, pas
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -288,6 +267,9 @@ func (s *UserAPIService) ResetUserPassword(ctx context.Context, userId string) (
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -302,14 +284,17 @@ func (s *UserAPIService) SetUserApiToken(ctx context.Context, userId string, exp
 	// TODO - update SetUserApiToken with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
-	// TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
-	// return Response(200, nil),nil
+	// TODO: Uncomment the next line to return response Response(200, ApiToken{}) or use other options such as http.Ok ...
+	// return Response(200, ApiToken{}), nil
 
 	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
 	// return Response(401, ApiErrorUnauthorized{}), nil
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil

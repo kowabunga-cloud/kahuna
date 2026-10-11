@@ -187,14 +187,13 @@ func (v *VNet) Delete() error {
 }
 
 func (v *VNet) Model() sdk.VNet {
-	vlan := int64(v.VLAN)
 	return sdk.VNet{
 		Id:          v.String(),
 		Name:        v.Name,
 		Description: v.Description,
-		Vlan:        vlan,
+		Vlan:        toInt32(int64(v.VLAN)),
 		Interface:   v.Interface,
-		Private:     v.Private,
+		Private:     ptr(v.Private),
 	}
 }
 

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -92,10 +92,18 @@ func (o *Metadata) UnmarshalJSON(data []byte) (err error) {
 // AssertMetadataRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertMetadataRequired(obj Metadata) error {
+
+
+
+
 	return nil
 }
 
 // AssertMetadataConstraints checks if the values respects the defined constraints
 func AssertMetadataConstraints(obj Metadata) error {
+
+
+
+
 	return nil
 }

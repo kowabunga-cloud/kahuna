@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -42,6 +42,9 @@ func (s *AgentAPIService) ListAgents(ctx context.Context) (ImplResponse, error) 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	return Response(http.StatusNotImplemented, nil), errors.New("ListAgents method not implemented")
 }
 
@@ -61,6 +64,9 @@ func (s *AgentAPIService) CreateAgent(ctx context.Context, agent Agent) (ImplRes
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -91,6 +97,9 @@ func (s *AgentAPIService) ReadAgent(ctx context.Context, agentId string) (ImplRe
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -98,7 +107,7 @@ func (s *AgentAPIService) ReadAgent(ctx context.Context, agentId string) (ImplRe
 }
 
 // UpdateAgent -
-func (s *AgentAPIService) UpdateAgent(ctx context.Context, agentId string, agent Agent) (ImplResponse, error) {
+func (s *AgentAPIService) UpdateAgent(ctx context.Context, agentId string, agentUpdate AgentUpdate) (ImplResponse, error) {
 	// TODO - update UpdateAgent with the required logic for this service method.
 	// Add api_agent_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -113,6 +122,9 @@ func (s *AgentAPIService) UpdateAgent(ctx context.Context, agentId string, agent
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -140,6 +152,9 @@ func (s *AgentAPIService) DeleteAgent(ctx context.Context, agentId string) (Impl
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -165,6 +180,9 @@ func (s *AgentAPIService) SetAgentApiToken(ctx context.Context, agentId string, 
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil

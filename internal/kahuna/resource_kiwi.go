@@ -132,7 +132,9 @@ func (k *Kiwi) RPC(method string, args, reply any) error {
 func (k *Kiwi) Update(name, desc string, agts []string) error {
 	k.UpdateResourceDefaults(name, desc)
 
-	k.AgentIDs = VerifyAgents(agts, common.KowabungaKiwiAgent)
+	if agts != nil {
+		k.AgentIDs = VerifyAgents(agts, common.KowabungaKiwiAgent)
+	}
 
 	return k.Save()
 }

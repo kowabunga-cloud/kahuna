@@ -5,38 +5,70 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
 package sdk
 
 
+import (
+	"errors"
+)
+
 
 
 // ProjectResources - A global project resource quotas/usage (0 for unlimited).
 type ProjectResources struct {
 
-	// The maximum total number of vCPUs allowed to be consumed by sum of all instances.
+	// The total number of vCPUs consumed by (or allowed for) the sum of all instances.
 	Vcpus int32 `json:"vcpus,omitempty"`
 
-	// The maximum total memory (in bytes) allowed to be consumed by sum of all instances.
+	// The total memory (in bytes) consumed by (or allowed for) the sum of all instances.
 	Memory int64 `json:"memory,omitempty"`
 
-	// The maximum total disk capacity allowed to be consumed by sum of all instances.
+	// The total disk capacity (in bytes) consumed by (or allowed for) the sum of all volumes.
 	Storage int64 `json:"storage,omitempty"`
 
-	// The maximum number of instances allowed to be spawned.
+	// The number of instances spawned (or allowed to be).
 	Instances int32 `json:"instances,omitempty"`
 }
 
 // AssertProjectResourcesRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertProjectResourcesRequired(obj ProjectResources) error {
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertProjectResourcesConstraints checks if the values respects the defined constraints
 func AssertProjectResourcesConstraints(obj ProjectResources) error {
+	if obj.Vcpus < 0 {
+		return &ParsingError{Param: "Vcpus", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
+	if obj.Memory < 0 {
+		return &ParsingError{Param: "Memory", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
+	if obj.Storage < 0 {
+		return &ParsingError{Param: "Storage", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
+	if obj.Instances < 0 {
+		return &ParsingError{Param: "Instances", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
 	return nil
 }

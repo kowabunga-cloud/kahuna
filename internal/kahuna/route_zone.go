@@ -13,12 +13,12 @@ import (
 )
 
 func NewZoneRouter() sdk.Router {
-	return sdk.NewZoneAPIController(&ZoneService{})
+	return sdk.NewZoneAPIController(&ZoneService{}, sdk.WithZoneAPIErrorHandler(ApiErrorHandler))
 }
 
 type ZoneService struct{}
 
-func (s *ZoneService) CreateKaktus(ctx context.Context, zoneId string, kaktus sdk.Kaktus) (sdk.ImplResponse, error) {
+func (s *ZoneService) CreateZoneKaktus(ctx context.Context, zoneId string, kaktus sdk.Kaktus) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("zoneId", zoneId), RA("kaktus", kaktus))
 
 	// ensure zone exists
@@ -34,14 +34,14 @@ func (s *ZoneService) CreateKaktus(ctx context.Context, zoneId string, kaktus sd
 
 	var cpu_price float32
 	cpu_currency := CostCurrencyDefault
-	if kaktus.CpuCost.Price != 0 {
+	if kaktus.CpuCost != nil && kaktus.CpuCost.Price != 0 {
 		cpu_price = kaktus.CpuCost.Price
 		cpu_currency = kaktus.CpuCost.Currency
 	}
 
 	var memory_price float32
 	memory_currency := CostCurrencyDefault
-	if kaktus.MemoryCost.Price != 0 {
+	if kaktus.MemoryCost != nil && kaktus.MemoryCost.Price != 0 {
 		memory_price = kaktus.MemoryCost.Price
 		memory_currency = kaktus.MemoryCost.Currency
 	}
@@ -118,13 +118,8 @@ func (s *ZoneService) ReadZone(ctx context.Context, zoneId string) (sdk.ImplResp
 	return HttpOK(payload)
 }
 
-func (s *ZoneService) UpdateZone(ctx context.Context, zoneId string, zone sdk.Zone) (sdk.ImplResponse, error) {
+func (s *ZoneService) UpdateZone(ctx context.Context, zoneId string, zone sdk.ZoneUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("zoneId", zoneId), RA("zone", zone))
-
-	// check for params
-	if zone.Name == "" && zone.Description == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure zone exists
 	z, err := FindZoneByID(zoneId)

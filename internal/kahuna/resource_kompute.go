@@ -401,11 +401,11 @@ func (k *Kompute) Model() sdk.Kompute {
 		return kompute
 	}
 
-	kompute.Vcpus = i.CPU
+	kompute.Vcpus = toInt32(i.CPU)
 	kompute.Memory = i.Memory
 	kompute.Ip = i.GetIpAddress(true)
-	kompute.Uefi = i.Uefi
-	kompute.KmotionEnabled = i.KMotionEnabled
+	kompute.Uefi = ptr(i.Uefi)
+	kompute.KmotionEnabled = ptr(i.KMotionEnabled)
 
 	// Kompute virtual machines only have a max of 2 disks
 	osDiskDevice := fmt.Sprintf("%sa", VolumeOsDiskPrefix)

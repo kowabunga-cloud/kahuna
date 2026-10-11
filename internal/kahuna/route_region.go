@@ -13,7 +13,7 @@ import (
 )
 
 func NewRegionRouter() sdk.Router {
-	return sdk.NewRegionAPIController(&RegionService{})
+	return sdk.NewRegionAPIController(&RegionService{}, sdk.WithRegionAPIErrorHandler(ApiErrorHandler))
 }
 
 type RegionService struct{}
@@ -43,7 +43,7 @@ func (s *RegionService) CreateRegion(ctx context.Context, region sdk.Region) (sd
 	return HttpCreated(payload)
 }
 
-func (s *RegionService) CreateZone(ctx context.Context, regionId string, zone sdk.Zone) (sdk.ImplResponse, error) {
+func (s *RegionService) CreateRegionZone(ctx context.Context, regionId string, zone sdk.Zone) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("regionId", regionId), RA("zone", zone))
 
 	// ensure region exists
@@ -120,13 +120,8 @@ func (s *RegionService) ReadRegion(ctx context.Context, regionId string) (sdk.Im
 	return HttpOK(payload)
 }
 
-func (s *RegionService) UpdateRegion(ctx context.Context, regionId string, region sdk.Region) (sdk.ImplResponse, error) {
+func (s *RegionService) UpdateRegion(ctx context.Context, regionId string, region sdk.RegionUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("regionId", regionId), RA("region", region))
-
-	// check for params
-	if region.Name == "" && region.Description == "" && region.Domain == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure region exists
 	r, err := FindRegionByID(regionId)
@@ -145,7 +140,7 @@ func (s *RegionService) UpdateRegion(ctx context.Context, regionId string, regio
 	return HttpOK(payload)
 }
 
-func (s *RegionService) CreateKiwi(ctx context.Context, regionId string, kiwi sdk.Kiwi) (sdk.ImplResponse, error) {
+func (s *RegionService) CreateRegionKiwi(ctx context.Context, regionId string, kiwi sdk.Kiwi) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("regionId", regionId), RA("kiwi", kiwi))
 
 	// ensure region exists
@@ -176,7 +171,7 @@ func (s *RegionService) CreateKiwi(ctx context.Context, regionId string, kiwi sd
 	return HttpCreated(payload)
 }
 
-func (s *RegionService) CreateVNet(ctx context.Context, regionId string, vNet sdk.VNet) (sdk.ImplResponse, error) {
+func (s *RegionService) CreateRegionVNet(ctx context.Context, regionId string, vNet sdk.VNet) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("regionId", regionId), RA("vNet", vNet))
 
 	// ensure region exists
@@ -197,7 +192,7 @@ func (s *RegionService) CreateVNet(ctx context.Context, regionId string, vNet sd
 	}
 
 	// create virtual network
-	v, err := NewVNet(r.String(), vNet.Name, vNet.Description, int(vNet.Vlan), vNet.Interface, vNet.Private)
+	v, err := NewVNet(r.String(), vNet.Name, vNet.Description, int(vNet.Vlan), vNet.Interface, valueOr(vNet.Private, true))
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -207,7 +202,7 @@ func (s *RegionService) CreateVNet(ctx context.Context, regionId string, vNet sd
 	return HttpCreated(payload)
 }
 
-func (s *RegionService) CreateStorageNFS(ctx context.Context, regionId string, storageNfs sdk.StorageNfs, poolId string) (sdk.ImplResponse, error) {
+func (s *RegionService) CreateRegionStorageNFS(ctx context.Context, regionId string, storageNfs sdk.StorageNfs, poolId string) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("regionId", regionId), RA("storageNfs", storageNfs))
 
 	// ensure region exists
@@ -253,7 +248,7 @@ func (s *RegionService) CreateStorageNFS(ctx context.Context, regionId string, s
 	return HttpCreated(payload)
 }
 
-func (s *RegionService) CreateStoragePool(ctx context.Context, regionId string, storagePool sdk.StoragePool) (sdk.ImplResponse, error) {
+func (s *RegionService) CreateRegionStoragePool(ctx context.Context, regionId string, storagePool sdk.StoragePool) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("regionId", regionId), RA("storagePool", storagePool))
 
 	// ensure region exists
@@ -275,12 +270,12 @@ func (s *RegionService) CreateStoragePool(ctx context.Context, regionId string, 
 
 	var price float32
 	currency := ""
-	if storagePool.Cost.Price != 0 {
+	if storagePool.Cost != nil && storagePool.Cost.Price != 0 {
 		price = storagePool.Cost.Price
 		currency = storagePool.Cost.Currency
 	}
 
-	address := ""
+	address := StoragePoolCephAddressDefault
 	if storagePool.CephAddress != "" {
 		address = storagePool.CephAddress
 	}
@@ -347,7 +342,7 @@ func (s *RegionService) ListRegionVNets(ctx context.Context, regionId string) (s
 	return HttpOK(payload)
 }
 
-func (s *RegionService) ListRegionStorageNFSs(ctx context.Context, regionId, poolId string) (sdk.ImplResponse, error) {
+func (s *RegionService) ListRegionStorageNFSes(ctx context.Context, regionId string) (sdk.ImplResponse, error) {
 	r, err := FindRegionByID(regionId)
 	if err != nil {
 		return HttpNotFound(err)

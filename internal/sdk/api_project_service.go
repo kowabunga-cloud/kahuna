@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -29,7 +29,7 @@ func NewProjectAPIService() *ProjectAPIService {
 }
 
 // ListProjects -
-func (s *ProjectAPIService) ListProjects(ctx context.Context, subnetSize int32) (ImplResponse, error) {
+func (s *ProjectAPIService) ListProjects(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListProjects with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -41,6 +41,9 @@ func (s *ProjectAPIService) ListProjects(ctx context.Context, subnetSize int32) 
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjects method not implemented")
 }
@@ -61,6 +64,9 @@ func (s *ProjectAPIService) CreateProject(ctx context.Context, project Project, 
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -91,6 +97,9 @@ func (s *ProjectAPIService) ReadProject(ctx context.Context, projectId string) (
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -98,7 +107,7 @@ func (s *ProjectAPIService) ReadProject(ctx context.Context, projectId string) (
 }
 
 // UpdateProject -
-func (s *ProjectAPIService) UpdateProject(ctx context.Context, projectId string, project Project) (ImplResponse, error) {
+func (s *ProjectAPIService) UpdateProject(ctx context.Context, projectId string, projectUpdate ProjectUpdate) (ImplResponse, error) {
 	// TODO - update UpdateProject with the required logic for this service method.
 	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -113,6 +122,9 @@ func (s *ProjectAPIService) UpdateProject(ctx context.Context, projectId string,
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -140,6 +152,9 @@ func (s *ProjectAPIService) DeleteProject(ctx context.Context, projectId string)
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -166,6 +181,9 @@ func (s *ProjectAPIService) ReadProjectCost(ctx context.Context, projectId strin
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -185,6 +203,9 @@ func (s *ProjectAPIService) ReadProjectUsage(ctx context.Context, projectId stri
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -208,6 +229,9 @@ func (s *ProjectAPIService) CreateProjectKwarantine(ctx context.Context, project
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -238,6 +262,9 @@ func (s *ProjectAPIService) ListProjectKwarantines(ctx context.Context, projectI
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -260,6 +287,9 @@ func (s *ProjectAPIService) CreateProjectDnsRecord(ctx context.Context, projectI
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -290,6 +320,9 @@ func (s *ProjectAPIService) ListProjectDnsRecords(ctx context.Context, projectId
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -312,6 +345,9 @@ func (s *ProjectAPIService) CreateProjectRegionVolume(ctx context.Context, proje
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -342,6 +378,9 @@ func (s *ProjectAPIService) ListProjectRegionVolumes(ctx context.Context, projec
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -364,6 +403,9 @@ func (s *ProjectAPIService) CreateProjectZoneInstance(ctx context.Context, proje
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -394,6 +436,9 @@ func (s *ProjectAPIService) ListProjectZoneInstances(ctx context.Context, projec
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -416,6 +461,9 @@ func (s *ProjectAPIService) CreateProjectRegionInstance(ctx context.Context, pro
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -446,6 +494,9 @@ func (s *ProjectAPIService) ListProjectRegionInstances(ctx context.Context, proj
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -468,6 +519,9 @@ func (s *ProjectAPIService) CreateProjectZoneKompute(ctx context.Context, projec
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -498,6 +552,9 @@ func (s *ProjectAPIService) ListProjectZoneKomputes(ctx context.Context, project
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -520,6 +577,9 @@ func (s *ProjectAPIService) CreateProjectRegionKompute(ctx context.Context, proj
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -550,30 +610,13 @@ func (s *ProjectAPIService) ListProjectRegionKomputes(ctx context.Context, proje
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectRegionKomputes method not implemented")
-}
-
-// ListProjectRegionKylos -
-func (s *ProjectAPIService) ListProjectRegionKylos(ctx context.Context, projectId string, regionId string, nfsId string) (ImplResponse, error) {
-	// TODO - update ListProjectRegionKylos with the required logic for this service method.
-	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
-
-	// TODO: Uncomment the next line to return response Response(200, []string{}) or use other options such as http.Ok ...
-	// return Response(200, []string{}), nil
-
-	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
-	// return Response(401, ApiErrorUnauthorized{}), nil
-
-	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
-	// return Response(403, ApiErrorForbidden{}), nil
-
-	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
-	// return Response(404, ApiErrorNotFound{}), nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectRegionKylos method not implemented")
 }
 
 // CreateProjectRegionKylo -
@@ -593,6 +636,9 @@ func (s *ProjectAPIService) CreateProjectRegionKylo(ctx context.Context, project
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -606,6 +652,29 @@ func (s *ProjectAPIService) CreateProjectRegionKylo(ctx context.Context, project
 	// return Response(507, ApiErrorInsufficientResource{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("CreateProjectRegionKylo method not implemented")
+}
+
+// ListProjectRegionKylos -
+func (s *ProjectAPIService) ListProjectRegionKylos(ctx context.Context, projectId string, regionId string, nfsId string) (ImplResponse, error) {
+	// TODO - update ListProjectRegionKylos with the required logic for this service method.
+	// Add api_project_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(200, []string{}) or use other options such as http.Ok ...
+	// return Response(200, []string{}), nil
+
+	// TODO: Uncomment the next line to return response Response(401, ApiErrorUnauthorized{}) or use other options such as http.Ok ...
+	// return Response(401, ApiErrorUnauthorized{}), nil
+
+	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
+	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
+	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
+	// return Response(404, ApiErrorNotFound{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("ListProjectRegionKylos method not implemented")
 }
 
 // CreateProjectRegionKawaii -
@@ -624,6 +693,9 @@ func (s *ProjectAPIService) CreateProjectRegionKawaii(ctx context.Context, proje
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -654,6 +726,9 @@ func (s *ProjectAPIService) ListProjectRegionKawaiis(ctx context.Context, projec
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -676,6 +751,9 @@ func (s *ProjectAPIService) CreateProjectZoneKonvey(ctx context.Context, project
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -706,6 +784,9 @@ func (s *ProjectAPIService) ListProjectZoneKonveys(ctx context.Context, projectI
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -728,6 +809,9 @@ func (s *ProjectAPIService) CreateProjectRegionKonvey(ctx context.Context, proje
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -757,6 +841,9 @@ func (s *ProjectAPIService) ListProjectRegionKonveys(ctx context.Context, projec
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil

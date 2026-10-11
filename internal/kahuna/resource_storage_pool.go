@@ -16,6 +16,7 @@ import (
 )
 
 const (
+	StoragePoolCephAddressDefault           = "localhost"
 	MongoCollectionStoragePoolSchemaVersion = 2
 	MongoCollectionStoragePoolName          = "storage_pool"
 
@@ -293,14 +294,15 @@ func (p *StoragePool) Update(name, desc, pool, address string, port int, secret 
 
 	SetFieldStr(&p.Pool, pool)
 	SetFieldStr(&p.Address, address)
-	p.Port = port
-	if p.Port == 0 {
-		p.Port = StoragePoolCephMonitorPort
+	if port != 0 {
+		p.Port = port
 	}
 	SetFieldStr(&p.Auth, secret)
 	p.Cost.Price = price
 	SetFieldStr(&p.Cost.Currency, currency)
-	p.AgentIDs = VerifyAgents(agts, common.KowabungaKaktusAgent)
+	if agts != nil {
+		p.AgentIDs = VerifyAgents(agts, common.KowabungaKaktusAgent)
+	}
 
 	return p.Save()
 }
@@ -331,7 +333,6 @@ func (p *StoragePool) Delete() error {
 }
 
 func (p *StoragePool) Model() sdk.StoragePool {
-	port := int64(p.Port)
 	cost := p.Cost.Model()
 	return sdk.StoragePool{
 		Id:             p.String(),
@@ -339,9 +340,9 @@ func (p *StoragePool) Model() sdk.StoragePool {
 		Description:    p.Description,
 		Pool:           p.Pool,
 		CephAddress:    p.Address,
-		CephPort:       port,
+		CephPort:       toInt32(int64(p.Port)),
 		CephSecretUuid: p.Auth,
-		Cost:           cost,
+		Cost:           &cost,
 		Agents:         p.AgentIDs,
 	}
 }

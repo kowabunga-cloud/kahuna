@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -13,6 +13,7 @@ package sdk
 
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 )
@@ -22,7 +23,7 @@ import (
 // StorageNfs - A NFS storage.
 type StorageNfs struct {
 
-	// The NFS storage ID (auto-generated).
+	// The NFS storage ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The NFS storage name.
@@ -38,10 +39,10 @@ type StorageNfs struct {
 	Fs string `json:"fs,omitempty"`
 
 	// List of NFS Ganesha API server IP addresses.
-	Backends []string `json:"backends,omitempty"`
+	Backends []string `json:"backends"`
 
-	// NFS Ganesha API server port (default 54934).
-	Port int64 `json:"port,omitempty"`
+	// NFS Ganesha API server port.
+	Port int32 `json:"port,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into StorageNfs
 func (o *StorageNfs) UnmarshalJSON(data []byte) (err error) {
@@ -50,11 +51,13 @@ func (o *StorageNfs) UnmarshalJSON(data []byte) (err error) {
 	requiredProperties := []string{
 		"name",
 		"endpoint",
+		"backends",
 	}
 
 	requiredNullableProperties := map[string]bool{
 		"name": false,
 		"endpoint": false,
+		"backends": false,
 	}
 
 	allowedJsonKeys := map[string]struct{}{
@@ -137,10 +140,49 @@ func (o *StorageNfs) UnmarshalJSON(data []byte) (err error) {
 // AssertStorageNfsRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertStorageNfsRequired(obj StorageNfs) error {
+	elements := map[string]interface{}{
+		"backends": obj.Backends,
+	}
+	for name, el := range elements {
+		if isZero := IsZeroValue(el); isZero {
+			return &RequiredError{Field: name}
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertStorageNfsConstraints checks if the values respects the defined constraints
 func AssertStorageNfsConstraints(obj StorageNfs) error {
+
+
+
+
+
+
+
+
+
+
+	if obj.Port < 1 {
+		return &ParsingError{Param: "Port", Err: errors.New(errMsgMinValueConstraint)}
+	}
+	if obj.Port > 65535 {
+		return &ParsingError{Param: "Port", Err: errors.New(errMsgMaxValueConstraint)}
+	}
+
+
 	return nil
 }

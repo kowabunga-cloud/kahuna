@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -17,80 +17,89 @@ package sdk
 // Kawaii - A Kawaii (Kowabunga Adapative WAn Intelligent Interface) is a network gateway used for your Internet inbound and outbound traffic.
 type Kawaii struct {
 
-	// The Kawaii ID (auto-generated).
+	// The Kawaii ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
-	// The Kawaii name.
+	// The Kawaii name, auto-generated from the project name.
 	Name string `json:"name,omitempty"`
 
 	// The Kawaii description.
 	Description string `json:"description,omitempty"`
 
 	// The Kawaii list of assigned virtual IPs per-zone addresses (read-only).
-	Netip KawaiiNetIp `json:"netip,omitempty"`
+	Netip *KawaiiNetIp `json:"netip,omitempty"`
 
-	// The Kawaii firewall settings from/to public Internet).
-	Firewall KawaiiFirewall `json:"firewall,omitempty"`
+	// The Kawaii firewall settings from/to public Internet.
+	Firewall *KawaiiFirewall `json:"firewall,omitempty"`
 
 	// The Kawaii list of NAT forwarding entries. Kawaii will forward public Internet traffic from all public virtual IPs to requested private subnet IP addresses.
 	Dnat []KawaiiDNatRule `json:"dnat,omitempty"`
 
-	// The Kawaii list of Kowabunga private VPC subnet peering entries.
+	// The Kawaii list of Kowabunga private VPC subnet peering entries. Can only be set at creation time, ignored on updates.
 	VpcPeerings []KawaiiVpcPeering `json:"vpc_peerings,omitempty"`
-
-	// The Kawaii list of Kowabunga IPsec connections.
-	IpsecConnections []KawaiiIpSec `json:"ipsec_connections,omitempty"`
 }
 
 // AssertKawaiiRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKawaiiRequired(obj Kawaii) error {
-	if err := AssertKawaiiNetIpRequired(obj.Netip); err != nil {
-		return err
+
+
+
+
+
+	if obj.Firewall != nil {
+
+		if err := AssertKawaiiFirewallRequired(*obj.Firewall); err != nil {
+			return err
+		}
+
 	}
-	if err := AssertKawaiiFirewallRequired(obj.Firewall); err != nil {
-		return err
-	}
+
+
 	for _, el := range obj.Dnat {
 		if err := AssertKawaiiDNatRuleRequired(el); err != nil {
 			return err
 		}
 	}
+
+
 	for _, el := range obj.VpcPeerings {
 		if err := AssertKawaiiVpcPeeringRequired(el); err != nil {
 			return err
 		}
 	}
-	for _, el := range obj.IpsecConnections {
-		if err := AssertKawaiiIpSecRequired(el); err != nil {
-			return err
-		}
-	}
+
 	return nil
 }
 
 // AssertKawaiiConstraints checks if the values respects the defined constraints
 func AssertKawaiiConstraints(obj Kawaii) error {
-	if err := AssertKawaiiNetIpConstraints(obj.Netip); err != nil {
-		return err
-	}
-	if err := AssertKawaiiFirewallConstraints(obj.Firewall); err != nil {
-		return err
-	}
+
+
+
+
+
+    if obj.Firewall != nil {
+
+     	if err := AssertKawaiiFirewallConstraints(*obj.Firewall); err != nil {
+     		return err
+     	}
+
+    }
+
+
 	for _, el := range obj.Dnat {
 		if err := AssertKawaiiDNatRuleConstraints(el); err != nil {
 			return err
 		}
 	}
+
+
 	for _, el := range obj.VpcPeerings {
 		if err := AssertKawaiiVpcPeeringConstraints(el); err != nil {
 			return err
 		}
 	}
-	for _, el := range obj.IpsecConnections {
-		if err := AssertKawaiiIpSecConstraints(el); err != nil {
-			return err
-		}
-	}
+
 	return nil
 }

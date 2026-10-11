@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -19,32 +19,34 @@ import (
 
 
 
-// KawaiiVpcNetIpZone - A Kawaii VPC Network IP zone settings.
-type KawaiiVpcNetIpZone struct {
+type ApiErrorInternalServerError struct {
 
-	// The Kawaii zone name (read-only).
-	Zone string `json:"zone"`
+	Status int32 `json:"status"`
 
-	// The Kawaii zone gateway private IP address in VPC peered subnet  (read-only).
-	Private string `json:"private"`
+	Error string `json:"error"`
+
+	Reason string `json:"reason"`
 }
-// UnmarshalJSON validates required property keys then unmarshals into KawaiiVpcNetIpZone
-func (o *KawaiiVpcNetIpZone) UnmarshalJSON(data []byte) (err error) {
+// UnmarshalJSON validates required property keys then unmarshals into ApiErrorInternalServerError
+func (o *ApiErrorInternalServerError) UnmarshalJSON(data []byte) (err error) {
 	// Presence is checked against required fields that exist on this struct,
 	// including fields promoted from embedded allOf parents.
 	requiredProperties := []string{
-		"zone",
-		"private",
+		"status",
+		"error",
+		"reason",
 	}
 
 	requiredNullableProperties := map[string]bool{
-		"zone": false,
-		"private": false,
+		"status": false,
+		"error": false,
+		"reason": false,
 	}
 
 	allowedJsonKeys := map[string]struct{}{
-		"zone": {},
-		"private": {},
+		"status": {},
+		"error": {},
+		"reason": {},
 	}
 
 	allProperties := make(map[string]json.RawMessage)
@@ -71,15 +73,20 @@ func (o *KawaiiVpcNetIpZone) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	var decoded KawaiiVpcNetIpZone
+	var decoded ApiErrorInternalServerError
 
-	if value, exists := allProperties["zone"]; exists {
-		if err = json.Unmarshal(value, &decoded.Zone); err != nil {
+	if value, exists := allProperties["status"]; exists {
+		if err = json.Unmarshal(value, &decoded.Status); err != nil {
 			return err
 		}
 	}
-	if value, exists := allProperties["private"]; exists {
-		if err = json.Unmarshal(value, &decoded.Private); err != nil {
+	if value, exists := allProperties["error"]; exists {
+		if err = json.Unmarshal(value, &decoded.Error); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["reason"]; exists {
+		if err = json.Unmarshal(value, &decoded.Reason); err != nil {
 			return err
 		}
 	}
@@ -89,13 +96,25 @@ func (o *KawaiiVpcNetIpZone) UnmarshalJSON(data []byte) (err error) {
 	return nil
 }
 
-// AssertKawaiiVpcNetIpZoneRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// AssertApiErrorInternalServerErrorRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
-func AssertKawaiiVpcNetIpZoneRequired(obj KawaiiVpcNetIpZone) error {
+func AssertApiErrorInternalServerErrorRequired(obj ApiErrorInternalServerError) error {
+
+
+
+
+
+
 	return nil
 }
 
-// AssertKawaiiVpcNetIpZoneConstraints checks if the values respects the defined constraints
-func AssertKawaiiVpcNetIpZoneConstraints(obj KawaiiVpcNetIpZone) error {
+// AssertApiErrorInternalServerErrorConstraints checks if the values respects the defined constraints
+func AssertApiErrorInternalServerErrorConstraints(obj ApiErrorInternalServerError) error {
+
+
+
+
+
+
 	return nil
 }

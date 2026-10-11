@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -42,6 +42,9 @@ func (s *TokenAPIService) ListApiTokens(ctx context.Context) (ImplResponse, erro
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	return Response(http.StatusNotImplemented, nil), errors.New("ListApiTokens method not implemented")
 }
 
@@ -59,6 +62,9 @@ func (s *TokenAPIService) ReadApiToken(ctx context.Context, tokenId string) (Imp
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -66,7 +72,7 @@ func (s *TokenAPIService) ReadApiToken(ctx context.Context, tokenId string) (Imp
 }
 
 // UpdateApiToken -
-func (s *TokenAPIService) UpdateApiToken(ctx context.Context, tokenId string, apiToken ApiToken) (ImplResponse, error) {
+func (s *TokenAPIService) UpdateApiToken(ctx context.Context, tokenId string, apiTokenUpdate ApiTokenUpdate) (ImplResponse, error) {
 	// TODO - update UpdateApiToken with the required logic for this service method.
 	// Add api_token_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -81,6 +87,9 @@ func (s *TokenAPIService) UpdateApiToken(ctx context.Context, tokenId string, ap
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -107,6 +116,9 @@ func (s *TokenAPIService) DeleteApiToken(ctx context.Context, tokenId string) (I
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil

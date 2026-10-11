@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -83,11 +83,11 @@ func (c *RegionAPIController) Routes() Routes {
 			"/api/v1/region/{regionId}",
 			c.DeleteRegion,
 		},
-		"CreateZone": Route{
-			"CreateZone",
+		"CreateRegionZone": Route{
+			"CreateRegionZone",
 			strings.ToUpper("Post"),
 			"/api/v1/region/{regionId}/zone",
-			c.CreateZone,
+			c.CreateRegionZone,
 		},
 		"ListRegionZones": Route{
 			"ListRegionZones",
@@ -95,17 +95,17 @@ func (c *RegionAPIController) Routes() Routes {
 			"/api/v1/region/{regionId}/zones",
 			c.ListRegionZones,
 		},
-		"CreateStoragePool": Route{
-			"CreateStoragePool",
+		"CreateRegionStoragePool": Route{
+			"CreateRegionStoragePool",
 			strings.ToUpper("Post"),
 			"/api/v1/region/{regionId}/pool",
-			c.CreateStoragePool,
+			c.CreateRegionStoragePool,
 		},
-		"CreateKiwi": Route{
-			"CreateKiwi",
+		"CreateRegionKiwi": Route{
+			"CreateRegionKiwi",
 			strings.ToUpper("Post"),
 			"/api/v1/region/{regionId}/kiwi",
-			c.CreateKiwi,
+			c.CreateRegionKiwi,
 		},
 		"ListRegionKiwis": Route{
 			"ListRegionKiwis",
@@ -113,11 +113,11 @@ func (c *RegionAPIController) Routes() Routes {
 			"/api/v1/region/{regionId}/kiwis",
 			c.ListRegionKiwis,
 		},
-		"CreateVNet": Route{
-			"CreateVNet",
+		"CreateRegionVNet": Route{
+			"CreateRegionVNet",
 			strings.ToUpper("Post"),
 			"/api/v1/region/{regionId}/vnet",
-			c.CreateVNet,
+			c.CreateRegionVNet,
 		},
 		"ListRegionVNets": Route{
 			"ListRegionVNets",
@@ -137,17 +137,17 @@ func (c *RegionAPIController) Routes() Routes {
 			"/api/v1/region/{regionId}/pools",
 			c.ListRegionStoragePools,
 		},
-		"ListRegionStorageNFSs": Route{
-			"ListRegionStorageNFSs",
-			strings.ToUpper("Get"),
-			"/api/v1/region/{regionId}/nfs",
-			c.ListRegionStorageNFSs,
-		},
-		"CreateStorageNFS": Route{
-			"CreateStorageNFS",
+		"CreateRegionStorageNFS": Route{
+			"CreateRegionStorageNFS",
 			strings.ToUpper("Post"),
 			"/api/v1/region/{regionId}/nfs",
-			c.CreateStorageNFS,
+			c.CreateRegionStorageNFS,
+		},
+		"ListRegionStorageNFSes": Route{
+			"ListRegionStorageNFSes",
+			strings.ToUpper("Get"),
+			"/api/v1/region/{regionId}/nfses",
+			c.ListRegionStorageNFSes,
 		},
 		"SetRegionDefaultStorageNFS": Route{
 			"SetRegionDefaultStorageNFS",
@@ -204,10 +204,10 @@ func (c *RegionAPIController) OrderedRoutes() []Route {
 			c.DeleteRegion,
 		},
 		Route{
-			"CreateZone",
+			"CreateRegionZone",
 			strings.ToUpper("Post"),
 			"/api/v1/region/{regionId}/zone",
-			c.CreateZone,
+			c.CreateRegionZone,
 		},
 		Route{
 			"ListRegionZones",
@@ -216,16 +216,16 @@ func (c *RegionAPIController) OrderedRoutes() []Route {
 			c.ListRegionZones,
 		},
 		Route{
-			"CreateStoragePool",
+			"CreateRegionStoragePool",
 			strings.ToUpper("Post"),
 			"/api/v1/region/{regionId}/pool",
-			c.CreateStoragePool,
+			c.CreateRegionStoragePool,
 		},
 		Route{
-			"CreateKiwi",
+			"CreateRegionKiwi",
 			strings.ToUpper("Post"),
 			"/api/v1/region/{regionId}/kiwi",
-			c.CreateKiwi,
+			c.CreateRegionKiwi,
 		},
 		Route{
 			"ListRegionKiwis",
@@ -234,10 +234,10 @@ func (c *RegionAPIController) OrderedRoutes() []Route {
 			c.ListRegionKiwis,
 		},
 		Route{
-			"CreateVNet",
+			"CreateRegionVNet",
 			strings.ToUpper("Post"),
 			"/api/v1/region/{regionId}/vnet",
-			c.CreateVNet,
+			c.CreateRegionVNet,
 		},
 		Route{
 			"ListRegionVNets",
@@ -258,16 +258,16 @@ func (c *RegionAPIController) OrderedRoutes() []Route {
 			c.ListRegionStoragePools,
 		},
 		Route{
-			"ListRegionStorageNFSs",
-			strings.ToUpper("Get"),
-			"/api/v1/region/{regionId}/nfs",
-			c.ListRegionStorageNFSs,
-		},
-		Route{
-			"CreateStorageNFS",
+			"CreateRegionStorageNFS",
 			strings.ToUpper("Post"),
 			"/api/v1/region/{regionId}/nfs",
-			c.CreateStorageNFS,
+			c.CreateRegionStorageNFS,
+		},
+		Route{
+			"ListRegionStorageNFSes",
+			strings.ToUpper("Get"),
+			"/api/v1/region/{regionId}/nfses",
+			c.ListRegionStorageNFSes,
 		},
 		Route{
 			"SetRegionDefaultStorageNFS",
@@ -362,10 +362,10 @@ func (c *RegionAPIController) UpdateRegion(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &RequiredError{"regionId"}, nil)
 		return
 	}
-	var regionParam Region
+	var regionUpdateParam RegionUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&regionParam); err != nil {
+	if err := d.Decode(&regionUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -374,15 +374,15 @@ func (c *RegionAPIController) UpdateRegion(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertRegionRequired(regionParam); err != nil {
+	if err := AssertRegionUpdateRequired(regionUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertRegionConstraints(regionParam); err != nil {
+	if err := AssertRegionUpdateConstraints(regionUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateRegion(r.Context(), regionIdParam, regionParam)
+	result, err := c.service.UpdateRegion(r.Context(), regionIdParam, regionUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -410,8 +410,8 @@ func (c *RegionAPIController) DeleteRegion(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateZone -
-func (c *RegionAPIController) CreateZone(w http.ResponseWriter, r *http.Request) {
+// CreateRegionZone -
+func (c *RegionAPIController) CreateRegionZone(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
 	if regionIdParam == "" {
@@ -438,7 +438,7 @@ func (c *RegionAPIController) CreateZone(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreateZone(r.Context(), regionIdParam, zoneParam)
+	result, err := c.service.CreateRegionZone(r.Context(), regionIdParam, zoneParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -466,8 +466,8 @@ func (c *RegionAPIController) ListRegionZones(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateStoragePool -
-func (c *RegionAPIController) CreateStoragePool(w http.ResponseWriter, r *http.Request) {
+// CreateRegionStoragePool -
+func (c *RegionAPIController) CreateRegionStoragePool(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
 	if regionIdParam == "" {
@@ -494,7 +494,7 @@ func (c *RegionAPIController) CreateStoragePool(w http.ResponseWriter, r *http.R
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreateStoragePool(r.Context(), regionIdParam, storagePoolParam)
+	result, err := c.service.CreateRegionStoragePool(r.Context(), regionIdParam, storagePoolParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -504,8 +504,8 @@ func (c *RegionAPIController) CreateStoragePool(w http.ResponseWriter, r *http.R
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateKiwi -
-func (c *RegionAPIController) CreateKiwi(w http.ResponseWriter, r *http.Request) {
+// CreateRegionKiwi -
+func (c *RegionAPIController) CreateRegionKiwi(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
 	if regionIdParam == "" {
@@ -532,7 +532,7 @@ func (c *RegionAPIController) CreateKiwi(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreateKiwi(r.Context(), regionIdParam, kiwiParam)
+	result, err := c.service.CreateRegionKiwi(r.Context(), regionIdParam, kiwiParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -560,8 +560,8 @@ func (c *RegionAPIController) ListRegionKiwis(w http.ResponseWriter, r *http.Req
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateVNet -
-func (c *RegionAPIController) CreateVNet(w http.ResponseWriter, r *http.Request) {
+// CreateRegionVNet -
+func (c *RegionAPIController) CreateRegionVNet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	regionIdParam := params["regionId"]
 	if regionIdParam == "" {
@@ -588,7 +588,7 @@ func (c *RegionAPIController) CreateVNet(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreateVNet(r.Context(), regionIdParam, vNetParam)
+	result, err := c.service.CreateRegionVNet(r.Context(), regionIdParam, vNetParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -657,38 +657,8 @@ func (c *RegionAPIController) ListRegionStoragePools(w http.ResponseWriter, r *h
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// ListRegionStorageNFSs -
-func (c *RegionAPIController) ListRegionStorageNFSs(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	query, err := parseQuery(r.URL.RawQuery)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
-	}
-	regionIdParam := params["regionId"]
-	if regionIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"regionId"}, nil)
-		return
-	}
-	var poolIdParam string
-	if query.Has("poolId") {
-		param := query.Get("poolId")
-
-		poolIdParam = param
-	} else {
-	}
-	result, err := c.service.ListRegionStorageNFSs(r.Context(), regionIdParam, poolIdParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
-	}
-	// If no error, encode the body and the result code
-	_ = EncodeJSONResponse(result.Body, &result.Code, w)
-}
-
-// CreateStorageNFS -
-func (c *RegionAPIController) CreateStorageNFS(w http.ResponseWriter, r *http.Request) {
+// CreateRegionStorageNFS -
+func (c *RegionAPIController) CreateRegionStorageNFS(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {
@@ -727,7 +697,25 @@ func (c *RegionAPIController) CreateStorageNFS(w http.ResponseWriter, r *http.Re
 		poolIdParam = param
 	} else {
 	}
-	result, err := c.service.CreateStorageNFS(r.Context(), regionIdParam, storageNfsParam, poolIdParam)
+	result, err := c.service.CreateRegionStorageNFS(r.Context(), regionIdParam, storageNfsParam, poolIdParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// ListRegionStorageNFSes -
+func (c *RegionAPIController) ListRegionStorageNFSes(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	regionIdParam := params["regionId"]
+	if regionIdParam == "" {
+		c.errorHandler(w, r, &RequiredError{"regionId"}, nil)
+		return
+	}
+	result, err := c.service.ListRegionStorageNFSes(r.Context(), regionIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

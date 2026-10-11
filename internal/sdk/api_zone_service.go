@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -42,6 +42,9 @@ func (s *ZoneAPIService) ListZones(ctx context.Context) (ImplResponse, error) {
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	return Response(http.StatusNotImplemented, nil), errors.New("ListZones method not implemented")
 }
 
@@ -59,6 +62,9 @@ func (s *ZoneAPIService) ReadZone(ctx context.Context, zoneId string) (ImplRespo
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -66,7 +72,7 @@ func (s *ZoneAPIService) ReadZone(ctx context.Context, zoneId string) (ImplRespo
 }
 
 // UpdateZone -
-func (s *ZoneAPIService) UpdateZone(ctx context.Context, zoneId string, zone Zone) (ImplResponse, error) {
+func (s *ZoneAPIService) UpdateZone(ctx context.Context, zoneId string, zoneUpdate ZoneUpdate) (ImplResponse, error) {
 	// TODO - update UpdateZone with the required logic for this service method.
 	// Add api_zone_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -81,6 +87,9 @@ func (s *ZoneAPIService) UpdateZone(ctx context.Context, zoneId string, zone Zon
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -108,6 +117,9 @@ func (s *ZoneAPIService) DeleteZone(ctx context.Context, zoneId string) (ImplRes
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -120,9 +132,9 @@ func (s *ZoneAPIService) DeleteZone(ctx context.Context, zoneId string) (ImplRes
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteZone method not implemented")
 }
 
-// CreateKaktus -
-func (s *ZoneAPIService) CreateKaktus(ctx context.Context, zoneId string, kaktus Kaktus) (ImplResponse, error) {
-	// TODO - update CreateKaktus with the required logic for this service method.
+// CreateZoneKaktus -
+func (s *ZoneAPIService) CreateZoneKaktus(ctx context.Context, zoneId string, kaktus Kaktus) (ImplResponse, error) {
+	// TODO - update CreateZoneKaktus with the required logic for this service method.
 	// Add api_zone_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Kaktus{}) or use other options such as http.Ok ...
@@ -137,6 +149,9 @@ func (s *ZoneAPIService) CreateKaktus(ctx context.Context, zoneId string, kaktus
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -149,7 +164,7 @@ func (s *ZoneAPIService) CreateKaktus(ctx context.Context, zoneId string, kaktus
 	// TODO: Uncomment the next line to return response Response(507, ApiErrorInsufficientResource{}) or use other options such as http.Ok ...
 	// return Response(507, ApiErrorInsufficientResource{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("CreateKaktus method not implemented")
+	return Response(http.StatusNotImplemented, nil), errors.New("CreateZoneKaktus method not implemented")
 }
 
 // ListZoneKaktuses -
@@ -165,6 +180,9 @@ func (s *ZoneAPIService) ListZoneKaktuses(ctx context.Context, zoneId string) (I
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil

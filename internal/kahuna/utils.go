@@ -12,6 +12,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"math"
 	"net"
 	"regexp"
 	"slices"
@@ -241,4 +242,24 @@ func IsValidPortListExpression(expr string) error {
 	}
 
 	return nil
+}
+
+// ptr returns a pointer to the given value, used for optional API model fields.
+func ptr[T any](v T) *T {
+	return &v
+}
+
+// valueOr returns the optional API model field value, or the given default if
+// unspecified.
+func valueOr[T any](p *T, def T) T {
+	if p == nil {
+		return def
+	}
+	return *p
+}
+
+// toInt32 converts a 64-bit integer to an API model 32-bit one, clamping out
+// of range values.
+func toInt32(v int64) int32 {
+	return int32(max(min(v, math.MaxInt32), math.MinInt32)) // #nosec G115 -- clamped
 }

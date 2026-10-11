@@ -70,7 +70,11 @@ Generic factory functions (`FindResources[T]`, `FindResourceByID[T]`, `FindResou
 
 ### SDK Generation
 
-The REST API surface is defined by an OpenAPI spec (v0.53.2). Run `make sdk` to regenerate the server-side SDK via `openapi-generator-cli`. The generated code lives alongside the hand-written handlers.
+The REST API surface is defined by an OpenAPI spec (version set by `SDK_VERSION` in the Makefile). Run `make sdk` to regenerate the server-side SDK (`internal/sdk/`) via `openapi-generator-cli` (version pinned in `openapitools.json`), or `make sdk SDK_OPENAPI_SPEC=../openapi/openapi.yaml` to generate it from a local specification.
+
+`templates/go-server/model.mustache` overrides the generator model template: optional booleans and optional nested objects are generated as pointers, so that unspecified values can be told apart from zero ones. Handlers use `valueOr()`/`ptr()` (`utils.go`) to apply defaults and leave unspecified properties unchanged on updates (PUT payloads use the `*Update` schemas, where all properties are optional).
+
+API errors are always JSON `ApiError` bodies (`{status, error, reason}`), see `sdk.go` (`HttpX()` helpers and `ApiErrorHandler`, wired into every controller).
 
 ## Configuration
 

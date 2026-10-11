@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // Project - A Kowabunga project corresponds to a single tenant, isolated set of resources.
 type Project struct {
 
-	// The project ID (auto-generated).
+	// The project ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The project name.
@@ -31,7 +31,7 @@ type Project struct {
 	// The project description.
 	Description string `json:"description,omitempty"`
 
-	// Internal domain name (e.g. myproject.acme.com).
+	// Internal domain name (e.g. myproject.acme.com). Can only be set at creation time, ignored on updates.
 	Domain string `json:"domain,omitempty"`
 
 	// Default root password, set at cloud-init instance bootstrap phase. Will be randomly auto-generated at each instance creation if unspecified.
@@ -50,12 +50,12 @@ type Project struct {
 	Metadatas []Metadata `json:"metadatas,omitempty"`
 
 	// The global project resource quotas (0 for unlimited).
-	Quotas ProjectResources `json:"quotas,omitempty"`
+	Quotas *ProjectResources `json:"quotas,omitempty"`
 
 	// The assigned project VPC private subnets IDs (read-only).
 	PrivateSubnets []RegionSubnet `json:"private_subnets,omitempty"`
 
-	// The list of VRRP IDs used by -as-a-service resources within the project virtual network (read-only). Should your application use VRRP for service redundancy, you should use different IDs to prevent issues..
+	// The list of VRRP IDs used by -as-a-service resources within the project virtual network. Should your application use VRRP for service redundancy, you should use different IDs to prevent issues (read-only).
 	ReservedVrrpIds []int32 `json:"reserved_vrrp_ids,omitempty"`
 
 	// A list of user teams allowed to administrate the project (i.e. capable of managing internal resources).
@@ -212,36 +212,78 @@ func AssertProjectRequired(obj Project) error {
 		}
 	}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	for _, el := range obj.Metadatas {
 		if err := AssertMetadataRequired(el); err != nil {
 			return err
 		}
 	}
-	if err := AssertProjectResourcesRequired(obj.Quotas); err != nil {
-		return err
-	}
-	for _, el := range obj.PrivateSubnets {
-		if err := AssertRegionSubnetRequired(el); err != nil {
+
+
+	if obj.Quotas != nil {
+
+		if err := AssertProjectResourcesRequired(*obj.Quotas); err != nil {
 			return err
 		}
+
 	}
+
+
+
+
+
 	return nil
 }
 
 // AssertProjectConstraints checks if the values respects the defined constraints
 func AssertProjectConstraints(obj Project) error {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	for _, el := range obj.Metadatas {
 		if err := AssertMetadataConstraints(el); err != nil {
 			return err
 		}
 	}
-	if err := AssertProjectResourcesConstraints(obj.Quotas); err != nil {
-		return err
-	}
-	for _, el := range obj.PrivateSubnets {
-		if err := AssertRegionSubnetConstraints(el); err != nil {
-			return err
-		}
-	}
+
+
+    if obj.Quotas != nil {
+
+     	if err := AssertProjectResourcesConstraints(*obj.Quotas); err != nil {
+     		return err
+     	}
+
+    }
+
+
+
+
+
 	return nil
 }

@@ -445,6 +445,6 @@ func (a *Adapter) Model() sdk.Adapter {
 		Description: a.Description,
 		Mac:         a.MAC,
 		Addresses:   a.Addresses,
-		Reserved:    a.Reserved,
+		Reserved:    ptr(a.Reserved),
 	}
 }

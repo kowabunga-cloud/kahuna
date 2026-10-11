@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -23,37 +23,49 @@ type KawaiiFirewall struct {
 	// The default public traffic egress policy.
 	EgressPolicy string `json:"egress_policy,omitempty"`
 
-	// The Kawaii public firewall list of egress rules. Kawaii default policy is to accept all outgoing traffic, including ICMP. Specified ruleset will be explicitly dropped if egress_policy is set to accept, and explicitly accepted if egress policy is set to drop..
+	// The Kawaii public firewall list of egress rules. Kawaii default policy is to accept all outgoing traffic, including ICMP. Specified ruleset will be explicitly dropped if egress_policy is set to accept, and explicitly accepted if egress policy is set to drop.
 	Egress []KawaiiFirewallEgressRule `json:"egress,omitempty"`
 }
 
 // AssertKawaiiFirewallRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKawaiiFirewallRequired(obj KawaiiFirewall) error {
+
 	for _, el := range obj.Ingress {
 		if err := AssertKawaiiFirewallIngressRuleRequired(el); err != nil {
 			return err
 		}
 	}
+
+
+
+
 	for _, el := range obj.Egress {
 		if err := AssertKawaiiFirewallEgressRuleRequired(el); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
 // AssertKawaiiFirewallConstraints checks if the values respects the defined constraints
 func AssertKawaiiFirewallConstraints(obj KawaiiFirewall) error {
+
 	for _, el := range obj.Ingress {
 		if err := AssertKawaiiFirewallIngressRuleConstraints(el); err != nil {
 			return err
 		}
 	}
+
+
+
+
 	for _, el := range obj.Egress {
 		if err := AssertKawaiiFirewallEgressRuleConstraints(el); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }

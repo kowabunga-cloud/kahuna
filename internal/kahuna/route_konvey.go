@@ -14,7 +14,7 @@ import (
 )
 
 func NewKonveyRouter() sdk.Router {
-	return sdk.NewKonveyAPIController(&KonveyService{})
+	return sdk.NewKonveyAPIController(&KonveyService{}, sdk.WithKonveyAPIErrorHandler(ApiErrorHandler))
 }
 
 type KonveyService struct{}
@@ -30,14 +30,17 @@ func konveyEndpointsFromModel(eps []sdk.KonveyEndpoint) ([]KonveyEndpoint, error
 
 		e := KonveyEndpoint{
 			Name:     ep.Name,
-			Port:     ep.Port,
+			Port:     int64(ep.Port),
 			Protocol: ep.Protocol,
 			Backends: []KonveyBackend{},
+		}
+		if e.Protocol == "" {
+			e.Protocol = KawaiiFirewallProtocolTCP
 		}
 		for _, h := range ep.Backends.Hosts {
 			e.Backends = append(e.Backends, KonveyBackend{
 				Host: h,
-				Port: ep.Backends.Port,
+				Port: int64(ep.Backends.Port),
 			})
 		}
 
@@ -77,7 +80,7 @@ func (s *KonveyService) ReadKonvey(ctx context.Context, konveyId string) (sdk.Im
 	return HttpOK(payload)
 }
 
-func (s *KonveyService) UpdateKonvey(ctx context.Context, konveyId string, konvey sdk.Konvey) (sdk.ImplResponse, error) {
+func (s *KonveyService) UpdateKonvey(ctx context.Context, konveyId string, konvey sdk.KonveyUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("konveyId", konveyId), RA("konvey", konvey))
 
 	// Get our konvey
@@ -86,14 +89,17 @@ func (s *KonveyService) UpdateKonvey(ctx context.Context, konveyId string, konve
 		return HttpNotFound(err)
 	}
 
-	// converts from model to object
-	endpoints, err := konveyEndpointsFromModel(konvey.Endpoints)
-	if err != nil {
-		return HttpBadParams(err)
+	// converts from model to object, unspecified endpoints are left unchanged
+	endpoints := k.Endpoints
+	if konvey.Endpoints != nil {
+		endpoints, err = konveyEndpointsFromModel(konvey.Endpoints)
+		if err != nil {
+			return HttpBadParams(err)
+		}
 	}
 
 	// update Konvey
-	err = k.Update(k.Description, endpoints)
+	err = k.Update(konvey.Description, endpoints)
 	if err != nil {
 		return HttpServerError(err)
 	}

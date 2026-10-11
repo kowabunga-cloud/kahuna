@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -13,6 +13,7 @@ package sdk
 
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 )
@@ -22,7 +23,7 @@ import (
 // Instance - A virtual machine instance.
 type Instance struct {
 
-	// The virtual machine instance ID (auto-generated).
+	// The virtual machine instance ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The virtual machine instance name.
@@ -35,22 +36,22 @@ type Instance struct {
 	Memory int64 `json:"memory"`
 
 	// The virtual machine instance number of vCPUs.
-	Vcpus int64 `json:"vcpus"`
+	Vcpus int32 `json:"vcpus"`
 
-	// a list of existing network adapters to be connected to the instance.
+	// A list of existing network adapters to be connected to the instance.
 	Adapters []string `json:"adapters,omitempty"`
 
-	// volumes list of existing storage volumes (i.e. disks) to be connected to the instance.
+	// A list of existing storage volumes (i.e. disks) to be connected to the instance.
 	Volumes []string `json:"volumes,omitempty"`
 
-	// An optional list of existing Kwarantine anti-affinity group IDs. Only considered at instance creation time, to elect an initial host consistent with the referenced groups policies and register the instance as one of their members. Read-only afterwards, always reflecting current membership, which should be managed going forward via the Kwarantine webservices.
+	// An optional list of existing Kwarantine anti-affinity group IDs. Only considered at instance creation time, to elect an initial host consistent with the referenced groups policies and register the instance as one of their members. Read-only afterwards, always reflecting current membership, which should be managed going forward via the Kwarantine webservices. Can only be set at creation time, ignored on updates.
 	Kwarantines []string `json:"kwarantines,omitempty"`
 
-	// enable UEFI secure firmware (vs. legacy BIOS).
-	Uefi bool `json:"uefi,omitempty"`
+	// Enable UEFI secure firmware (vs. legacy BIOS). Can only be set at creation time, ignored on updates.
+	Uefi *bool `json:"uefi,omitempty"`
 
 	// Whether kMotion (live/cold host migration) is enabled for the virtual machine instance. When disabled, the instance remains bound to its original hosting node.
-	KmotionEnabled bool `json:"kmotion_enabled,omitempty"`
+	KmotionEnabled *bool `json:"kmotion_enabled,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into Instance
 func (o *Instance) UnmarshalJSON(data []byte) (err error) {
@@ -166,10 +167,60 @@ func (o *Instance) UnmarshalJSON(data []byte) (err error) {
 // AssertInstanceRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertInstanceRequired(obj Instance) error {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertInstanceConstraints checks if the values respects the defined constraints
 func AssertInstanceConstraints(obj Instance) error {
+
+
+
+
+	if obj.Memory < 1 {
+		return &ParsingError{Param: "Memory", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
+	if obj.Vcpus < 1 {
+		return &ParsingError{Param: "Vcpus", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }

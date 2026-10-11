@@ -13,7 +13,7 @@ import (
 )
 
 func NewInstanceRouter() sdk.Router {
-	return sdk.NewInstanceAPIController(&InstanceService{})
+	return sdk.NewInstanceAPIController(&InstanceService{}, sdk.WithInstanceAPIErrorHandler(ApiErrorHandler))
 }
 
 type InstanceService struct{}
@@ -76,7 +76,7 @@ func (s *InstanceService) PlanInstanceKMotion(ctx context.Context, instanceId st
 		return HttpNotFound(err)
 	}
 
-	p, err := i.PlanMigration(plan.Destination, plan.Kaktus, plan.Live)
+	p, err := i.PlanMigration(plan.Destination, plan.Kaktus, valueOr(plan.Live, true))
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -223,13 +223,10 @@ func (s *InstanceService) SuspendInstance(ctx context.Context, instanceId string
 	return HttpOK(nil)
 }
 
-func (s *InstanceService) UpdateInstance(ctx context.Context, instanceId string, instance sdk.Instance) (sdk.ImplResponse, error) {
+func (s *InstanceService) UpdateInstance(ctx context.Context, instanceId string, instance sdk.InstanceUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("instanceId", instanceId), RA("instance", instance))
 
 	// check for params
-	if instance.Name == "" && instance.Memory == 0 && instance.Vcpus == 0 {
-		return HttpBadParams(nil)
-	}
 	if instance.Memory < 0 || instance.Vcpus < 0 {
 		return HttpBadParams(nil)
 	}
@@ -247,7 +244,7 @@ func (s *InstanceService) UpdateInstance(ctx context.Context, instanceId string,
 	}
 
 	// ensure we're allowed by quotas
-	cpuDelta := instance.Vcpus - i.CPU
+	cpuDelta := int64(instance.Vcpus) - i.CPU
 	memDelta := instance.Memory - i.Memory
 	if cpuDelta > 0 || memDelta > 0 {
 		if !prj.AllowInstanceCreationOrUpdate(0, cpuDelta, memDelta) {
@@ -256,7 +253,7 @@ func (s *InstanceService) UpdateInstance(ctx context.Context, instanceId string,
 	}
 
 	// update instance
-	err = i.Update(instance.Name, instance.Description, instance.Vcpus, instance.Memory, instance.Adapters, instance.Volumes, instance.KmotionEnabled)
+	err = i.Update(instance.Name, instance.Description, int64(instance.Vcpus), instance.Memory, instance.Adapters, instance.Volumes, valueOr(instance.KmotionEnabled, i.KMotionEnabled))
 	if err != nil {
 		return HttpServerError(err)
 	}

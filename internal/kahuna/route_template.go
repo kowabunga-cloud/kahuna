@@ -13,7 +13,7 @@ import (
 )
 
 func NewTemplateRouter() sdk.Router {
-	return sdk.NewTemplateAPIController(&TemplateService{})
+	return sdk.NewTemplateAPIController(&TemplateService{}, sdk.WithTemplateAPIErrorHandler(ApiErrorHandler))
 }
 
 type TemplateService struct{}
@@ -49,13 +49,8 @@ func (s *TemplateService) ReadTemplate(ctx context.Context, templateId string) (
 	return HttpOK(payload)
 }
 
-func (s *TemplateService) UpdateTemplate(ctx context.Context, templateId string, template sdk.Template) (sdk.ImplResponse, error) {
+func (s *TemplateService) UpdateTemplate(ctx context.Context, templateId string, template sdk.TemplateUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("templateId", templateId), RA("template", template))
-
-	// check for params
-	if template.Name == "" && template.Description == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure template exists
 	t, err := FindTemplateByID(templateId)

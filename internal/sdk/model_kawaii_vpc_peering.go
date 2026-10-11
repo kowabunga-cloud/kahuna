@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // KawaiiVpcPeering - A Kawaii internal VPC subnet peering.
 type KawaiiVpcPeering struct {
 
-	// Kowabunga Subnet ID to be peered with (subnet local IP addresses will be automatically assigned to Kawaii instances)..
+	// Kowabunga Subnet ID to be peered with (subnet local IP addresses will be automatically assigned to Kawaii instances).
 	Subnet string `json:"subnet"`
 
 	// The default VPC traffic forwarding policy.
@@ -35,7 +35,7 @@ type KawaiiVpcPeering struct {
 	Egress []KawaiiVpcForwardRule `json:"egress,omitempty"`
 
 	// The per-zone auto-assigned private IPs in peered subnet (read-only).
-	Netip []KawaiiVpcNetIpZone `json:"netip,omitempty"`
+	Netip []KawaiiNetIpZone `json:"netip,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into KawaiiVpcPeering
 func (o *KawaiiVpcPeering) UnmarshalJSON(data []byte) (err error) {
@@ -117,40 +117,46 @@ func (o *KawaiiVpcPeering) UnmarshalJSON(data []byte) (err error) {
 // AssertKawaiiVpcPeeringRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKawaiiVpcPeeringRequired(obj KawaiiVpcPeering) error {
+
+
+
+
+
 	for _, el := range obj.Ingress {
 		if err := AssertKawaiiVpcForwardRuleRequired(el); err != nil {
 			return err
 		}
 	}
+
+
 	for _, el := range obj.Egress {
 		if err := AssertKawaiiVpcForwardRuleRequired(el); err != nil {
 			return err
 		}
 	}
-	for _, el := range obj.Netip {
-		if err := AssertKawaiiVpcNetIpZoneRequired(el); err != nil {
-			return err
-		}
-	}
+
 	return nil
 }
 
 // AssertKawaiiVpcPeeringConstraints checks if the values respects the defined constraints
 func AssertKawaiiVpcPeeringConstraints(obj KawaiiVpcPeering) error {
+
+
+
+
+
 	for _, el := range obj.Ingress {
 		if err := AssertKawaiiVpcForwardRuleConstraints(el); err != nil {
 			return err
 		}
 	}
+
+
 	for _, el := range obj.Egress {
 		if err := AssertKawaiiVpcForwardRuleConstraints(el); err != nil {
 			return err
 		}
 	}
-	for _, el := range obj.Netip {
-		if err := AssertKawaiiVpcNetIpZoneConstraints(el); err != nil {
-			return err
-		}
-	}
+
 	return nil
 }

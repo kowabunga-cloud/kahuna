@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // KawaiiIpSec - A Kawaii IPsec connection.
 type KawaiiIpSec struct {
 
-	// The Kawaii IPsec connection ID (auto-generated).
+	// The Kawaii IPsec connection ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The Kawaii IPsec connection name.
@@ -31,56 +31,56 @@ type KawaiiIpSec struct {
 	// The Kawaii IPsec connection description.
 	Description string `json:"description,omitempty"`
 
-	// The Kawaii IPsec connection IPSec IP.
+	// The Kawaii IPsec connection local IPsec IP address (read-only).
 	Ip string `json:"ip,omitempty"`
 
-	// The Kawaii IPsec connection remote peer VPN Gateway.
+	// The Kawaii IPsec connection remote peer VPN gateway IP address.
 	RemoteIp string `json:"remote_ip"`
 
 	// The Kawaii IPsec connection remote subnet.
 	RemoteSubnet string `json:"remote_subnet"`
 
-	// The Kawaii IPsec connection pre-shared key(PSK).
+	// The Kawaii IPsec connection pre-shared key (PSK).
 	PreSharedKey string `json:"pre_shared_key"`
 
-	// The Kawaii IPsec connection Dead Peer Detection Action (clear,restart or trap).
+	// The Kawaii IPsec connection Dead Peer Detection (DPD) timeout action.
 	DpdTimeoutAction string `json:"dpd_timeout_action,omitempty"`
 
-	// The Kawaii IPsec connection Dead Peer Detection Timeout.
+	// The Kawaii IPsec connection Dead Peer Detection (DPD) timeout.
 	DpdTimeout string `json:"dpd_timeout,omitempty"`
 
-	// The Kawaii IPsec connection start action (none, start, trap).
+	// The Kawaii IPsec connection start action.
 	StartAction string `json:"start_action,omitempty"`
 
-	// The Kawaii IPsec connection rekey time. Default is 2h.
+	// The Kawaii IPsec connection rekey time.
 	RekeyTime string `json:"rekey_time,omitempty"`
 
-	// The Kawaii IPsec connection Lifetime for phase 1 negociation. Default is 1h.
+	// The Kawaii IPsec connection lifetime for phase 1 negotiation.
 	Phase1Lifetime string `json:"phase1_lifetime,omitempty"`
 
 	// The Kawaii IPsec connection phase 1 Diffie Hellman IANA algorithm.
-	Phase1DhGroupNumber int64 `json:"phase1_dh_group_number"`
+	Phase1DhGroupNumber int32 `json:"phase1_dh_group_number"`
 
-	// The Kawaii IPsec connection phase 1 integrity algorithm..
+	// The Kawaii IPsec connection phase 1 integrity algorithm.
 	Phase1IntegrityAlgorithm string `json:"phase1_integrity_algorithm"`
 
-	// The Kawaii IPsec connection phase 1 encryption algorithm..
+	// The Kawaii IPsec connection phase 1 encryption algorithm.
 	Phase1EncryptionAlgorithm string `json:"phase1_encryption_algorithm"`
 
-	// The Kawaii IPsec connection Lifetime for phase 2 negociation. Default is 1h.
+	// The Kawaii IPsec connection lifetime for phase 2 negotiation.
 	Phase2Lifetime string `json:"phase2_lifetime,omitempty"`
 
 	// The Kawaii IPsec connection phase 2 Diffie Hellman IANA algorithm.
-	Phase2DhGroupNumber int64 `json:"phase2_dh_group_number"`
+	Phase2DhGroupNumber int32 `json:"phase2_dh_group_number"`
 
-	// The Kawaii IPsec connection phase 2 integrity algorithm..
+	// The Kawaii IPsec connection phase 2 integrity algorithm.
 	Phase2IntegrityAlgorithm string `json:"phase2_integrity_algorithm"`
 
-	// The Kawaii IPsec connection phase 2 encryption algorithm..
+	// The Kawaii IPsec connection phase 2 encryption algorithm.
 	Phase2EncryptionAlgorithm string `json:"phase2_encryption_algorithm"`
 
 	// The Kawaii IPsec connection firewall settings on the IPsec interface.
-	Firewall KawaiiFirewall `json:"firewall,omitempty"`
+	Firewall *KawaiiIpSecFirewall `json:"firewall,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into KawaiiIpSec
 func (o *KawaiiIpSec) UnmarshalJSON(data []byte) (err error) {
@@ -270,16 +270,96 @@ func (o *KawaiiIpSec) UnmarshalJSON(data []byte) (err error) {
 // AssertKawaiiIpSecRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKawaiiIpSecRequired(obj KawaiiIpSec) error {
-	if err := AssertKawaiiFirewallRequired(obj.Firewall); err != nil {
-		return err
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	if obj.Firewall != nil {
+
+		if err := AssertKawaiiIpSecFirewallRequired(*obj.Firewall); err != nil {
+			return err
+		}
+
 	}
+
 	return nil
 }
 
 // AssertKawaiiIpSecConstraints checks if the values respects the defined constraints
 func AssertKawaiiIpSecConstraints(obj KawaiiIpSec) error {
-	if err := AssertKawaiiFirewallConstraints(obj.Firewall); err != nil {
-		return err
-	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    if obj.Firewall != nil {
+
+     	if err := AssertKawaiiIpSecFirewallConstraints(*obj.Firewall); err != nil {
+     		return err
+     	}
+
+    }
+
 	return nil
 }

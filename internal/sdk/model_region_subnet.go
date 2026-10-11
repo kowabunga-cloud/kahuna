@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -27,10 +27,18 @@ type RegionSubnet struct {
 // AssertRegionSubnetRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertRegionSubnetRequired(obj RegionSubnet) error {
+
+
+
+
 	return nil
 }
 
 // AssertRegionSubnetConstraints checks if the values respects the defined constraints
 func AssertRegionSubnetConstraints(obj RegionSubnet) error {
+
+
+
+
 	return nil
 }

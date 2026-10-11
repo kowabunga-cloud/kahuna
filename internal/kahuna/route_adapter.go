@@ -13,7 +13,7 @@ import (
 )
 
 func NewAdapterRouter() sdk.Router {
-	return sdk.NewAdapterAPIController(&AdapterService{})
+	return sdk.NewAdapterAPIController(&AdapterService{}, sdk.WithAdapterAPIErrorHandler(ApiErrorHandler))
 }
 
 type AdapterService struct{}
@@ -49,13 +49,8 @@ func (s *AdapterService) ReadAdapter(ctx context.Context, adapterId string) (sdk
 	return HttpOK(payload)
 }
 
-func (s *AdapterService) UpdateAdapter(ctx context.Context, adapterId string, adapter sdk.Adapter) (sdk.ImplResponse, error) {
+func (s *AdapterService) UpdateAdapter(ctx context.Context, adapterId string, adapter sdk.AdapterUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("adapterId", adapterId), RA("adapter", adapter))
-
-	// check for params
-	if adapter.Name == "" && adapter.Description == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure adapter exists
 	a, err := FindAdapterByID(adapterId)
@@ -64,7 +59,7 @@ func (s *AdapterService) UpdateAdapter(ctx context.Context, adapterId string, ad
 	}
 
 	// update adapter
-	err = a.Update(adapter.Name, adapter.Description, adapter.Mac, adapter.Addresses, adapter.Reserved)
+	err = a.Update(adapter.Name, adapter.Description, adapter.Mac, adapter.Addresses, valueOr(adapter.Reserved, a.Reserved))
 	if err != nil {
 		return HttpServerError(err)
 	}

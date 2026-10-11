@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // Agent - A Kowabunga remote agent.
 type Agent struct {
 
-	// The Kowabunga remote agent ID (auto-generated).
+	// The Kowabunga remote agent ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The Kowabunga remote agent name.
@@ -31,7 +31,7 @@ type Agent struct {
 	// The Kowabunga remote agent description.
 	Description string `json:"description,omitempty"`
 
-	// The Kowabunga agent type.
+	// The Kowabunga agent type. Can only be set at creation time, ignored on updates.
 	Type string `json:"type"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into Agent
@@ -110,10 +110,22 @@ func (o *Agent) UnmarshalJSON(data []byte) (err error) {
 // AssertAgentRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertAgentRequired(obj Agent) error {
+
+
+
+
+
+
 	return nil
 }
 
 // AssertAgentConstraints checks if the values respects the defined constraints
 func AssertAgentConstraints(obj Agent) error {
+
+
+
+
+
+
 	return nil
 }

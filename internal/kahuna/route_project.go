@@ -7,6 +7,7 @@
 package kahuna
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"slices"
@@ -16,7 +17,7 @@ import (
 )
 
 func NewProjectRouter() sdk.Router {
-	return sdk.NewProjectAPIController(&ProjectService{})
+	return sdk.NewProjectAPIController(&ProjectService{}, sdk.WithProjectAPIErrorHandler(ApiErrorHandler))
 }
 
 type ProjectService struct{}
@@ -41,7 +42,7 @@ func (s *ProjectService) CreateProject(ctx context.Context, project sdk.Project,
 		metas[m.Key] = m.Value
 	}
 
-	p, err := NewProject(project.Name, project.Description, project.Domain, project.RootPassword, project.BootstrapUser, project.BootstrapPubkey, project.Teams, project.Regions, project.Tags, metas, project.Quotas, int(subnetSize))
+	p, err := NewProject(project.Name, project.Description, project.Domain, project.RootPassword, project.BootstrapUser, project.BootstrapPubkey, project.Teams, project.Regions, project.Tags, metas, valueOr(project.Quotas, sdk.ProjectResources{}), int(subnetSize))
 	if err != nil {
 		klog.Error(err)
 		return HttpServerError(err)
@@ -143,7 +144,7 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	}
 
 	// ensure we're allowed by quotas
-	if !prj.AllowInstanceCreationOrUpdate(1, instance.Vcpus, instance.Memory) {
+	if !prj.AllowInstanceCreationOrUpdate(1, int64(instance.Vcpus), instance.Memory) {
 		return HttpQuota(nil)
 	}
 
@@ -165,7 +166,7 @@ func (s *ProjectService) CreateProjectZoneInstance(ctx context.Context, projectI
 	}
 
 	// create instance
-	i, err := NewInstance(prj.String(), h.String(), instance.Name, instance.Description, "", "", instance.Vcpus, instance.Memory, instance.Adapters, instance.Volumes, instance.Uefi)
+	i, err := NewInstance(prj.String(), h.String(), instance.Name, instance.Description, "", "", int64(instance.Vcpus), instance.Memory, instance.Adapters, instance.Volumes, valueOr(instance.Uefi, true))
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -199,7 +200,7 @@ func (s *ProjectService) CreateProjectRegionInstance(ctx context.Context, projec
 	}
 
 	// ensure we're allowed by quotas
-	if !prj.AllowInstanceCreationOrUpdate(1, instance.Vcpus, instance.Memory) {
+	if !prj.AllowInstanceCreationOrUpdate(1, int64(instance.Vcpus), instance.Memory) {
 		return HttpQuota(nil)
 	}
 
@@ -221,7 +222,7 @@ func (s *ProjectService) CreateProjectRegionInstance(ctx context.Context, projec
 	}
 
 	// create instance
-	i, err := NewInstance(prj.String(), h.String(), instance.Name, instance.Description, "", "", instance.Vcpus, instance.Memory, instance.Adapters, instance.Volumes, instance.Uefi)
+	i, err := NewInstance(prj.String(), h.String(), instance.Name, instance.Description, "", "", int64(instance.Vcpus), instance.Memory, instance.Adapters, instance.Volumes, valueOr(instance.Uefi, true))
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -261,7 +262,7 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	}
 
 	// ensure we're allowed by quotas
-	if !prj.AllowInstanceCreationOrUpdate(1, kompute.Vcpus, kompute.Memory) {
+	if !prj.AllowInstanceCreationOrUpdate(1, int64(kompute.Vcpus), kompute.Memory) {
 		return HttpQuota(nil)
 	}
 	size := kompute.Disk + kompute.DataDisk
@@ -315,7 +316,7 @@ func (s *ProjectService) CreateProjectZoneKompute(ctx context.Context, projectId
 	//
 
 	// create Kompute
-	k, err := NewKompute(prj.String(), zone.String(), h.String(), p.String(), t.String(), kompute.Name, kompute.Description, "", "", kompute.Vcpus, kompute.Memory, kompute.Disk, kompute.DataDisk, public, []string{}, kompute.Uefi)
+	k, err := NewKompute(prj.String(), zone.String(), h.String(), p.String(), t.String(), kompute.Name, kompute.Description, "", "", int64(kompute.Vcpus), kompute.Memory, kompute.Disk, kompute.DataDisk, public, []string{}, valueOr(kompute.Uefi, true))
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -349,7 +350,7 @@ func (s *ProjectService) CreateProjectRegionKompute(ctx context.Context, project
 	}
 
 	// ensure we're allowed by quotas
-	if !prj.AllowInstanceCreationOrUpdate(1, kompute.Vcpus, kompute.Memory) {
+	if !prj.AllowInstanceCreationOrUpdate(1, int64(kompute.Vcpus), kompute.Memory) {
 		return HttpQuota(nil)
 	}
 	size := kompute.Disk + kompute.DataDisk
@@ -403,7 +404,7 @@ func (s *ProjectService) CreateProjectRegionKompute(ctx context.Context, project
 	//
 
 	// create Kompute in the zone the elected host actually belongs to
-	k, err := NewKompute(prj.String(), h.ZoneID, h.String(), p.String(), t.String(), kompute.Name, kompute.Description, "", "", kompute.Vcpus, kompute.Memory, kompute.Disk, kompute.DataDisk, public, []string{}, kompute.Uefi)
+	k, err := NewKompute(prj.String(), h.ZoneID, h.String(), p.String(), t.String(), kompute.Name, kompute.Description, "", "", int64(kompute.Vcpus), kompute.Memory, kompute.Disk, kompute.DataDisk, public, []string{}, valueOr(kompute.Uefi, true))
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -467,7 +468,7 @@ func (s *ProjectService) CreateProjectZoneKonvey(ctx context.Context, projectId 
 	}
 
 	count := 1
-	if konvey.Failover {
+	if valueOr(konvey.Failover, true) {
 		count = 2
 	}
 
@@ -501,9 +502,14 @@ func (s *ProjectService) CreateProjectRegionKylo(ctx context.Context, projectId 
 		return HttpNotFound(err)
 	}
 
-	// check for params
-	if kylo.Name == "" || kylo.Access == "" {
+	// check for params, applying defaults
+	if kylo.Name == "" {
 		return HttpBadParams(nil)
+	}
+	access := cmp.Or(kylo.Access, KyloAccessDefault)
+	protocols := kylo.Protocols
+	if len(protocols) == 0 {
+		protocols = []int32{KyloProtocolNfsV3, KyloProtocolNfsV4}
 	}
 
 	// use zone's default NFS storage unless specified
@@ -529,7 +535,7 @@ func (s *ProjectService) CreateProjectRegionKylo(ctx context.Context, projectId 
 	//
 
 	// create Kylo
-	k, err := NewKylo(prj.String(), region.String(), nfs.String(), kylo.Name, kylo.Description, kylo.Access, kylo.Protocols)
+	k, err := NewKylo(prj.String(), region.String(), nfs.String(), kylo.Name, kylo.Description, access, protocols)
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -562,7 +568,7 @@ func (s *ProjectService) CreateProjectRegionKawaii(ctx context.Context, projectI
 	}
 
 	// converts kawaii from model to object
-	fw, err := kawaiiFirewallFromModel(kawaii.Firewall)
+	fw, err := kawaiiFirewallFromModel(valueOr(kawaii.Firewall, sdk.KawaiiFirewall{}))
 	if err != nil {
 		return HttpBadParams(err)
 	}
@@ -675,7 +681,7 @@ func (s *ProjectService) CreateProjectRegionKonvey(ctx context.Context, projectI
 	}
 
 	count := 1
-	if konvey.Failover {
+	if valueOr(konvey.Failover, true) {
 		count = 2
 	}
 
@@ -1021,7 +1027,7 @@ func (s *ProjectService) ListProjectRegionVolumes(ctx context.Context, projectId
 	return HttpOK(payload)
 }
 
-func (s *ProjectService) ListProjects(ctx context.Context, subnetSize int32) (sdk.ImplResponse, error) {
+func (s *ProjectService) ListProjects(ctx context.Context) (sdk.ImplResponse, error) {
 	return HttpOK(FindResourceIDs(MongoCollectionProjectName))
 }
 
@@ -1065,13 +1071,8 @@ func (s *ProjectService) ReadProjectUsage(ctx context.Context, projectId string)
 	return HttpOK(payload)
 }
 
-func (s *ProjectService) UpdateProject(ctx context.Context, projectId string, project sdk.Project) (sdk.ImplResponse, error) {
+func (s *ProjectService) UpdateProject(ctx context.Context, projectId string, project sdk.ProjectUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("projectId", projectId), RA("project", project))
-
-	// check for params
-	if project.Name == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure project exists
 	p, err := FindProjectByID(projectId)

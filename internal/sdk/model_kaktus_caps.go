@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -13,6 +13,7 @@ package sdk
 
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 )
@@ -101,16 +102,27 @@ func AssertKaktusCapsRequired(obj KaktusCaps) error {
 		}
 	}
 
+
 	if err := AssertKaktusCpuRequired(obj.Cpu); err != nil {
 		return err
 	}
+
+
+
 	return nil
 }
 
 // AssertKaktusCapsConstraints checks if the values respects the defined constraints
 func AssertKaktusCapsConstraints(obj KaktusCaps) error {
+
 	if err := AssertKaktusCpuConstraints(obj.Cpu); err != nil {
 		return err
 	}
+
+	if obj.Memory < 0 {
+		return &ParsingError{Param: "Memory", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
 	return nil
 }

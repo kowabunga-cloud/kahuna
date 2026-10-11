@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -206,10 +206,10 @@ func (c *AgentAPIController) UpdateAgent(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, &RequiredError{"agentId"}, nil)
 		return
 	}
-	var agentParam Agent
+	var agentUpdateParam AgentUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&agentParam); err != nil {
+	if err := d.Decode(&agentUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -218,15 +218,15 @@ func (c *AgentAPIController) UpdateAgent(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertAgentRequired(agentParam); err != nil {
+	if err := AssertAgentUpdateRequired(agentUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertAgentConstraints(agentParam); err != nil {
+	if err := AssertAgentUpdateConstraints(agentUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateAgent(r.Context(), agentIdParam, agentParam)
+	result, err := c.service.UpdateAgent(r.Context(), agentIdParam, agentUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -280,10 +280,12 @@ func (c *AgentAPIController) SetAgentApiToken(w http.ResponseWriter, r *http.Req
 
 		expireParam = param
 	} else {
+		var param bool = false
+		expireParam = param
 	}
 	var expirationDateParam string
-	if query.Has("expiration_date") {
-		param := string(query.Get("expiration_date"))
+	if query.Has("expirationDate") {
+		param := string(query.Get("expirationDate"))
 
 		expirationDateParam = param
 	} else {

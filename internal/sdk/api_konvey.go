@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -150,10 +150,10 @@ func (c *KonveyAPIController) UpdateKonvey(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &RequiredError{"konveyId"}, nil)
 		return
 	}
-	var konveyParam Konvey
+	var konveyUpdateParam KonveyUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&konveyParam); err != nil {
+	if err := d.Decode(&konveyUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -162,15 +162,15 @@ func (c *KonveyAPIController) UpdateKonvey(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertKonveyRequired(konveyParam); err != nil {
+	if err := AssertKonveyUpdateRequired(konveyUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertKonveyConstraints(konveyParam); err != nil {
+	if err := AssertKonveyUpdateConstraints(konveyUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateKonvey(r.Context(), konveyIdParam, konveyParam)
+	result, err := c.service.UpdateKonvey(r.Context(), konveyIdParam, konveyUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

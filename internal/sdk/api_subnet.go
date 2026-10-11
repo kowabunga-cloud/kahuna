@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -77,11 +77,11 @@ func (c *SubnetAPIController) Routes() Routes {
 			"/api/v1/subnet/{subnetId}",
 			c.DeleteSubnet,
 		},
-		"CreateAdapter": Route{
-			"CreateAdapter",
+		"CreateSubnetAdapter": Route{
+			"CreateSubnetAdapter",
 			strings.ToUpper("Post"),
 			"/api/v1/subnet/{subnetId}/adapter",
-			c.CreateAdapter,
+			c.CreateSubnetAdapter,
 		},
 		"ListSubnetAdapters": Route{
 			"ListSubnetAdapters",
@@ -120,10 +120,10 @@ func (c *SubnetAPIController) OrderedRoutes() []Route {
 			c.DeleteSubnet,
 		},
 		Route{
-			"CreateAdapter",
+			"CreateSubnetAdapter",
 			strings.ToUpper("Post"),
 			"/api/v1/subnet/{subnetId}/adapter",
-			c.CreateAdapter,
+			c.CreateSubnetAdapter,
 		},
 		Route{
 			"ListSubnetAdapters",
@@ -174,10 +174,10 @@ func (c *SubnetAPIController) UpdateSubnet(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &RequiredError{"subnetId"}, nil)
 		return
 	}
-	var subnetParam Subnet
+	var subnetUpdateParam SubnetUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&subnetParam); err != nil {
+	if err := d.Decode(&subnetUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -186,15 +186,15 @@ func (c *SubnetAPIController) UpdateSubnet(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertSubnetRequired(subnetParam); err != nil {
+	if err := AssertSubnetUpdateRequired(subnetUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertSubnetConstraints(subnetParam); err != nil {
+	if err := AssertSubnetUpdateConstraints(subnetUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateSubnet(r.Context(), subnetIdParam, subnetParam)
+	result, err := c.service.UpdateSubnet(r.Context(), subnetIdParam, subnetUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -222,8 +222,8 @@ func (c *SubnetAPIController) DeleteSubnet(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateAdapter -
-func (c *SubnetAPIController) CreateAdapter(w http.ResponseWriter, r *http.Request) {
+// CreateSubnetAdapter -
+func (c *SubnetAPIController) CreateSubnetAdapter(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {
@@ -268,8 +268,10 @@ func (c *SubnetAPIController) CreateAdapter(w http.ResponseWriter, r *http.Reque
 
 		assignIPParam = param
 	} else {
+		var param bool = false
+		assignIPParam = param
 	}
-	result, err := c.service.CreateAdapter(r.Context(), subnetIdParam, adapterParam, assignIPParam)
+	result, err := c.service.CreateSubnetAdapter(r.Context(), subnetIdParam, adapterParam, assignIPParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

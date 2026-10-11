@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -150,10 +150,10 @@ func (c *VolumeAPIController) UpdateVolume(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &RequiredError{"volumeId"}, nil)
 		return
 	}
-	var volumeParam Volume
+	var volumeUpdateParam VolumeUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&volumeParam); err != nil {
+	if err := d.Decode(&volumeUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -162,15 +162,15 @@ func (c *VolumeAPIController) UpdateVolume(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertVolumeRequired(volumeParam); err != nil {
+	if err := AssertVolumeUpdateRequired(volumeUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertVolumeConstraints(volumeParam); err != nil {
+	if err := AssertVolumeUpdateConstraints(volumeUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateVolume(r.Context(), volumeIdParam, volumeParam)
+	result, err := c.service.UpdateVolume(r.Context(), volumeIdParam, volumeUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

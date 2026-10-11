@@ -13,12 +13,12 @@ import (
 )
 
 func NewSubnetRouter() sdk.Router {
-	return sdk.NewSubnetAPIController(&SubnetService{})
+	return sdk.NewSubnetAPIController(&SubnetService{}, sdk.WithSubnetAPIErrorHandler(ApiErrorHandler))
 }
 
 type SubnetService struct{}
 
-func (s *SubnetService) CreateAdapter(ctx context.Context, subnetId string, adapter sdk.Adapter, assignIP bool) (sdk.ImplResponse, error) {
+func (s *SubnetService) CreateSubnetAdapter(ctx context.Context, subnetId string, adapter sdk.Adapter, assignIP bool) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("subnetId", subnetId), RA("adapter", adapter), RA("assignIP", assignIP))
 
 	// ensure subnet exists
@@ -38,7 +38,7 @@ func (s *SubnetService) CreateAdapter(ctx context.Context, subnetId string, adap
 		return HttpConflict(err)
 	}
 
-	a, err := NewAdapter(sb.String(), adapter.Name, adapter.Description, adapter.Mac, adapter.Addresses, adapter.Reserved, assignIP)
+	a, err := NewAdapter(sb.String(), adapter.Name, adapter.Description, adapter.Mac, adapter.Addresses, valueOr(adapter.Reserved, false), assignIP)
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -94,13 +94,8 @@ func (s *SubnetService) ReadSubnet(ctx context.Context, subnetId string) (sdk.Im
 	return HttpOK(payload)
 }
 
-func (s *SubnetService) UpdateSubnet(ctx context.Context, subnetId string, subnet sdk.Subnet) (sdk.ImplResponse, error) {
+func (s *SubnetService) UpdateSubnet(ctx context.Context, subnetId string, subnet sdk.SubnetUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("subnetId", subnetId), RA("subnet", subnet))
-
-	// check for params
-	if subnet.Name == "" && subnet.Description == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure subnet exists
 	sb, err := FindSubnetByID(subnetId)

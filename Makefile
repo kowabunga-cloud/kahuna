@@ -5,9 +5,12 @@
 SRC_DIR = internal
 SDK_GENERATOR = go-server
 SDK_PACKAGE_NAME = sdk
-SDK_VERSION = "tags/v0.57.0"
+# go-server templates overrides (generator version is pinned in openapitools.json)
+SDK_TEMPLATES = templates/go-server
+SDK_VERSION = "tags/v0.58.0"
 #SDK_VERSION = "heads/main"
-SDK_OPENAPI_SPEC = "https://raw.githubusercontent.com/kowabunga-cloud/openapi/refs/$(SDK_VERSION)/openapi.yaml"
+# use SDK_OPENAPI_SPEC=path/to/openapi.yaml to generate from a local specification
+SDK_OPENAPI_SPEC ?= "https://raw.githubusercontent.com/kowabunga-cloud/openapi/refs/$(SDK_VERSION)/openapi.yaml"
 
 #export GOOS=linux
 #export GOARCH=amd64
@@ -62,6 +65,7 @@ sdk: get-openapi-generator ; $(info $(M) generate server-side SDK from OpenAPI s
 	$Q git rm -qrf $(SRC_DIR)/$(SDK_PACKAGE_NAME) || true
 	$Q $(OPENAPI_GENERATOR) generate \
 	  -g $(SDK_GENERATOR) \
+	  -t $(SDK_TEMPLATES) \
 	  --package-name $(SDK_PACKAGE_NAME) \
 	  --openapi-normalizer KEEP_ONLY_FIRST_TAG_IN_OPERATION=true \
 	  -p outputAsLibrary=true \

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -67,7 +67,7 @@ func (c *UserAPIController) Routes() Routes {
 		},
 		"ResetPassword": Route{
 			"ResetPassword",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Post"),
 			"/api/v1/resetPassword",
 			c.ResetPassword,
 		},
@@ -139,7 +139,7 @@ func (c *UserAPIController) OrderedRoutes() []Route {
 		},
 		Route{
 			"ResetPassword",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Post"),
 			"/api/v1/resetPassword",
 			c.ResetPassword,
 		},
@@ -342,10 +342,10 @@ func (c *UserAPIController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &RequiredError{"userId"}, nil)
 		return
 	}
-	var userParam User
+	var userUpdateParam UserUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&userParam); err != nil {
+	if err := d.Decode(&userUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -354,15 +354,15 @@ func (c *UserAPIController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertUserRequired(userParam); err != nil {
+	if err := AssertUserUpdateRequired(userUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertUserConstraints(userParam); err != nil {
+	if err := AssertUserUpdateConstraints(userUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateUser(r.Context(), userIdParam, userParam)
+	result, err := c.service.UpdateUser(r.Context(), userIdParam, userUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -472,10 +472,12 @@ func (c *UserAPIController) SetUserApiToken(w http.ResponseWriter, r *http.Reque
 
 		expireParam = param
 	} else {
+		var param bool = false
+		expireParam = param
 	}
 	var expirationDateParam string
-	if query.Has("expiration_date") {
-		param := string(query.Get("expiration_date"))
+	if query.Has("expirationDate") {
+		param := string(query.Get("expirationDate"))
 
 		expirationDateParam = param
 	} else {

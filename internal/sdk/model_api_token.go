@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // ApiToken - A Kowabunga authentication security token consists of an API key granting access to resources.
 type ApiToken struct {
 
-	// The server-to-server authentication security token ID (auto-generated).
+	// The server-to-server authentication security token ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The server-to-server authentication security token name.
@@ -31,7 +31,7 @@ type ApiToken struct {
 	// The server-to-server authentication security token description.
 	Description string `json:"description,omitempty"`
 
-	// Does the API token expires at some stage ?.
+	// Whether the API token expires at some stage.
 	Expire bool `json:"expire"`
 
 	// Expiration date of the token (YYYY-MM-DD format).
@@ -119,10 +119,26 @@ func (o *ApiToken) UnmarshalJSON(data []byte) (err error) {
 // AssertApiTokenRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertApiTokenRequired(obj ApiToken) error {
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertApiTokenConstraints checks if the values respects the defined constraints
 func AssertApiTokenConstraints(obj ApiToken) error {
+
+
+
+
+
+
+
+
 	return nil
 }

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -77,11 +77,11 @@ func (c *ZoneAPIController) Routes() Routes {
 			"/api/v1/zone/{zoneId}",
 			c.DeleteZone,
 		},
-		"CreateKaktus": Route{
-			"CreateKaktus",
+		"CreateZoneKaktus": Route{
+			"CreateZoneKaktus",
 			strings.ToUpper("Post"),
 			"/api/v1/zone/{zoneId}/kaktus",
-			c.CreateKaktus,
+			c.CreateZoneKaktus,
 		},
 		"ListZoneKaktuses": Route{
 			"ListZoneKaktuses",
@@ -120,10 +120,10 @@ func (c *ZoneAPIController) OrderedRoutes() []Route {
 			c.DeleteZone,
 		},
 		Route{
-			"CreateKaktus",
+			"CreateZoneKaktus",
 			strings.ToUpper("Post"),
 			"/api/v1/zone/{zoneId}/kaktus",
-			c.CreateKaktus,
+			c.CreateZoneKaktus,
 		},
 		Route{
 			"ListZoneKaktuses",
@@ -174,10 +174,10 @@ func (c *ZoneAPIController) UpdateZone(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &RequiredError{"zoneId"}, nil)
 		return
 	}
-	var zoneParam Zone
+	var zoneUpdateParam ZoneUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&zoneParam); err != nil {
+	if err := d.Decode(&zoneUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -186,15 +186,15 @@ func (c *ZoneAPIController) UpdateZone(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertZoneRequired(zoneParam); err != nil {
+	if err := AssertZoneUpdateRequired(zoneUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertZoneConstraints(zoneParam); err != nil {
+	if err := AssertZoneUpdateConstraints(zoneUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateZone(r.Context(), zoneIdParam, zoneParam)
+	result, err := c.service.UpdateZone(r.Context(), zoneIdParam, zoneUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -222,8 +222,8 @@ func (c *ZoneAPIController) DeleteZone(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateKaktus -
-func (c *ZoneAPIController) CreateKaktus(w http.ResponseWriter, r *http.Request) {
+// CreateZoneKaktus -
+func (c *ZoneAPIController) CreateZoneKaktus(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	zoneIdParam := params["zoneId"]
 	if zoneIdParam == "" {
@@ -250,7 +250,7 @@ func (c *ZoneAPIController) CreateKaktus(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreateKaktus(r.Context(), zoneIdParam, kaktusParam)
+	result, err := c.service.CreateZoneKaktus(r.Context(), zoneIdParam, kaktusParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

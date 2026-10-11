@@ -220,7 +220,9 @@ func (r *DnsRecord) DeleteDnsRecord() error {
 
 func (r *DnsRecord) Update(name, desc string, addresses []string) error {
 	r.UpdateResourceDefaults(name, desc)
-	r.Addresses = addresses
+	if addresses != nil {
+		r.Addresses = addresses
+	}
 
 	// update record on all possible network gateways
 	for _, gw := range FindKiwis() {

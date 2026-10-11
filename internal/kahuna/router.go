@@ -386,7 +386,7 @@ func authenticationMiddleware(next http.Handler) http.Handler {
 		// Check if user is authenticated
 		rAuth, ok := reqIsAuthenticated(r)
 		if !ok {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			WriteApiError(w, http.StatusUnauthorized, nil)
 			return
 		}
 		// Call the next middleware function or final handler
@@ -500,7 +500,7 @@ func authorizationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if user is allowed to request
 		if !reqIsAuthorized(r) {
-			http.Error(w, "Forbidden", http.StatusForbidden)
+			WriteApiError(w, http.StatusForbidden, nil)
 			return
 		}
 		// Call the next middleware function or final handler
@@ -597,6 +597,12 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 
 func NewRouter(ke *KahunaEngine) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
+	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		WriteApiError(w, http.StatusNotFound, nil)
+	})
+	router.MethodNotAllowedHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		WriteApiError(w, http.StatusMethodNotAllowed, nil)
+	})
 
 	// add all sub-routes from SDK services
 	for _, api := range ke.ApiRouters {

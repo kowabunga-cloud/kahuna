@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,10 +22,10 @@ import (
 // KawaiiVpcForwardRule - A Kawaii VPC firewall forwarding rule.
 type KawaiiVpcForwardRule struct {
 
-	// The transport layer protocol to forward public traffic to.
+	// The transport layer protocol to forward VPC traffic to.
 	Protocol string `json:"protocol,omitempty"`
 
-	// The port (or list of ports) to forward public traffic from. Ranges are accepted. Format is a-b,c-d (e.g. 443; 22,80,443; 80,443,3000-3005).
+	// The port (or list of ports) to forward VPC traffic from. Ranges are accepted. Format is a-b,c-d (e.g. 443; 22,80,443; 80,443,3000-3005).
 	Ports string `json:"ports"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into KawaiiVpcForwardRule
@@ -90,10 +90,18 @@ func (o *KawaiiVpcForwardRule) UnmarshalJSON(data []byte) (err error) {
 // AssertKawaiiVpcForwardRuleRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKawaiiVpcForwardRuleRequired(obj KawaiiVpcForwardRule) error {
+
+
+
+
 	return nil
 }
 
 // AssertKawaiiVpcForwardRuleConstraints checks if the values respects the defined constraints
 func AssertKawaiiVpcForwardRuleConstraints(obj KawaiiVpcForwardRule) error {
+
+
+
+
 	return nil
 }

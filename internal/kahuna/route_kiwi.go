@@ -13,7 +13,7 @@ import (
 )
 
 func NewKiwiRouter() sdk.Router {
-	return sdk.NewKiwiAPIController(&KiwiService{})
+	return sdk.NewKiwiAPIController(&KiwiService{}, sdk.WithKiwiAPIErrorHandler(ApiErrorHandler))
 }
 
 type KiwiService struct{}
@@ -49,13 +49,8 @@ func (s *KiwiService) ReadKiwi(ctx context.Context, kiwiId string) (sdk.ImplResp
 	return HttpOK(payload)
 }
 
-func (s *KiwiService) UpdateKiwi(ctx context.Context, kiwiId string, kiwi sdk.Kiwi) (sdk.ImplResponse, error) {
+func (s *KiwiService) UpdateKiwi(ctx context.Context, kiwiId string, kiwi sdk.KiwiUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("kiwiId", kiwiId), RA("kiwi", kiwi))
-
-	// check for params
-	if kiwi.Name == "" && kiwi.Description == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure kiwi exists
 	gw, err := FindKiwiByID(kiwiId)

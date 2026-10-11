@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -13,6 +13,7 @@ package sdk
 
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 )
@@ -22,7 +23,7 @@ import (
 // Kaktus - A Kaktus (Kowabunga Affordable KVM and Tight Underneath Storage) is an hyper-converged infrastructure (HCI) bare-metal node offering computing and distributed storage capabilites.
 type Kaktus struct {
 
-	// The Kaktus computing node ID (auto-generated).
+	// The Kaktus computing node ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The Kaktus computing node name.
@@ -32,10 +33,10 @@ type Kaktus struct {
 	Description string `json:"description,omitempty"`
 
 	// Cost associated to the Kaktus node's CPU resources.
-	CpuCost Cost `json:"cpu_cost,omitempty"`
+	CpuCost *Cost `json:"cpu_cost,omitempty"`
 
 	// Cost associated to the Kaktus node's memory resources.
-	MemoryCost Cost `json:"memory_cost,omitempty"`
+	MemoryCost *Cost `json:"memory_cost,omitempty"`
 
 	// The Kaktus node CPU resource over-commit ratio. Overcommitting CPU resources for VMs means allocating more virtual CPUs (vCPUs) to the virtual machines (VMs) than the physical cores available on the node. This can help optimize the utilization of the node CPU and increase the density of VMs per node.
 	OvercommitCpuRatio int64 `json:"overcommit_cpu_ratio,omitempty"`
@@ -46,8 +47,8 @@ type Kaktus struct {
 	// a list of existing remote agents managing the Kaktus node.
 	Agents []string `json:"agents"`
 
-	// Whether the Kaktus node is under maintenance. A node under maintenance keeps running its existing instances but is excluded from scheduling of newly created workloads.
-	Maintenance bool `json:"maintenance,omitempty"`
+	// Whether the Kaktus node is under maintenance. A node under maintenance keeps running its existing instances but is excluded from scheduling of newly created workloads. Use the maintenance enable/disable operations to change it (read-only).
+	Maintenance *bool `json:"maintenance,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into Kaktus
 func (o *Kaktus) UnmarshalJSON(data []byte) (err error) {
@@ -164,22 +165,72 @@ func AssertKaktusRequired(obj Kaktus) error {
 		}
 	}
 
-	if err := AssertCostRequired(obj.CpuCost); err != nil {
-		return err
+
+
+
+
+
+	if obj.CpuCost != nil {
+
+		if err := AssertCostRequired(*obj.CpuCost); err != nil {
+			return err
+		}
+
 	}
-	if err := AssertCostRequired(obj.MemoryCost); err != nil {
-		return err
+
+
+	if obj.MemoryCost != nil {
+
+		if err := AssertCostRequired(*obj.MemoryCost); err != nil {
+			return err
+		}
+
 	}
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertKaktusConstraints checks if the values respects the defined constraints
 func AssertKaktusConstraints(obj Kaktus) error {
-	if err := AssertCostConstraints(obj.CpuCost); err != nil {
-		return err
+
+
+
+
+
+    if obj.CpuCost != nil {
+
+     	if err := AssertCostConstraints(*obj.CpuCost); err != nil {
+     		return err
+     	}
+
+    }
+
+
+    if obj.MemoryCost != nil {
+
+     	if err := AssertCostConstraints(*obj.MemoryCost); err != nil {
+     		return err
+     	}
+
+    }
+
+	if obj.OvercommitCpuRatio < 1 {
+		return &ParsingError{Param: "OvercommitCpuRatio", Err: errors.New(errMsgMinValueConstraint)}
 	}
-	if err := AssertCostConstraints(obj.MemoryCost); err != nil {
-		return err
+
+
+	if obj.OvercommitMemoryRatio < 1 {
+		return &ParsingError{Param: "OvercommitMemoryRatio", Err: errors.New(errMsgMinValueConstraint)}
 	}
+
+
+
+
 	return nil
 }

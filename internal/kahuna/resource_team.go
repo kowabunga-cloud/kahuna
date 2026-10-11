@@ -160,7 +160,9 @@ func (t *Team) SetUsers(users []string) {
 
 func (t *Team) Update(name, desc string, users []string) error {
 	t.UpdateResourceDefaults(name, desc)
-	t.SetUsers(users)
+	if users != nil {
+		t.SetUsers(users)
+	}
 	return t.Save()
 }
 

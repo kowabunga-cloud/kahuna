@@ -407,7 +407,7 @@ func TestIntegrationProjectRegionsUpdate(t *testing.T) {
 	}
 
 	// add a region
-	err = prj.Update("p", "", "", "", "", nil, []string{r1.String(), r2.String()}, nil, nil, sdk.ProjectResources{})
+	err = prj.Update("p", "", "", "", "", nil, []string{r1.String(), r2.String()}, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("adding a region failed: %v", err)
 	}
@@ -420,7 +420,7 @@ func TestIntegrationProjectRegionsUpdate(t *testing.T) {
 	}
 
 	// remove it
-	err = got.Update("p", "", "", "", "", nil, []string{r1.String()}, nil, nil, sdk.ProjectResources{})
+	err = got.Update("p", "", "", "", "", nil, []string{r1.String()}, nil, nil, nil)
 	if err != nil {
 		t.Fatalf("removing a region failed: %v", err)
 	}

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -53,11 +53,11 @@ func NewKaktusAPIController(s KaktusAPIServicer, opts ...KaktusAPIOption) *Kaktu
 // Routes returns all the api routes for the KaktusAPIController
 func (c *KaktusAPIController) Routes() Routes {
 	return Routes{
-		"ListKaktuss": Route{
-			"ListKaktuss",
+		"ListKaktuses": Route{
+			"ListKaktuses",
 			strings.ToUpper("Get"),
 			"/api/v1/kaktus",
-			c.ListKaktuss,
+			c.ListKaktuses,
 		},
 		"ReadKaktus": Route{
 			"ReadKaktus",
@@ -108,10 +108,10 @@ func (c *KaktusAPIController) Routes() Routes {
 func (c *KaktusAPIController) OrderedRoutes() []Route {
 	return []Route{
 		Route{
-			"ListKaktuss",
+			"ListKaktuses",
 			strings.ToUpper("Get"),
 			"/api/v1/kaktus",
-			c.ListKaktuss,
+			c.ListKaktuses,
 		},
 		Route{
 			"ReadKaktus",
@@ -160,9 +160,9 @@ func (c *KaktusAPIController) OrderedRoutes() []Route {
 
 
 
-// ListKaktuss -
-func (c *KaktusAPIController) ListKaktuss(w http.ResponseWriter, r *http.Request) {
-	result, err := c.service.ListKaktuss(r.Context())
+// ListKaktuses -
+func (c *KaktusAPIController) ListKaktuses(w http.ResponseWriter, r *http.Request) {
+	result, err := c.service.ListKaktuses(r.Context())
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -198,10 +198,10 @@ func (c *KaktusAPIController) UpdateKaktus(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &RequiredError{"kaktusId"}, nil)
 		return
 	}
-	var kaktusParam Kaktus
+	var kaktusUpdateParam KaktusUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&kaktusParam); err != nil {
+	if err := d.Decode(&kaktusUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -210,15 +210,15 @@ func (c *KaktusAPIController) UpdateKaktus(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertKaktusRequired(kaktusParam); err != nil {
+	if err := AssertKaktusUpdateRequired(kaktusUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertKaktusConstraints(kaktusParam); err != nil {
+	if err := AssertKaktusUpdateConstraints(kaktusUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateKaktus(r.Context(), kaktusIdParam, kaktusParam)
+	result, err := c.service.UpdateKaktus(r.Context(), kaktusIdParam, kaktusUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

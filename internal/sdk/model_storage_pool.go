@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -13,6 +13,7 @@ package sdk
 
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 )
@@ -22,7 +23,7 @@ import (
 // StoragePool - A storage pool.
 type StoragePool struct {
 
-	// The storage pool ID (auto-generated).
+	// The storage pool ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The storage pool name.
@@ -37,14 +38,14 @@ type StoragePool struct {
 	// Ceph Monitor(s) address or FQDN.
 	CephAddress string `json:"ceph_address,omitempty"`
 
-	// Ceph Monitor(s) port (default 3300).
-	CephPort int64 `json:"ceph_port,omitempty"`
+	// Ceph Monitor(s) port.
+	CephPort int32 `json:"ceph_port,omitempty"`
 
 	// The libvirt secret UUID for CephX authentication.
 	CephSecretUuid string `json:"ceph_secret_uuid,omitempty"`
 
 	// Cost associated to the storage pool.
-	Cost Cost `json:"cost,omitempty"`
+	Cost *Cost `json:"cost,omitempty"`
 
 	// a list of existing remote agents managing the storage pool.
 	Agents []string `json:"agents"`
@@ -166,16 +167,62 @@ func AssertStoragePoolRequired(obj StoragePool) error {
 		}
 	}
 
-	if err := AssertCostRequired(obj.Cost); err != nil {
-		return err
+
+
+
+
+
+
+
+
+
+
+
+
+
+	if obj.Cost != nil {
+
+		if err := AssertCostRequired(*obj.Cost); err != nil {
+			return err
+		}
+
 	}
+
+
+
 	return nil
 }
 
 // AssertStoragePoolConstraints checks if the values respects the defined constraints
 func AssertStoragePoolConstraints(obj StoragePool) error {
-	if err := AssertCostConstraints(obj.Cost); err != nil {
-		return err
+
+
+
+
+
+
+
+
+	if obj.CephPort < 1 {
+		return &ParsingError{Param: "CephPort", Err: errors.New(errMsgMinValueConstraint)}
 	}
+	if obj.CephPort > 65535 {
+		return &ParsingError{Param: "CephPort", Err: errors.New(errMsgMaxValueConstraint)}
+	}
+
+
+
+
+
+    if obj.Cost != nil {
+
+     	if err := AssertCostConstraints(*obj.Cost); err != nil {
+     		return err
+     	}
+
+    }
+
+
+
 	return nil
 }

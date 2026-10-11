@@ -162,7 +162,7 @@ func (kvp *KawaiiVpcPeering) Model() sdk.KawaiiVpcPeering {
 		Policy:  kvp.Policy,
 		Ingress: ingress,
 		Egress:  egress,
-		Netip:   []sdk.KawaiiVpcNetIpZone{},
+		Netip:   []sdk.KawaiiNetIpZone{},
 	}
 }
 
@@ -183,8 +183,8 @@ type KawaiiVpcNetIpZone struct {
 	PrivateIP string `bson:"private_ip"`
 }
 
-func (net *KawaiiVpcNetIpZone) Model() sdk.KawaiiVpcNetIpZone {
-	return sdk.KawaiiVpcNetIpZone{
+func (net *KawaiiVpcNetIpZone) Model() sdk.KawaiiNetIpZone {
+	return sdk.KawaiiNetIpZone{
 		Zone:    net.Zone,
 		Private: net.PrivateIP,
 	}
@@ -461,10 +461,11 @@ func (k *Kawaii) Model() sdk.Kawaii {
 	}
 	slices.Sort(netIP.Public)
 	slices.Sort(netIP.Private)
-	kawaii.Netip = netIP
+	kawaii.Netip = &netIP
 
 	// Firewall Settings
-	kawaii.Firewall = k.Firewall.Model()
+	fw := k.Firewall.Model()
+	kawaii.Firewall = &fw
 
 	// DNAT Settings
 	dnat := make([]sdk.KawaiiDNatRule, 0, len(k.DNatRules))

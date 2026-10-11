@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -24,16 +24,32 @@ type KMotionPlanRequest struct {
 	Kaktus string `json:"kaktus,omitempty"`
 
 	// Whether the kMotion must be performed live, without any service interruption, or the instance can instead be shutdown and restarted on its new host.
-	Live bool `json:"live,omitempty"`
+	Live *bool `json:"live,omitempty"`
 }
 
 // AssertKMotionPlanRequestRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKMotionPlanRequestRequired(obj KMotionPlanRequest) error {
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertKMotionPlanRequestConstraints checks if the values respects the defined constraints
 func AssertKMotionPlanRequestConstraints(obj KMotionPlanRequest) error {
+
+
+
+
+
+
+
+
 	return nil
 }

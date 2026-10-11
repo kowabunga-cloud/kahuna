@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -150,10 +150,10 @@ func (c *AdapterAPIController) UpdateAdapter(w http.ResponseWriter, r *http.Requ
 		c.errorHandler(w, r, &RequiredError{"adapterId"}, nil)
 		return
 	}
-	var adapterParam Adapter
+	var adapterUpdateParam AdapterUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&adapterParam); err != nil {
+	if err := d.Decode(&adapterUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -162,15 +162,15 @@ func (c *AdapterAPIController) UpdateAdapter(w http.ResponseWriter, r *http.Requ
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertAdapterRequired(adapterParam); err != nil {
+	if err := AssertAdapterUpdateRequired(adapterUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertAdapterConstraints(adapterParam); err != nil {
+	if err := AssertAdapterUpdateConstraints(adapterUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateAdapter(r.Context(), adapterIdParam, adapterParam)
+	result, err := c.service.UpdateAdapter(r.Context(), adapterIdParam, adapterUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -101,10 +101,18 @@ func (o *UserCredentials) UnmarshalJSON(data []byte) (err error) {
 // AssertUserCredentialsRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertUserCredentialsRequired(obj UserCredentials) error {
+
+
+
+
 	return nil
 }
 
 // AssertUserCredentialsConstraints checks if the values respects the defined constraints
 func AssertUserCredentialsConstraints(obj UserCredentials) error {
+
+
+
+
 	return nil
 }

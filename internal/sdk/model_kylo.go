@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // Kylo - A Kylo provides an elastic NFS-like remote storage volume.
 type Kylo struct {
 
-	// The Kylo ID (auto-generated).
+	// The Kylo ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The Kylo name.
@@ -135,10 +135,26 @@ func (o *Kylo) UnmarshalJSON(data []byte) (err error) {
 // AssertKyloRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKyloRequired(obj Kylo) error {
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertKyloConstraints checks if the values respects the defined constraints
 func AssertKyloConstraints(obj Kylo) error {
+
+
+
+
+
+
+
+
 	return nil
 }

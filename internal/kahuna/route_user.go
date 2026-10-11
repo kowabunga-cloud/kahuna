@@ -8,6 +8,7 @@ package kahuna
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/kowabunga-cloud/common/klog"
@@ -15,10 +16,12 @@ import (
 )
 
 func NewUserRouter() sdk.Router {
-	return sdk.NewUserAPIController(&UserService{})
+	return sdk.NewUserAPIController(&UserService{}, sdk.WithUserAPIErrorHandler(ApiErrorHandler))
 }
 
 type UserService struct{}
+
+var errInvalidCredentials = errors.New("invalid credentials")
 
 func (s *UserService) Login(ctx context.Context, userCredentials sdk.UserCredentials) (sdk.ImplResponse, error) {
 	klog.Debugf("Login attempt from %s ...", userCredentials.Email)
@@ -27,40 +30,36 @@ func (s *UserService) Login(ctx context.Context, userCredentials sdk.UserCredent
 		return HttpBadParams(nil)
 	}
 
-	// ensure user exists
+	// unknown user, unfinalized account creation or wrong password all
+	// result in the very same response, not to disclose registered accounts
 	u, err := FindUserByEmail(userCredentials.Email)
-	if err != nil {
-		klog.Error(err)
-		return HttpNotFound(err)
+	if err == nil && !u.Enabled {
+		err = fmt.Errorf("user %s has not finalized account creation", u.Name)
 	}
-
-	// ensure user has finalized account creation
-	if !u.Enabled {
-		return HttpUnauthorized(err)
+	if err == nil {
+		err = u.Verify(userCredentials.Password)
 	}
-
-	// check if password matches registered one
-	err = u.Verify(userCredentials.Password)
 	if err != nil {
-		klog.Error(err)
-		return HttpUnauthorized(err)
+		klog.Warningf("Login failure for %s: %v", userCredentials.Email, err)
+		return HttpUnauthorized(errInvalidCredentials)
 	}
 
 	// let's go with JWT
 	jwt, err := u.JwtSession()
 	if err != nil {
-		klog.Error(err)
-		return HttpServerError(err)
+		return HttpInternalError(err)
 	}
 
-	userCredentials.Jwt = jwt
-	return HttpCreated(userCredentials)
+	return HttpOK(sdk.UserCredentials{
+		Email: userCredentials.Email,
+		Jwt:   jwt,
+	})
 }
 
 func (s *UserService) Logout(ctx context.Context) (sdk.ImplResponse, error) {
 	if ctxGetAuthMethod(ctx) != HttpHeaderAuthorization {
 		klog.Warningf("Attempting to logout from a non JWT-based session; pointless")
-		return HttpCreatedNoContent() // not an error
+		return HttpNoContent() // not an error
 	}
 
 	userId := ctxGetUserId(ctx)
@@ -68,7 +67,7 @@ func (s *UserService) Logout(ctx context.Context) (sdk.ImplResponse, error) {
 
 	user, err := FindUserByID(userId)
 	if err != nil {
-		return HttpServerError(err)
+		return HttpInternalError(err)
 	}
 
 	klog.Debugf("Invalidating JWTtoken for user %s", userId)
@@ -76,11 +75,10 @@ func (s *UserService) Logout(ctx context.Context) (sdk.ImplResponse, error) {
 
 	err = user.Save()
 	if err != nil {
-		klog.Error(err)
-		// status already written as 200, so just log
+		return HttpInternalError(err)
 	}
 
-	return HttpCreatedNoContent()
+	return HttpNoContent()
 }
 
 func (s *UserService) CreateUser(ctx context.Context, user sdk.User) (sdk.ImplResponse, error) {
@@ -98,7 +96,7 @@ func (s *UserService) CreateUser(ctx context.Context, user sdk.User) (sdk.ImplRe
 	}
 
 	// create user
-	u, err := NewUser(user.Name, user.Description, user.Email, user.Role, user.Notifications)
+	u, err := NewUser(user.Name, user.Description, user.Email, user.Role, valueOr(user.Notifications, false))
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -163,15 +161,21 @@ func (s *UserService) SetUserPassword(ctx context.Context, userId string, passwo
 }
 
 func (s *UserService) ResetPassword(ctx context.Context, email sdk.UserEmail) (sdk.ImplResponse, error) {
+	if email.Email == "" {
+		return HttpBadParams(nil)
+	}
+
+	// always succeed, not to disclose registered accounts
 	u, err := FindUserByEmail(email.Email)
 	if err != nil {
-		return HttpServerError(err)
+		klog.Warningf("Password reset request for unknown email %s", email.Email)
+		return HttpOK(nil)
 	}
 
 	// reset user password
 	err = u.ResetPasswordRequest()
 	if err != nil {
-		return HttpServerError(err)
+		return HttpInternalError(err)
 	}
 
 	return HttpOK(nil)
@@ -230,13 +234,8 @@ func (s *UserService) SetUserApiToken(ctx context.Context, userId string, expire
 	return HttpOK(payload)
 }
 
-func (s *UserService) UpdateUser(ctx context.Context, userId string, user sdk.User) (sdk.ImplResponse, error) {
+func (s *UserService) UpdateUser(ctx context.Context, userId string, user sdk.UserUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("userId", userId), RA("user", user))
-
-	// check for params
-	if user.Name == "" && user.Email == "" && user.Role == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure user exists
 	u, err := FindUserByID(userId)
@@ -245,7 +244,7 @@ func (s *UserService) UpdateUser(ctx context.Context, userId string, user sdk.Us
 	}
 
 	// update user
-	err = u.Update(user.Name, user.Description, user.Email, user.Role, user.Notifications)
+	err = u.Update(user.Name, user.Description, user.Email, user.Role, valueOr(user.Notifications, u.NotificationsEnabled))
 	if err != nil {
 		return HttpServerError(err)
 	}

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -53,11 +53,11 @@ func NewNfsAPIController(s NfsAPIServicer, opts ...NfsAPIOption) *NfsAPIControll
 // Routes returns all the api routes for the NfsAPIController
 func (c *NfsAPIController) Routes() Routes {
 	return Routes{
-		"ListStorageNFSs": Route{
-			"ListStorageNFSs",
+		"ListStorageNFSes": Route{
+			"ListStorageNFSes",
 			strings.ToUpper("Get"),
 			"/api/v1/nfs",
-			c.ListStorageNFSs,
+			c.ListStorageNFSes,
 		},
 		"ReadStorageNFS": Route{
 			"ReadStorageNFS",
@@ -80,7 +80,7 @@ func (c *NfsAPIController) Routes() Routes {
 		"ListStorageNFSKylos": Route{
 			"ListStorageNFSKylos",
 			strings.ToUpper("Get"),
-			"/api/v1/nfs/{nfsId}/kylo",
+			"/api/v1/nfs/{nfsId}/kylos",
 			c.ListStorageNFSKylos,
 		},
 	}
@@ -90,10 +90,10 @@ func (c *NfsAPIController) Routes() Routes {
 func (c *NfsAPIController) OrderedRoutes() []Route {
 	return []Route{
 		Route{
-			"ListStorageNFSs",
+			"ListStorageNFSes",
 			strings.ToUpper("Get"),
 			"/api/v1/nfs",
-			c.ListStorageNFSs,
+			c.ListStorageNFSes,
 		},
 		Route{
 			"ReadStorageNFS",
@@ -116,7 +116,7 @@ func (c *NfsAPIController) OrderedRoutes() []Route {
 		Route{
 			"ListStorageNFSKylos",
 			strings.ToUpper("Get"),
-			"/api/v1/nfs/{nfsId}/kylo",
+			"/api/v1/nfs/{nfsId}/kylos",
 			c.ListStorageNFSKylos,
 		},
 	}
@@ -124,9 +124,9 @@ func (c *NfsAPIController) OrderedRoutes() []Route {
 
 
 
-// ListStorageNFSs -
-func (c *NfsAPIController) ListStorageNFSs(w http.ResponseWriter, r *http.Request) {
-	result, err := c.service.ListStorageNFSs(r.Context())
+// ListStorageNFSes -
+func (c *NfsAPIController) ListStorageNFSes(w http.ResponseWriter, r *http.Request) {
+	result, err := c.service.ListStorageNFSes(r.Context())
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -162,10 +162,10 @@ func (c *NfsAPIController) UpdateStorageNFS(w http.ResponseWriter, r *http.Reque
 		c.errorHandler(w, r, &RequiredError{"nfsId"}, nil)
 		return
 	}
-	var storageNfsParam StorageNfs
+	var storageNfsUpdateParam StorageNfsUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&storageNfsParam); err != nil {
+	if err := d.Decode(&storageNfsUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -174,15 +174,15 @@ func (c *NfsAPIController) UpdateStorageNFS(w http.ResponseWriter, r *http.Reque
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertStorageNfsRequired(storageNfsParam); err != nil {
+	if err := AssertStorageNfsUpdateRequired(storageNfsUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertStorageNfsConstraints(storageNfsParam); err != nil {
+	if err := AssertStorageNfsUpdateConstraints(storageNfsUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateStorageNFS(r.Context(), nfsIdParam, storageNfsParam)
+	result, err := c.service.UpdateStorageNFS(r.Context(), nfsIdParam, storageNfsUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

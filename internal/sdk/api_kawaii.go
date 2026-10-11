@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -92,19 +92,19 @@ func (c *KawaiiAPIController) Routes() Routes {
 		"ReadKawaiiIpSec": Route{
 			"ReadKawaiiIpSec",
 			strings.ToUpper("Get"),
-			"/api/v1/kawaii/{kawaiiId}/ipsec/{KawaiiIpSecId}",
+			"/api/v1/kawaii/{kawaiiId}/ipsec/{kawaiiIpSecId}",
 			c.ReadKawaiiIpSec,
 		},
 		"UpdateKawaiiIpSec": Route{
 			"UpdateKawaiiIpSec",
 			strings.ToUpper("Put"),
-			"/api/v1/kawaii/{kawaiiId}/ipsec/{KawaiiIpSecId}",
+			"/api/v1/kawaii/{kawaiiId}/ipsec/{kawaiiIpSecId}",
 			c.UpdateKawaiiIpSec,
 		},
 		"DeleteKawaiiIpSec": Route{
 			"DeleteKawaiiIpSec",
 			strings.ToUpper("Delete"),
-			"/api/v1/kawaii/{kawaiiId}/ipsec/{KawaiiIpSecId}",
+			"/api/v1/kawaii/{kawaiiId}/ipsec/{kawaiiIpSecId}",
 			c.DeleteKawaiiIpSec,
 		},
 	}
@@ -152,19 +152,19 @@ func (c *KawaiiAPIController) OrderedRoutes() []Route {
 		Route{
 			"ReadKawaiiIpSec",
 			strings.ToUpper("Get"),
-			"/api/v1/kawaii/{kawaiiId}/ipsec/{KawaiiIpSecId}",
+			"/api/v1/kawaii/{kawaiiId}/ipsec/{kawaiiIpSecId}",
 			c.ReadKawaiiIpSec,
 		},
 		Route{
 			"UpdateKawaiiIpSec",
 			strings.ToUpper("Put"),
-			"/api/v1/kawaii/{kawaiiId}/ipsec/{KawaiiIpSecId}",
+			"/api/v1/kawaii/{kawaiiId}/ipsec/{kawaiiIpSecId}",
 			c.UpdateKawaiiIpSec,
 		},
 		Route{
 			"DeleteKawaiiIpSec",
 			strings.ToUpper("Delete"),
-			"/api/v1/kawaii/{kawaiiId}/ipsec/{KawaiiIpSecId}",
+			"/api/v1/kawaii/{kawaiiId}/ipsec/{kawaiiIpSecId}",
 			c.DeleteKawaiiIpSec,
 		},
 	}
@@ -210,10 +210,10 @@ func (c *KawaiiAPIController) UpdateKawaii(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &RequiredError{"kawaiiId"}, nil)
 		return
 	}
-	var kawaiiParam Kawaii
+	var kawaiiUpdateParam KawaiiUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&kawaiiParam); err != nil {
+	if err := d.Decode(&kawaiiUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -222,15 +222,15 @@ func (c *KawaiiAPIController) UpdateKawaii(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertKawaiiRequired(kawaiiParam); err != nil {
+	if err := AssertKawaiiUpdateRequired(kawaiiUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertKawaiiConstraints(kawaiiParam); err != nil {
+	if err := AssertKawaiiUpdateConstraints(kawaiiUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateKawaii(r.Context(), kawaiiIdParam, kawaiiParam)
+	result, err := c.service.UpdateKawaii(r.Context(), kawaiiIdParam, kawaiiUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -322,9 +322,9 @@ func (c *KawaiiAPIController) ReadKawaiiIpSec(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, &RequiredError{"kawaiiId"}, nil)
 		return
 	}
-	kawaiiIpSecIdParam := params["KawaiiIpSecId"]
+	kawaiiIpSecIdParam := params["kawaiiIpSecId"]
 	if kawaiiIpSecIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"KawaiiIpSecId"}, nil)
+		c.errorHandler(w, r, &RequiredError{"kawaiiIpSecId"}, nil)
 		return
 	}
 	result, err := c.service.ReadKawaiiIpSec(r.Context(), kawaiiIdParam, kawaiiIpSecIdParam)
@@ -345,15 +345,15 @@ func (c *KawaiiAPIController) UpdateKawaiiIpSec(w http.ResponseWriter, r *http.R
 		c.errorHandler(w, r, &RequiredError{"kawaiiId"}, nil)
 		return
 	}
-	kawaiiIpSecIdParam := params["KawaiiIpSecId"]
+	kawaiiIpSecIdParam := params["kawaiiIpSecId"]
 	if kawaiiIpSecIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"KawaiiIpSecId"}, nil)
+		c.errorHandler(w, r, &RequiredError{"kawaiiIpSecId"}, nil)
 		return
 	}
-	var kawaiiIpSecParam KawaiiIpSec
+	var kawaiiIpSecUpdateParam KawaiiIpSecUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&kawaiiIpSecParam); err != nil {
+	if err := d.Decode(&kawaiiIpSecUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -362,15 +362,15 @@ func (c *KawaiiAPIController) UpdateKawaiiIpSec(w http.ResponseWriter, r *http.R
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertKawaiiIpSecRequired(kawaiiIpSecParam); err != nil {
+	if err := AssertKawaiiIpSecUpdateRequired(kawaiiIpSecUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertKawaiiIpSecConstraints(kawaiiIpSecParam); err != nil {
+	if err := AssertKawaiiIpSecUpdateConstraints(kawaiiIpSecUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateKawaiiIpSec(r.Context(), kawaiiIdParam, kawaiiIpSecIdParam, kawaiiIpSecParam)
+	result, err := c.service.UpdateKawaiiIpSec(r.Context(), kawaiiIdParam, kawaiiIpSecIdParam, kawaiiIpSecUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -388,9 +388,9 @@ func (c *KawaiiAPIController) DeleteKawaiiIpSec(w http.ResponseWriter, r *http.R
 		c.errorHandler(w, r, &RequiredError{"kawaiiId"}, nil)
 		return
 	}
-	kawaiiIpSecIdParam := params["KawaiiIpSecId"]
+	kawaiiIpSecIdParam := params["kawaiiIpSecId"]
 	if kawaiiIpSecIdParam == "" {
-		c.errorHandler(w, r, &RequiredError{"KawaiiIpSecId"}, nil)
+		c.errorHandler(w, r, &RequiredError{"kawaiiIpSecId"}, nil)
 		return
 	}
 	result, err := c.service.DeleteKawaiiIpSec(r.Context(), kawaiiIdParam, kawaiiIpSecIdParam)

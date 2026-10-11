@@ -105,10 +105,10 @@ type KaktusCPU struct {
 func (kc *KaktusCPU) Model() sdk.KaktusCpu {
 	return sdk.KaktusCpu{
 		Arch:    kc.Arch,
-		Cores:   kc.Cores,
+		Cores:   toInt32(kc.Cores),
 		Model:   kc.Modele,
-		Sockets: kc.Sockets,
-		Threads: kc.Threads,
+		Sockets: toInt32(kc.Sockets),
+		Threads: toInt32(kc.Threads),
 		Vendor:  kc.Vendor,
 	}
 }
@@ -373,12 +373,12 @@ func (k *Kaktus) Model() sdk.Kaktus {
 		Id:                    k.String(),
 		Name:                  k.Name,
 		Description:           k.Description,
-		CpuCost:               cpu_cost,
-		MemoryCost:            memory_cost,
+		CpuCost:               &cpu_cost,
+		MemoryCost:            &memory_cost,
 		OvercommitCpuRatio:    k.OverCommit.CPU,
 		OvercommitMemoryRatio: k.OverCommit.Memory,
 		Agents:                k.AgentIDs,
-		Maintenance:           k.Maintenance,
+		Maintenance:           ptr(k.Maintenance),
 	}
 }
 

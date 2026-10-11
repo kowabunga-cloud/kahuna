@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -62,7 +62,7 @@ type InstanceAPIRouter interface {
 // The KaktusAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a KaktusAPIServicer to perform the required actions, then write the service results to the http response.
 type KaktusAPIRouter interface {
-	ListKaktuss(http.ResponseWriter, *http.Request)
+	ListKaktuses(http.ResponseWriter, *http.Request)
 	ReadKaktus(http.ResponseWriter, *http.Request)
 	UpdateKaktus(http.ResponseWriter, *http.Request)
 	DeleteKaktus(http.ResponseWriter, *http.Request)
@@ -148,7 +148,7 @@ type KyloAPIRouter interface {
 // The NfsAPIRouter implementation should parse necessary information from the http request,
 // pass the data to a NfsAPIServicer to perform the required actions, then write the service results to the http response.
 type NfsAPIRouter interface {
-	ListStorageNFSs(http.ResponseWriter, *http.Request)
+	ListStorageNFSes(http.ResponseWriter, *http.Request)
 	ReadStorageNFS(http.ResponseWriter, *http.Request)
 	UpdateStorageNFS(http.ResponseWriter, *http.Request)
 	DeleteStorageNFS(http.ResponseWriter, *http.Request)
@@ -163,7 +163,7 @@ type PoolAPIRouter interface {
 	UpdateStoragePool(http.ResponseWriter, *http.Request)
 	DeleteStoragePool(http.ResponseWriter, *http.Request)
 	ListStoragePoolVolumes(http.ResponseWriter, *http.Request)
-	CreateTemplate(http.ResponseWriter, *http.Request)
+	CreateStoragePoolTemplate(http.ResponseWriter, *http.Request)
 	SetStoragePoolDefaultTemplate(http.ResponseWriter, *http.Request)
 	ListStoragePoolTemplates(http.ResponseWriter, *http.Request)
 }
@@ -192,8 +192,8 @@ type ProjectAPIRouter interface {
 	ListProjectZoneKomputes(http.ResponseWriter, *http.Request)
 	CreateProjectRegionKompute(http.ResponseWriter, *http.Request)
 	ListProjectRegionKomputes(http.ResponseWriter, *http.Request)
-	ListProjectRegionKylos(http.ResponseWriter, *http.Request)
 	CreateProjectRegionKylo(http.ResponseWriter, *http.Request)
+	ListProjectRegionKylos(http.ResponseWriter, *http.Request)
 	CreateProjectRegionKawaii(http.ResponseWriter, *http.Request)
 	ListProjectRegionKawaiis(http.ResponseWriter, *http.Request)
 	CreateProjectZoneKonvey(http.ResponseWriter, *http.Request)
@@ -218,17 +218,17 @@ type RegionAPIRouter interface {
 	ReadRegion(http.ResponseWriter, *http.Request)
 	UpdateRegion(http.ResponseWriter, *http.Request)
 	DeleteRegion(http.ResponseWriter, *http.Request)
-	CreateZone(http.ResponseWriter, *http.Request)
+	CreateRegionZone(http.ResponseWriter, *http.Request)
 	ListRegionZones(http.ResponseWriter, *http.Request)
-	CreateStoragePool(http.ResponseWriter, *http.Request)
-	CreateKiwi(http.ResponseWriter, *http.Request)
+	CreateRegionStoragePool(http.ResponseWriter, *http.Request)
+	CreateRegionKiwi(http.ResponseWriter, *http.Request)
 	ListRegionKiwis(http.ResponseWriter, *http.Request)
-	CreateVNet(http.ResponseWriter, *http.Request)
+	CreateRegionVNet(http.ResponseWriter, *http.Request)
 	ListRegionVNets(http.ResponseWriter, *http.Request)
 	SetRegionDefaultStoragePool(http.ResponseWriter, *http.Request)
 	ListRegionStoragePools(http.ResponseWriter, *http.Request)
-	ListRegionStorageNFSs(http.ResponseWriter, *http.Request)
-	CreateStorageNFS(http.ResponseWriter, *http.Request)
+	CreateRegionStorageNFS(http.ResponseWriter, *http.Request)
+	ListRegionStorageNFSes(http.ResponseWriter, *http.Request)
 	SetRegionDefaultStorageNFS(http.ResponseWriter, *http.Request)
 	CreateRegionDnsRecord(http.ResponseWriter, *http.Request)
 	ListRegionDnsRecords(http.ResponseWriter, *http.Request)
@@ -241,7 +241,7 @@ type SubnetAPIRouter interface {
 	ReadSubnet(http.ResponseWriter, *http.Request)
 	UpdateSubnet(http.ResponseWriter, *http.Request)
 	DeleteSubnet(http.ResponseWriter, *http.Request)
-	CreateAdapter(http.ResponseWriter, *http.Request)
+	CreateSubnetAdapter(http.ResponseWriter, *http.Request)
 	ListSubnetAdapters(http.ResponseWriter, *http.Request)
 }
 // TeamAPIRouter defines the required methods for binding the api requests to a responses for the TeamAPI
@@ -296,7 +296,7 @@ type VnetAPIRouter interface {
 	ReadVNet(http.ResponseWriter, *http.Request)
 	UpdateVNet(http.ResponseWriter, *http.Request)
 	DeleteVNet(http.ResponseWriter, *http.Request)
-	CreateSubnet(http.ResponseWriter, *http.Request)
+	CreateVNetSubnet(http.ResponseWriter, *http.Request)
 	SetVNetDefaultSubnet(http.ResponseWriter, *http.Request)
 	ListVNetSubnets(http.ResponseWriter, *http.Request)
 }
@@ -317,7 +317,7 @@ type ZoneAPIRouter interface {
 	ReadZone(http.ResponseWriter, *http.Request)
 	UpdateZone(http.ResponseWriter, *http.Request)
 	DeleteZone(http.ResponseWriter, *http.Request)
-	CreateKaktus(http.ResponseWriter, *http.Request)
+	CreateZoneKaktus(http.ResponseWriter, *http.Request)
 	ListZoneKaktuses(http.ResponseWriter, *http.Request)
 }
 
@@ -329,7 +329,7 @@ type ZoneAPIRouter interface {
 type AdapterAPIServicer interface {
 	ListAdapters(context.Context) (ImplResponse, error)
 	ReadAdapter(context.Context, string) (ImplResponse, error)
-	UpdateAdapter(context.Context, string, Adapter) (ImplResponse, error)
+	UpdateAdapter(context.Context, string, AdapterUpdate) (ImplResponse, error)
 	DeleteAdapter(context.Context, string) (ImplResponse, error)
 }
 
@@ -342,7 +342,7 @@ type AgentAPIServicer interface {
 	ListAgents(context.Context) (ImplResponse, error)
 	CreateAgent(context.Context, Agent) (ImplResponse, error)
 	ReadAgent(context.Context, string) (ImplResponse, error)
-	UpdateAgent(context.Context, string, Agent) (ImplResponse, error)
+	UpdateAgent(context.Context, string, AgentUpdate) (ImplResponse, error)
 	DeleteAgent(context.Context, string) (ImplResponse, error)
 	SetAgentApiToken(context.Context, string, bool, string) (ImplResponse, error)
 }
@@ -355,7 +355,7 @@ type AgentAPIServicer interface {
 type InstanceAPIServicer interface {
 	ListInstances(context.Context) (ImplResponse, error)
 	ReadInstance(context.Context, string) (ImplResponse, error)
-	UpdateInstance(context.Context, string, Instance) (ImplResponse, error)
+	UpdateInstance(context.Context, string, InstanceUpdate) (ImplResponse, error)
 	DeleteInstance(context.Context, string) (ImplResponse, error)
 	ReadInstanceState(context.Context, string) (ImplResponse, error)
 	RebootInstance(context.Context, string) (ImplResponse, error)
@@ -376,9 +376,9 @@ type InstanceAPIServicer interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type KaktusAPIServicer interface {
-	ListKaktuss(context.Context) (ImplResponse, error)
+	ListKaktuses(context.Context) (ImplResponse, error)
 	ReadKaktus(context.Context, string) (ImplResponse, error)
-	UpdateKaktus(context.Context, string, Kaktus) (ImplResponse, error)
+	UpdateKaktus(context.Context, string, KaktusUpdate) (ImplResponse, error)
 	DeleteKaktus(context.Context, string) (ImplResponse, error)
 	EnableKaktusMaintenance(context.Context, string) (ImplResponse, error)
 	DisableKaktusMaintenance(context.Context, string) (ImplResponse, error)
@@ -394,12 +394,12 @@ type KaktusAPIServicer interface {
 type KawaiiAPIServicer interface {
 	ListKawaiis(context.Context) (ImplResponse, error)
 	ReadKawaii(context.Context, string) (ImplResponse, error)
-	UpdateKawaii(context.Context, string, Kawaii) (ImplResponse, error)
+	UpdateKawaii(context.Context, string, KawaiiUpdate) (ImplResponse, error)
 	DeleteKawaii(context.Context, string) (ImplResponse, error)
 	ListKawaiiIpSecs(context.Context, string) (ImplResponse, error)
 	CreateKawaiiIpSec(context.Context, string, KawaiiIpSec) (ImplResponse, error)
 	ReadKawaiiIpSec(context.Context, string, string) (ImplResponse, error)
-	UpdateKawaiiIpSec(context.Context, string, string, KawaiiIpSec) (ImplResponse, error)
+	UpdateKawaiiIpSec(context.Context, string, string, KawaiiIpSecUpdate) (ImplResponse, error)
 	DeleteKawaiiIpSec(context.Context, string, string) (ImplResponse, error)
 }
 
@@ -411,7 +411,7 @@ type KawaiiAPIServicer interface {
 type KiwiAPIServicer interface {
 	ListKiwis(context.Context) (ImplResponse, error)
 	ReadKiwi(context.Context, string) (ImplResponse, error)
-	UpdateKiwi(context.Context, string, Kiwi) (ImplResponse, error)
+	UpdateKiwi(context.Context, string, KiwiUpdate) (ImplResponse, error)
 	DeleteKiwi(context.Context, string) (ImplResponse, error)
 }
 
@@ -423,7 +423,7 @@ type KiwiAPIServicer interface {
 type KomputeAPIServicer interface {
 	ListKomputes(context.Context) (ImplResponse, error)
 	ReadKompute(context.Context, string) (ImplResponse, error)
-	UpdateKompute(context.Context, string, Kompute) (ImplResponse, error)
+	UpdateKompute(context.Context, string, KomputeUpdate) (ImplResponse, error)
 	DeleteKompute(context.Context, string) (ImplResponse, error)
 	ReadKomputeState(context.Context, string) (ImplResponse, error)
 	RebootKompute(context.Context, string) (ImplResponse, error)
@@ -445,7 +445,7 @@ type KomputeAPIServicer interface {
 type KonveyAPIServicer interface {
 	ListKonveys(context.Context) (ImplResponse, error)
 	ReadKonvey(context.Context, string) (ImplResponse, error)
-	UpdateKonvey(context.Context, string, Konvey) (ImplResponse, error)
+	UpdateKonvey(context.Context, string, KonveyUpdate) (ImplResponse, error)
 	DeleteKonvey(context.Context, string) (ImplResponse, error)
 }
 
@@ -457,7 +457,7 @@ type KonveyAPIServicer interface {
 type KwarantineAPIServicer interface {
 	ListKwarantines(context.Context) (ImplResponse, error)
 	ReadKwarantine(context.Context, string) (ImplResponse, error)
-	UpdateKwarantine(context.Context, string, Kwarantine) (ImplResponse, error)
+	UpdateKwarantine(context.Context, string, KwarantineUpdate) (ImplResponse, error)
 	DeleteKwarantine(context.Context, string) (ImplResponse, error)
 	AddKwarantineInstance(context.Context, string, string) (ImplResponse, error)
 	RemoveKwarantineInstance(context.Context, string, string) (ImplResponse, error)
@@ -473,7 +473,7 @@ type KwarantineAPIServicer interface {
 type KyloAPIServicer interface {
 	ListKylos(context.Context) (ImplResponse, error)
 	ReadKylo(context.Context, string) (ImplResponse, error)
-	UpdateKylo(context.Context, string, Kylo) (ImplResponse, error)
+	UpdateKylo(context.Context, string, KyloUpdate) (ImplResponse, error)
 	DeleteKylo(context.Context, string) (ImplResponse, error)
 }
 
@@ -483,9 +483,9 @@ type KyloAPIServicer interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type NfsAPIServicer interface {
-	ListStorageNFSs(context.Context) (ImplResponse, error)
+	ListStorageNFSes(context.Context) (ImplResponse, error)
 	ReadStorageNFS(context.Context, string) (ImplResponse, error)
-	UpdateStorageNFS(context.Context, string, StorageNfs) (ImplResponse, error)
+	UpdateStorageNFS(context.Context, string, StorageNfsUpdate) (ImplResponse, error)
 	DeleteStorageNFS(context.Context, string) (ImplResponse, error)
 	ListStorageNFSKylos(context.Context, string) (ImplResponse, error)
 }
@@ -498,10 +498,10 @@ type NfsAPIServicer interface {
 type PoolAPIServicer interface {
 	ListStoragePools(context.Context) (ImplResponse, error)
 	ReadStoragePool(context.Context, string) (ImplResponse, error)
-	UpdateStoragePool(context.Context, string, StoragePool) (ImplResponse, error)
+	UpdateStoragePool(context.Context, string, StoragePoolUpdate) (ImplResponse, error)
 	DeleteStoragePool(context.Context, string) (ImplResponse, error)
 	ListStoragePoolVolumes(context.Context, string) (ImplResponse, error)
-	CreateTemplate(context.Context, string, Template) (ImplResponse, error)
+	CreateStoragePoolTemplate(context.Context, string, Template) (ImplResponse, error)
 	SetStoragePoolDefaultTemplate(context.Context, string, string) (ImplResponse, error)
 	ListStoragePoolTemplates(context.Context, string) (ImplResponse, error)
 }
@@ -512,10 +512,10 @@ type PoolAPIServicer interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type ProjectAPIServicer interface {
-	ListProjects(context.Context, int32) (ImplResponse, error)
+	ListProjects(context.Context) (ImplResponse, error)
 	CreateProject(context.Context, Project, int32) (ImplResponse, error)
 	ReadProject(context.Context, string) (ImplResponse, error)
-	UpdateProject(context.Context, string, Project) (ImplResponse, error)
+	UpdateProject(context.Context, string, ProjectUpdate) (ImplResponse, error)
 	DeleteProject(context.Context, string) (ImplResponse, error)
 	ReadProjectCost(context.Context, string) (ImplResponse, error)
 	ReadProjectUsage(context.Context, string) (ImplResponse, error)
@@ -533,8 +533,8 @@ type ProjectAPIServicer interface {
 	ListProjectZoneKomputes(context.Context, string, string) (ImplResponse, error)
 	CreateProjectRegionKompute(context.Context, string, string, Kompute, string, string, bool) (ImplResponse, error)
 	ListProjectRegionKomputes(context.Context, string, string) (ImplResponse, error)
-	ListProjectRegionKylos(context.Context, string, string, string) (ImplResponse, error)
 	CreateProjectRegionKylo(context.Context, string, string, Kylo, string) (ImplResponse, error)
+	ListProjectRegionKylos(context.Context, string, string, string) (ImplResponse, error)
 	CreateProjectRegionKawaii(context.Context, string, string, Kawaii) (ImplResponse, error)
 	ListProjectRegionKawaiis(context.Context, string, string) (ImplResponse, error)
 	CreateProjectZoneKonvey(context.Context, string, string, Konvey) (ImplResponse, error)
@@ -550,7 +550,7 @@ type ProjectAPIServicer interface {
 // and updated with the logic required for the API.
 type RecordAPIServicer interface {
 	ReadDnsRecord(context.Context, string) (ImplResponse, error)
-	UpdateDnsRecord(context.Context, string, DnsRecord) (ImplResponse, error)
+	UpdateDnsRecord(context.Context, string, DnsRecordUpdate) (ImplResponse, error)
 	DeleteDnsRecord(context.Context, string) (ImplResponse, error)
 }
 
@@ -563,19 +563,19 @@ type RegionAPIServicer interface {
 	ListRegions(context.Context) (ImplResponse, error)
 	CreateRegion(context.Context, Region) (ImplResponse, error)
 	ReadRegion(context.Context, string) (ImplResponse, error)
-	UpdateRegion(context.Context, string, Region) (ImplResponse, error)
+	UpdateRegion(context.Context, string, RegionUpdate) (ImplResponse, error)
 	DeleteRegion(context.Context, string) (ImplResponse, error)
-	CreateZone(context.Context, string, Zone) (ImplResponse, error)
+	CreateRegionZone(context.Context, string, Zone) (ImplResponse, error)
 	ListRegionZones(context.Context, string) (ImplResponse, error)
-	CreateStoragePool(context.Context, string, StoragePool) (ImplResponse, error)
-	CreateKiwi(context.Context, string, Kiwi) (ImplResponse, error)
+	CreateRegionStoragePool(context.Context, string, StoragePool) (ImplResponse, error)
+	CreateRegionKiwi(context.Context, string, Kiwi) (ImplResponse, error)
 	ListRegionKiwis(context.Context, string) (ImplResponse, error)
-	CreateVNet(context.Context, string, VNet) (ImplResponse, error)
+	CreateRegionVNet(context.Context, string, VNet) (ImplResponse, error)
 	ListRegionVNets(context.Context, string) (ImplResponse, error)
 	SetRegionDefaultStoragePool(context.Context, string, string) (ImplResponse, error)
 	ListRegionStoragePools(context.Context, string) (ImplResponse, error)
-	ListRegionStorageNFSs(context.Context, string, string) (ImplResponse, error)
-	CreateStorageNFS(context.Context, string, StorageNfs, string) (ImplResponse, error)
+	CreateRegionStorageNFS(context.Context, string, StorageNfs, string) (ImplResponse, error)
+	ListRegionStorageNFSes(context.Context, string) (ImplResponse, error)
 	SetRegionDefaultStorageNFS(context.Context, string, string) (ImplResponse, error)
 	CreateRegionDnsRecord(context.Context, string, DnsRecord) (ImplResponse, error)
 	ListRegionDnsRecords(context.Context, string) (ImplResponse, error)
@@ -589,9 +589,9 @@ type RegionAPIServicer interface {
 type SubnetAPIServicer interface {
 	ListSubnets(context.Context) (ImplResponse, error)
 	ReadSubnet(context.Context, string) (ImplResponse, error)
-	UpdateSubnet(context.Context, string, Subnet) (ImplResponse, error)
+	UpdateSubnet(context.Context, string, SubnetUpdate) (ImplResponse, error)
 	DeleteSubnet(context.Context, string) (ImplResponse, error)
-	CreateAdapter(context.Context, string, Adapter, bool) (ImplResponse, error)
+	CreateSubnetAdapter(context.Context, string, Adapter, bool) (ImplResponse, error)
 	ListSubnetAdapters(context.Context, string) (ImplResponse, error)
 }
 
@@ -604,7 +604,7 @@ type TeamAPIServicer interface {
 	ListTeams(context.Context) (ImplResponse, error)
 	CreateTeam(context.Context, Team) (ImplResponse, error)
 	ReadTeam(context.Context, string) (ImplResponse, error)
-	UpdateTeam(context.Context, string, Team) (ImplResponse, error)
+	UpdateTeam(context.Context, string, TeamUpdate) (ImplResponse, error)
 	DeleteTeam(context.Context, string) (ImplResponse, error)
 }
 
@@ -616,7 +616,7 @@ type TeamAPIServicer interface {
 type TemplateAPIServicer interface {
 	ListTemplates(context.Context) (ImplResponse, error)
 	ReadTemplate(context.Context, string) (ImplResponse, error)
-	UpdateTemplate(context.Context, string, Template) (ImplResponse, error)
+	UpdateTemplate(context.Context, string, TemplateUpdate) (ImplResponse, error)
 	DeleteTemplate(context.Context, string) (ImplResponse, error)
 }
 
@@ -628,7 +628,7 @@ type TemplateAPIServicer interface {
 type TokenAPIServicer interface {
 	ListApiTokens(context.Context) (ImplResponse, error)
 	ReadApiToken(context.Context, string) (ImplResponse, error)
-	UpdateApiToken(context.Context, string, ApiToken) (ImplResponse, error)
+	UpdateApiToken(context.Context, string, ApiTokenUpdate) (ImplResponse, error)
 	DeleteApiToken(context.Context, string) (ImplResponse, error)
 }
 
@@ -644,7 +644,7 @@ type UserAPIServicer interface {
 	ListUsers(context.Context) (ImplResponse, error)
 	CreateUser(context.Context, User) (ImplResponse, error)
 	ReadUser(context.Context, string) (ImplResponse, error)
-	UpdateUser(context.Context, string, User) (ImplResponse, error)
+	UpdateUser(context.Context, string, UserUpdate) (ImplResponse, error)
 	DeleteUser(context.Context, string) (ImplResponse, error)
 	SetUserPassword(context.Context, string, Password) (ImplResponse, error)
 	ResetUserPassword(context.Context, string) (ImplResponse, error)
@@ -659,9 +659,9 @@ type UserAPIServicer interface {
 type VnetAPIServicer interface {
 	ListVNets(context.Context) (ImplResponse, error)
 	ReadVNet(context.Context, string) (ImplResponse, error)
-	UpdateVNet(context.Context, string, VNet) (ImplResponse, error)
+	UpdateVNet(context.Context, string, VNetUpdate) (ImplResponse, error)
 	DeleteVNet(context.Context, string) (ImplResponse, error)
-	CreateSubnet(context.Context, string, Subnet) (ImplResponse, error)
+	CreateVNetSubnet(context.Context, string, Subnet) (ImplResponse, error)
 	SetVNetDefaultSubnet(context.Context, string, string) (ImplResponse, error)
 	ListVNetSubnets(context.Context, string) (ImplResponse, error)
 }
@@ -674,7 +674,7 @@ type VnetAPIServicer interface {
 type VolumeAPIServicer interface {
 	ListVolumes(context.Context) (ImplResponse, error)
 	ReadVolume(context.Context, string) (ImplResponse, error)
-	UpdateVolume(context.Context, string, Volume) (ImplResponse, error)
+	UpdateVolume(context.Context, string, VolumeUpdate) (ImplResponse, error)
 	DeleteVolume(context.Context, string) (ImplResponse, error)
 }
 
@@ -686,8 +686,8 @@ type VolumeAPIServicer interface {
 type ZoneAPIServicer interface {
 	ListZones(context.Context) (ImplResponse, error)
 	ReadZone(context.Context, string) (ImplResponse, error)
-	UpdateZone(context.Context, string, Zone) (ImplResponse, error)
+	UpdateZone(context.Context, string, ZoneUpdate) (ImplResponse, error)
 	DeleteZone(context.Context, string) (ImplResponse, error)
-	CreateKaktus(context.Context, string, Kaktus) (ImplResponse, error)
+	CreateZoneKaktus(context.Context, string, Kaktus) (ImplResponse, error)
 	ListZoneKaktuses(context.Context, string) (ImplResponse, error)
 }

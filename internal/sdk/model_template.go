@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // Template - A image template.
 type Template struct {
 
-	// The image template ID (auto-generated).
+	// The image template ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The image template name.
@@ -31,10 +31,10 @@ type Template struct {
 	// The image template description.
 	Description string `json:"description,omitempty"`
 
-	// Type of operating system if OS kind (useful to determine cloud-init parameters for instance).
+	// Type of operating system (useful to determine cloud-init parameters for instance). Can only be set at creation time, ignored on updates.
 	Os string `json:"os,omitempty"`
 
-	// HTTP(s) source URL of the KVM-ready OS image.
+	// HTTP(s) source URL of the KVM-ready OS image. Can only be set at creation time, ignored on updates.
 	Source string `json:"source"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into Template
@@ -119,10 +119,26 @@ func (o *Template) UnmarshalJSON(data []byte) (err error) {
 // AssertTemplateRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertTemplateRequired(obj Template) error {
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertTemplateConstraints checks if the values respects the defined constraints
 func AssertTemplateConstraints(obj Template) error {
+
+
+
+
+
+
+
+
 	return nil
 }

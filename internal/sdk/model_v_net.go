@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -13,6 +13,7 @@ package sdk
 
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 )
@@ -22,7 +23,7 @@ import (
 // VNet - A virtual network.
 type VNet struct {
 
-	// The virtual network ID (auto-generated).
+	// The virtual network ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The virtual network name.
@@ -32,13 +33,13 @@ type VNet struct {
 	Description string `json:"description,omitempty"`
 
 	// The VLAN identifier (0 if unspecified).
-	Vlan int64 `json:"vlan,omitempty"`
+	Vlan int32 `json:"vlan,omitempty"`
 
 	// The libvirt's bridge network interface (brX).
 	Interface string `json:"interface"`
 
-	// Is the virtual network adapter connected to private (LAN) or public (WAN) physical network ?.
-	Private bool `json:"private,omitempty"`
+	// Whether the virtual network is connected to private (LAN) or public (WAN) physical network. Can only be set at creation time, ignored on updates.
+	Private *bool `json:"private,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into VNet
 func (o *VNet) UnmarshalJSON(data []byte) (err error) {
@@ -128,10 +129,40 @@ func (o *VNet) UnmarshalJSON(data []byte) (err error) {
 // AssertVNetRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertVNetRequired(obj VNet) error {
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertVNetConstraints checks if the values respects the defined constraints
 func AssertVNetConstraints(obj VNet) error {
+
+
+
+
+	if obj.Vlan < 0 {
+		return &ParsingError{Param: "Vlan", Err: errors.New(errMsgMinValueConstraint)}
+	}
+	if obj.Vlan > 4094 {
+		return &ParsingError{Param: "Vlan", Err: errors.New(errMsgMaxValueConstraint)}
+	}
+
+
+
+
+
+
+
+
 	return nil
 }

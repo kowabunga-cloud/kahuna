@@ -13,12 +13,12 @@ import (
 )
 
 func NewVNetRouter() sdk.Router {
-	return sdk.NewVnetAPIController(&VNetService{})
+	return sdk.NewVnetAPIController(&VNetService{}, sdk.WithVnetAPIErrorHandler(ApiErrorHandler))
 }
 
 type VNetService struct{}
 
-func (s *VNetService) CreateSubnet(ctx context.Context, vnetId string, subnet sdk.Subnet) (sdk.ImplResponse, error) {
+func (s *VNetService) CreateVNetSubnet(ctx context.Context, vnetId string, subnet sdk.Subnet) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("vnetId", vnetId), RA("subnet", subnet))
 
 	// ensure vnet exists
@@ -38,8 +38,13 @@ func (s *VNetService) CreateSubnet(ctx context.Context, vnetId string, subnet sd
 		return HttpConflict(err)
 	}
 
+	app := subnet.Application
+	if app == "" {
+		app = SubnetApplicationUser
+	}
+
 	// create subnet
-	sb, err := NewSubnet(v.String(), subnet.Name, subnet.Description, subnet.Cidr, subnet.Gateway, subnet.Dns, v.Private, subnet.Reserved, subnet.GwPool, subnet.ExtraRoutes, subnet.Application)
+	sb, err := NewSubnet(v.String(), subnet.Name, subnet.Description, subnet.Cidr, subnet.Gateway, subnet.Dns, v.Private, subnet.Reserved, subnet.GwPool, subnet.ExtraRoutes, app)
 	if err != nil {
 		return HttpServerError(err)
 	}
@@ -117,13 +122,8 @@ func (s *VNetService) SetVNetDefaultSubnet(ctx context.Context, vnetId string, s
 	return HttpOK(nil)
 }
 
-func (s *VNetService) UpdateVNet(ctx context.Context, vnetId string, vNet sdk.VNet) (sdk.ImplResponse, error) {
+func (s *VNetService) UpdateVNet(ctx context.Context, vnetId string, vNet sdk.VNetUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("vnetId", vnetId), RA("vNet", vNet))
-
-	// check for params
-	if vNet.Name == "" && vNet.Description == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure vnet exists
 	v, err := FindVNetByID(vnetId)

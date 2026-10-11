@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -198,10 +198,10 @@ func (c *KwarantineAPIController) UpdateKwarantine(w http.ResponseWriter, r *htt
 		c.errorHandler(w, r, &RequiredError{"kwarantineId"}, nil)
 		return
 	}
-	var kwarantineParam Kwarantine
+	var kwarantineUpdateParam KwarantineUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&kwarantineParam); err != nil {
+	if err := d.Decode(&kwarantineUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -210,15 +210,15 @@ func (c *KwarantineAPIController) UpdateKwarantine(w http.ResponseWriter, r *htt
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertKwarantineRequired(kwarantineParam); err != nil {
+	if err := AssertKwarantineUpdateRequired(kwarantineUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertKwarantineConstraints(kwarantineParam); err != nil {
+	if err := AssertKwarantineUpdateConstraints(kwarantineUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateKwarantine(r.Context(), kwarantineIdParam, kwarantineParam)
+	result, err := c.service.UpdateKwarantine(r.Context(), kwarantineIdParam, kwarantineUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

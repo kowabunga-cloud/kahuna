@@ -13,7 +13,7 @@ import (
 )
 
 func NewDnsRecordRouter() sdk.Router {
-	return sdk.NewRecordAPIController(&DnsRecordService{})
+	return sdk.NewRecordAPIController(&DnsRecordService{}, sdk.WithRecordAPIErrorHandler(ApiErrorHandler))
 }
 
 type DnsRecordService struct{}
@@ -45,13 +45,8 @@ func (s *DnsRecordService) ReadDnsRecord(ctx context.Context, recordId string) (
 	return HttpOK(payload)
 }
 
-func (s *DnsRecordService) UpdateDnsRecord(ctx context.Context, recordId string, dnsRecord sdk.DnsRecord) (sdk.ImplResponse, error) {
+func (s *DnsRecordService) UpdateDnsRecord(ctx context.Context, recordId string, dnsRecord sdk.DnsRecordUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("recordId", recordId), RA("dnsRecord", dnsRecord))
-
-	// check for params
-	if dnsRecord.Name == "" && len(dnsRecord.Addresses) == 0 {
-		return HttpBadParams(nil)
-	}
 
 	// ensure record exists
 	r, err := FindDnsRecordByID(recordId)

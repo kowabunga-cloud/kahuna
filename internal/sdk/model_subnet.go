@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // Subnet - A network subnet.
 type Subnet struct {
 
-	// The network subnet ID (auto-generated).
+	// The network subnet ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The network subnet name.
@@ -31,7 +31,7 @@ type Subnet struct {
 	// The network subnet description.
 	Description string `json:"description,omitempty"`
 
-	// The network subnet CIDR (e.g. 192.168.0.0/24).
+	// The network subnet CIDR (e.g. 192.168.0.0/24). Can only be set at creation time, ignored on updates.
 	Cidr string `json:"cidr"`
 
 	// The network subnet router/gateway IP address (e.g. 192.168.0.254).
@@ -40,7 +40,7 @@ type Subnet struct {
 	// The network subnet DNS server IP address (gateway value if unspecified).
 	Dns string `json:"dns,omitempty"`
 
-	// The list of extra routes to be access through designated gateway (format is 10.0.0.0/8).
+	// The list of extra routes to be accessed through designated gateway (format is 10.0.0.0/8).
 	ExtraRoutes []string `json:"extra_routes,omitempty"`
 
 	// The network subnet reserved IPv4 ranges (i.e. no IP address can be assigned from there).
@@ -166,30 +166,66 @@ func (o *Subnet) UnmarshalJSON(data []byte) (err error) {
 // AssertSubnetRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertSubnetRequired(obj Subnet) error {
+
+
+
+
+
+
+
+
+
+
+
+
+
 	for _, el := range obj.Reserved {
 		if err := AssertIpRangeRequired(el); err != nil {
 			return err
 		}
 	}
+
+
 	for _, el := range obj.GwPool {
 		if err := AssertIpRangeRequired(el); err != nil {
 			return err
 		}
 	}
+
+
+
 	return nil
 }
 
 // AssertSubnetConstraints checks if the values respects the defined constraints
 func AssertSubnetConstraints(obj Subnet) error {
+
+
+
+
+
+
+
+
+
+
+
+
+
 	for _, el := range obj.Reserved {
 		if err := AssertIpRangeConstraints(el); err != nil {
 			return err
 		}
 	}
+
+
 	for _, el := range obj.GwPool {
 		if err := AssertIpRangeConstraints(el); err != nil {
 			return err
 		}
 	}
+
+
+
 	return nil
 }

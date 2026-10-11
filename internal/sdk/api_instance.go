@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -282,10 +282,10 @@ func (c *InstanceAPIController) UpdateInstance(w http.ResponseWriter, r *http.Re
 		c.errorHandler(w, r, &RequiredError{"instanceId"}, nil)
 		return
 	}
-	var instanceParam Instance
+	var instanceUpdateParam InstanceUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&instanceParam); err != nil {
+	if err := d.Decode(&instanceUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -294,15 +294,15 @@ func (c *InstanceAPIController) UpdateInstance(w http.ResponseWriter, r *http.Re
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertInstanceRequired(instanceParam); err != nil {
+	if err := AssertInstanceUpdateRequired(instanceUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertInstanceConstraints(instanceParam); err != nil {
+	if err := AssertInstanceUpdateConstraints(instanceUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateInstance(r.Context(), instanceIdParam, instanceParam)
+	result, err := c.service.UpdateInstance(r.Context(), instanceIdParam, instanceUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

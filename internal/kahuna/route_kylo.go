@@ -13,7 +13,7 @@ import (
 )
 
 func NewKyloRouter() sdk.Router {
-	return sdk.NewKyloAPIController(&KyloService{})
+	return sdk.NewKyloAPIController(&KyloService{}, sdk.WithKyloAPIErrorHandler(ApiErrorHandler))
 }
 
 type KyloService struct{}
@@ -49,13 +49,8 @@ func (s *KyloService) ReadKylo(ctx context.Context, kyloId string) (sdk.ImplResp
 	return HttpOK(payload)
 }
 
-func (s *KyloService) UpdateKylo(ctx context.Context, kyloId string, kylo sdk.Kylo) (sdk.ImplResponse, error) {
+func (s *KyloService) UpdateKylo(ctx context.Context, kyloId string, kylo sdk.KyloUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("kyloId", kyloId), RA("kylo", kylo))
-
-	// check for params
-	if kylo.Name == "" && kylo.Access == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure Kylo exists
 	k, err := FindKyloByID(kyloId)

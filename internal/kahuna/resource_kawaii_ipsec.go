@@ -7,6 +7,7 @@
 package kahuna
 
 import (
+	"cmp"
 	"crypto/rand"
 	"fmt"
 	"math/big"
@@ -22,6 +23,12 @@ const (
 	MongoCollectionIPsecName                = "ipsec"
 	MongoCollectionKawaiiIPsecSchemaVersion = 1
 	ErrorIPsecUnderlyingMZRNotFound         = "Could not find kawaii underlying MZR and consequently public IPs to assign to the IPSEC"
+
+	KawaiiIPsecDefaultDpdTimeout       = "240s"
+	KawaiiIPsecDefaultDpdTimeoutAction = "restart"
+	KawaiiIPsecDefaultStartAction      = "start"
+	KawaiiIPsecDefaultRekeyTime        = "2h"
+	KawaiiIPsecDefaultLifetime         = "1h"
 )
 
 type KawaiiIPsec struct {
@@ -91,6 +98,14 @@ func NewKawaiiIPsecConnection(kawaiiId, name, desc, remotePeer, remoteSubnet, pr
 		xfrmId++
 	}
 
+	// apply defaults
+	dpdTimeout = cmp.Or(dpdTimeout, KawaiiIPsecDefaultDpdTimeout)
+	dpdTimeoutAction = cmp.Or(dpdTimeoutAction, KawaiiIPsecDefaultDpdTimeoutAction)
+	startAction = cmp.Or(startAction, KawaiiIPsecDefaultStartAction)
+	rekey = cmp.Or(rekey, KawaiiIPsecDefaultRekeyTime)
+	p1Lifetime = cmp.Or(p1Lifetime, KawaiiIPsecDefaultLifetime)
+	p2Lifetime = cmp.Or(p2Lifetime, KawaiiIPsecDefaultLifetime)
+
 	kawaiiIPsec := KawaiiIPsec{
 		Resource:                  NewResource(name, desc, MongoCollectionKawaiiIPsecSchemaVersion),
 		KawaiiID:                  kawaiiId,
@@ -137,20 +152,21 @@ func (k *KawaiiIPsec) Model() sdk.KawaiiIpSec {
 		Name:                      k.Name,
 		RemoteIp:                  k.RemotePeer,
 		RemoteSubnet:              k.RemoteSubnet,
-		PreSharedKey:              k.PreSharedKey,
 		DpdTimeout:                k.DpdTimeout,
 		DpdTimeoutAction:          k.DpdTimeoutAction,
 		StartAction:               k.StartAction,
 		RekeyTime:                 k.Rekey,
 		Phase1Lifetime:            k.Phase1Lifetime,
-		Phase1DhGroupNumber:       k.Phase1DHGroupNumber,
+		Phase1DhGroupNumber:       toInt32(k.Phase1DHGroupNumber),
 		Phase1IntegrityAlgorithm:  k.Phase1IntegrityAlgorithm,
 		Phase1EncryptionAlgorithm: k.Phase1EncryptionAlgorithm,
 		Phase2Lifetime:            k.Phase2Lifetime,
-		Phase2DhGroupNumber:       k.Phase2DHGroupNumber,
+		Phase2DhGroupNumber:       toInt32(k.Phase2DHGroupNumber),
 		Phase2IntegrityAlgorithm:  k.Phase2IntegrityAlgorithm,
 		Phase2EncryptionAlgorithm: k.Phase2EncryptionAlgorithm,
-		Firewall:                  k.Firewall.Model(),
+		Firewall: &sdk.KawaiiIpSecFirewall{
+			Ingress: k.Firewall.Model().Ingress,
+		},
 	}
 }
 
@@ -175,25 +191,31 @@ func (k *KawaiiIPsec) Update(name, desc, remotePeer, remoteSubnet, preSharedKey 
 	dpdTimeout, dpdTimeoutAction, startAction, rekey string,
 	p1Lifetime string, p1DHGroupNumber int64, p1IntegrityAlgorithm, p1EncryptionAlgorithm string,
 	p2Lifetime string, p2DHGroupNumber int64, p2IntegrityAlgorithm, p2EncryptionAlgorithm string,
-	fw KawaiiFirewall) error {
-	k.Name = name
-	k.PreSharedKey = preSharedKey
-	k.Description = desc
-	k.Firewall = fw
-	k.RemotePeer = remotePeer
-	k.RemoteSubnet = remoteSubnet
-	k.DpdTimeout = dpdTimeout
-	k.DpdTimeoutAction = dpdTimeoutAction
-	k.StartAction = startAction
-	k.Rekey = rekey
-	k.Phase1Lifetime = p1Lifetime
-	k.Phase1DHGroupNumber = p1DHGroupNumber
-	k.Phase1IntegrityAlgorithm = p1IntegrityAlgorithm
-	k.Phase1EncryptionAlgorithm = p1EncryptionAlgorithm
-	k.Phase2Lifetime = p2Lifetime
-	k.Phase2DHGroupNumber = p2DHGroupNumber
-	k.Phase2IntegrityAlgorithm = p2IntegrityAlgorithm
-	k.Phase2EncryptionAlgorithm = p2EncryptionAlgorithm
+	fw *KawaiiFirewall) error {
+	// unspecified settings are left unchanged
+	k.UpdateResourceDefaults(name, desc)
+	SetFieldStr(&k.PreSharedKey, preSharedKey)
+	if fw != nil {
+		k.Firewall = *fw
+	}
+	SetFieldStr(&k.RemotePeer, remotePeer)
+	SetFieldStr(&k.RemoteSubnet, remoteSubnet)
+	SetFieldStr(&k.DpdTimeout, dpdTimeout)
+	SetFieldStr(&k.DpdTimeoutAction, dpdTimeoutAction)
+	SetFieldStr(&k.StartAction, startAction)
+	SetFieldStr(&k.Rekey, rekey)
+	SetFieldStr(&k.Phase1Lifetime, p1Lifetime)
+	if p1DHGroupNumber != 0 {
+		k.Phase1DHGroupNumber = p1DHGroupNumber
+	}
+	SetFieldStr(&k.Phase1IntegrityAlgorithm, p1IntegrityAlgorithm)
+	SetFieldStr(&k.Phase1EncryptionAlgorithm, p1EncryptionAlgorithm)
+	SetFieldStr(&k.Phase2Lifetime, p2Lifetime)
+	if p2DHGroupNumber != 0 {
+		k.Phase2DHGroupNumber = p2DHGroupNumber
+	}
+	SetFieldStr(&k.Phase2IntegrityAlgorithm, p2IntegrityAlgorithm)
+	SetFieldStr(&k.Phase2EncryptionAlgorithm, p2EncryptionAlgorithm)
 
 	err := k.Save()
 	if err != nil {

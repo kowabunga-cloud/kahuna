@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // Kiwi - A Kiwi (Kowabunga Inner Wan Interface) provides edge-network services..
 type Kiwi struct {
 
-	// The Kiwi (Kowabunga Inner Wan Interface) provides edge-network services. ID (auto-generated).
+	// The Kiwi (Kowabunga Inner Wan Interface) provides edge-network services. ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The Kiwi (Kowabunga Inner Wan Interface) provides edge-network services. name.
@@ -108,10 +108,22 @@ func (o *Kiwi) UnmarshalJSON(data []byte) (err error) {
 // AssertKiwiRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKiwiRequired(obj Kiwi) error {
+
+
+
+
+
+
 	return nil
 }
 
 // AssertKiwiConstraints checks if the values respects the defined constraints
 func AssertKiwiConstraints(obj Kiwi) error {
+
+
+
+
+
+
 	return nil
 }

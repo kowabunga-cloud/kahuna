@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -81,10 +81,14 @@ func (o *KMotionCommitRequest) UnmarshalJSON(data []byte) (err error) {
 // AssertKMotionCommitRequestRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKMotionCommitRequestRequired(obj KMotionCommitRequest) error {
+
+
 	return nil
 }
 
 // AssertKMotionCommitRequestConstraints checks if the values respects the defined constraints
 func AssertKMotionCommitRequestConstraints(obj KMotionCommitRequest) error {
+
+
 	return nil
 }

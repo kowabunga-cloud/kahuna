@@ -13,7 +13,7 @@ import (
 )
 
 func NewTeamRouter() sdk.Router {
-	return sdk.NewTeamAPIController(&TeamService{})
+	return sdk.NewTeamAPIController(&TeamService{}, sdk.WithTeamAPIErrorHandler(ApiErrorHandler))
 }
 
 type TeamService struct{}
@@ -79,13 +79,8 @@ func (s *TeamService) ReadTeam(ctx context.Context, teamId string) (sdk.ImplResp
 	return HttpOK(payload)
 }
 
-func (s *TeamService) UpdateTeam(ctx context.Context, teamId string, team sdk.Team) (sdk.ImplResponse, error) {
+func (s *TeamService) UpdateTeam(ctx context.Context, teamId string, team sdk.TeamUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("teamId", teamId), RA("team", team))
-
-	// check for params
-	if team.Name == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure team exists
 	g, err := FindTeamByID(teamId)

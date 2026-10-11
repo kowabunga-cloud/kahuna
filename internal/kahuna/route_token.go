@@ -13,7 +13,7 @@ import (
 )
 
 func NewTokenRouter() sdk.Router {
-	return sdk.NewTokenAPIController(&TokenService{})
+	return sdk.NewTokenAPIController(&TokenService{}, sdk.WithTokenAPIErrorHandler(ApiErrorHandler))
 }
 
 type TokenService struct{}
@@ -49,13 +49,8 @@ func (s *TokenService) ReadApiToken(ctx context.Context, tokenId string) (sdk.Im
 	return HttpOK(payload)
 }
 
-func (s *TokenService) UpdateApiToken(ctx context.Context, tokenId string, apiToken sdk.ApiToken) (sdk.ImplResponse, error) {
+func (s *TokenService) UpdateApiToken(ctx context.Context, tokenId string, apiToken sdk.ApiTokenUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("tokenId", tokenId), RA("apiToken", apiToken))
-
-	// check for params
-	if apiToken.Name == "" && apiToken.Description == "" && apiToken.ExpirationDate == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure token exists
 	t, err := FindTokenByID(tokenId)
@@ -64,7 +59,11 @@ func (s *TokenService) UpdateApiToken(ctx context.Context, tokenId string, apiTo
 	}
 
 	// update token
-	err = t.Update(apiToken.Name, apiToken.Description, apiToken.Expire, apiToken.ExpirationDate)
+	expirationDate := apiToken.ExpirationDate
+	if expirationDate == "" {
+		expirationDate = t.ExpirationDate
+	}
+	err = t.Update(apiToken.Name, apiToken.Description, valueOr(apiToken.Expire, t.Expire), expirationDate)
 	if err != nil {
 		return HttpServerError(err)
 	}

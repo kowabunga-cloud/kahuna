@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -270,10 +270,10 @@ func (c *KomputeAPIController) UpdateKompute(w http.ResponseWriter, r *http.Requ
 		c.errorHandler(w, r, &RequiredError{"komputeId"}, nil)
 		return
 	}
-	var komputeParam Kompute
+	var komputeUpdateParam KomputeUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&komputeParam); err != nil {
+	if err := d.Decode(&komputeUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -282,15 +282,15 @@ func (c *KomputeAPIController) UpdateKompute(w http.ResponseWriter, r *http.Requ
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertKomputeRequired(komputeParam); err != nil {
+	if err := AssertKomputeUpdateRequired(komputeUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertKomputeConstraints(komputeParam); err != nil {
+	if err := AssertKomputeUpdateConstraints(komputeUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateKompute(r.Context(), komputeIdParam, komputeParam)
+	result, err := c.service.UpdateKompute(r.Context(), komputeIdParam, komputeUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

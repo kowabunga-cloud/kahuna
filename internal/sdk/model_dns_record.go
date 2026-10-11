@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // DnsRecord - A DNS record.
 type DnsRecord struct {
 
-	// The DNS record ID (auto-generated).
+	// The DNS record ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The DNS record name.
@@ -31,7 +31,7 @@ type DnsRecord struct {
 	// The DNS record description.
 	Description string `json:"description,omitempty"`
 
-	// The DNS record associated domain (inherited from associated project).
+	// The DNS record associated domain, inherited from associated project (read-only).
 	Domain string `json:"domain,omitempty"`
 
 	// A list of IPv4 addresses to be associated to the record.
@@ -128,10 +128,22 @@ func AssertDnsRecordRequired(obj DnsRecord) error {
 		}
 	}
 
+
+
+
+
+
+
 	return nil
 }
 
 // AssertDnsRecordConstraints checks if the values respects the defined constraints
 func AssertDnsRecordConstraints(obj DnsRecord) error {
+
+
+
+
+
+
 	return nil
 }

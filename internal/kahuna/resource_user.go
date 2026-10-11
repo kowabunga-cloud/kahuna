@@ -408,7 +408,7 @@ func (u *User) Model() sdk.User {
 		Description:   u.Description,
 		Email:         u.Email,
 		Role:          u.Role,
-		Notifications: u.NotificationsEnabled,
+		Notifications: ptr(u.NotificationsEnabled),
 	}
 }
 

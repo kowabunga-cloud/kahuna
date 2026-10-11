@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -150,10 +150,10 @@ func (c *KyloAPIController) UpdateKylo(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &RequiredError{"kyloId"}, nil)
 		return
 	}
-	var kyloParam Kylo
+	var kyloUpdateParam KyloUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&kyloParam); err != nil {
+	if err := d.Decode(&kyloUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -162,15 +162,15 @@ func (c *KyloAPIController) UpdateKylo(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertKyloRequired(kyloParam); err != nil {
+	if err := AssertKyloUpdateRequired(kyloUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertKyloConstraints(kyloParam); err != nil {
+	if err := AssertKyloUpdateConstraints(kyloUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateKylo(r.Context(), kyloIdParam, kyloParam)
+	result, err := c.service.UpdateKylo(r.Context(), kyloIdParam, kyloUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

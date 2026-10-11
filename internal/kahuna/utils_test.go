@@ -8,6 +8,7 @@ package kahuna
 
 import (
 	"encoding/xml"
+	"math"
 	"net"
 	"testing"
 )
@@ -383,5 +384,20 @@ func TestVerifySSHPublicKey(t *testing.T) {
 		if err := VerifySSHPublicKey(k); err == nil {
 			t.Errorf("VerifySSHPublicKey(%q) should fail", k)
 		}
+	}
+}
+
+func TestOptionalHelpers(t *testing.T) {
+	if p := ptr(true); p == nil || !*p {
+		t.Fatal("ptr(true) must point to true")
+	}
+	if valueOr[bool](nil, true) != true {
+		t.Fatal("unspecified value must fallback to default")
+	}
+	if valueOr(ptr(false), true) != false {
+		t.Fatal("specified value must be returned")
+	}
+	if toInt32(42) != 42 || toInt32(math.MaxInt64) != math.MaxInt32 || toInt32(math.MinInt64) != math.MinInt32 {
+		t.Fatal("toInt32 must convert and clamp")
 	}
 }

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -28,9 +28,9 @@ func NewNfsAPIService() *NfsAPIService {
 	return &NfsAPIService{}
 }
 
-// ListStorageNFSs -
-func (s *NfsAPIService) ListStorageNFSs(ctx context.Context) (ImplResponse, error) {
-	// TODO - update ListStorageNFSs with the required logic for this service method.
+// ListStorageNFSes -
+func (s *NfsAPIService) ListStorageNFSes(ctx context.Context) (ImplResponse, error) {
+	// TODO - update ListStorageNFSes with the required logic for this service method.
 	// Add api_nfs_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(200, []string{}) or use other options such as http.Ok ...
@@ -42,7 +42,10 @@ func (s *NfsAPIService) ListStorageNFSs(ctx context.Context) (ImplResponse, erro
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("ListStorageNFSs method not implemented")
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("ListStorageNFSes method not implemented")
 }
 
 // ReadStorageNFS -
@@ -59,6 +62,9 @@ func (s *NfsAPIService) ReadStorageNFS(ctx context.Context, nfsId string) (ImplR
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -66,7 +72,7 @@ func (s *NfsAPIService) ReadStorageNFS(ctx context.Context, nfsId string) (ImplR
 }
 
 // UpdateStorageNFS -
-func (s *NfsAPIService) UpdateStorageNFS(ctx context.Context, nfsId string, storageNfs StorageNfs) (ImplResponse, error) {
+func (s *NfsAPIService) UpdateStorageNFS(ctx context.Context, nfsId string, storageNfsUpdate StorageNfsUpdate) (ImplResponse, error) {
 	// TODO - update UpdateStorageNFS with the required logic for this service method.
 	// Add api_nfs_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -81,6 +87,9 @@ func (s *NfsAPIService) UpdateStorageNFS(ctx context.Context, nfsId string, stor
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -108,6 +117,9 @@ func (s *NfsAPIService) DeleteStorageNFS(ctx context.Context, nfsId string) (Imp
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -133,6 +145,9 @@ func (s *NfsAPIService) ListStorageNFSKylos(ctx context.Context, nfsId string) (
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil

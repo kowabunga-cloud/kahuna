@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -92,10 +92,18 @@ func (o *IpRange) UnmarshalJSON(data []byte) (err error) {
 // AssertIpRangeRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertIpRangeRequired(obj IpRange) error {
+
+
+
+
 	return nil
 }
 
 // AssertIpRangeConstraints checks if the values respects the defined constraints
 func AssertIpRangeConstraints(obj IpRange) error {
+
+
+
+
 	return nil
 }

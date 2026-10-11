@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -126,10 +126,10 @@ func (c *RecordAPIController) UpdateDnsRecord(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, &RequiredError{"recordId"}, nil)
 		return
 	}
-	var dnsRecordParam DnsRecord
+	var dnsRecordUpdateParam DnsRecordUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&dnsRecordParam); err != nil {
+	if err := d.Decode(&dnsRecordUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -138,15 +138,15 @@ func (c *RecordAPIController) UpdateDnsRecord(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertDnsRecordRequired(dnsRecordParam); err != nil {
+	if err := AssertDnsRecordUpdateRequired(dnsRecordUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertDnsRecordConstraints(dnsRecordParam); err != nil {
+	if err := AssertDnsRecordUpdateConstraints(dnsRecordUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateDnsRecord(r.Context(), recordIdParam, dnsRecordParam)
+	result, err := c.service.UpdateDnsRecord(r.Context(), recordIdParam, dnsRecordUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

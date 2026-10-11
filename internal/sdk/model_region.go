@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // Region - A region.
 type Region struct {
 
-	// The region ID (auto-generated).
+	// The region ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The region name.
@@ -110,10 +110,22 @@ func (o *Region) UnmarshalJSON(data []byte) (err error) {
 // AssertRegionRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertRegionRequired(obj Region) error {
+
+
+
+
+
+
 	return nil
 }
 
 // AssertRegionConstraints checks if the values respects the defined constraints
 func AssertRegionConstraints(obj Region) error {
+
+
+
+
+
+
 	return nil
 }

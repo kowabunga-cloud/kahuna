@@ -1,0 +1,375 @@
+{{!
+  Kowabunga override of the go-server model template: optional booleans and
+  optional nested objects are generated as pointers (like nullable ones), so
+  that unspecified values can be told apart from zero ones (e.g. for default
+  values or partial updates).
+}}{{>partial_header}}
+package {{packageName}}
+
+{{#models}}{{#imports}}
+{{#-first}}import (
+{{/-first}}	"{{import}}"{{#-last}}
+)
+{{/-last}}{{/imports}}
+
+{{#model}}{{#isEnum}}{{#description}}// {{{classname}}} : {{{description}}}{{/description}}
+type {{{classname}}} {{^format}}{{dataType}}{{/format}}{{{format}}}
+
+// List of {{{classname}}}
+const (
+	{{#allowableValues}}
+	{{#enumVars}}
+	{{#enumClassPrefix}}{{{classname.toUpperCase}}}_{{/enumClassPrefix}}{{name}} {{{classname}}} = {{{value}}}
+	{{/enumVars}}
+	{{/allowableValues}}
+)
+
+// Allowed{{{classname}}}EnumValues is all the allowed values of {{{classname}}} enum
+var Allowed{{{classname}}}EnumValues = []{{{classname}}}{
+	{{#allowableValues}}
+	{{#enumVars}}
+	{{{value}}},
+	{{/enumVars}}
+	{{/allowableValues}}
+}
+
+// valid{{{classname}}}EnumValue provides a map of {{classname}}s for fast verification of use input
+var valid{{{classname}}}EnumValues = map[{{{classname}}}]struct{}{
+	{{#allowableValues}}
+	{{#enumVars}}
+	{{{value}}}: {},
+	{{/enumVars}}
+	{{/allowableValues}}
+}
+
+// IsValid return true if the value is valid for the enum, false otherwise
+func (v {{{classname}}}) IsValid() bool {
+	_, ok := valid{{{classname}}}EnumValues[v]
+	return ok
+}
+
+// New{{{classname}}}FromValue returns a pointer to a valid {{{classname}}}
+// for the value passed as argument, or an error if the value passed is not allowed by the enum
+func New{{{classname}}}FromValue(v {{{format}}}{{^format}}{{dataType}}{{/format}}) ({{{classname}}}, error) {
+	ev := {{{classname}}}(v)
+	if ev.IsValid() {
+		return ev, nil
+	}
+
+	return "", fmt.Errorf("invalid value '%v' for {{{classname}}}: valid values are %v", v, Allowed{{{classname}}}EnumValues)
+}
+
+{{/isEnum}}{{^isEnum}}{{#description}}
+// {{classname}} - {{{description}}}{{/description}}
+type {{classname}} struct {
+{{#vendorExtensions.x-go-embed-parent-classname}}
+	{{{.}}}
+{{/vendorExtensions.x-go-embed-parent-classname}}
+{{#vars}}{{#description}}
+	// {{{.}}}{{/description}}
+	{{#deprecated}}
+	// Deprecated
+	{{/deprecated}}
+	{{name}} {{#isNullable}}*{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}*{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}*{{/required}}{{/isBoolean}}{{/isNullable}}{{{dataType}}} `json:"{{baseName}}{{^required}},omitempty{{/required}}"{{#vendorExtensions.x-go-custom-tag}} {{{.}}}{{/vendorExtensions.x-go-custom-tag}}`
+{{/vars}}
+}
+{{#vendorExtensions.hasPresenceCheckRequiredVars}}
+{{>model_unmarshal_json_presence}}
+{{/vendorExtensions.hasPresenceCheckRequiredVars}}
+{{/isEnum}}
+
+// Assert{{classname}}Required checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func Assert{{classname}}Required(obj {{classname}}) error {
+{{#hasRequired}}
+{{#vendorExtensions.hasRequiredAssertVars}}
+	elements := map[string]interface{}{
+{{#vendorExtensions.assertRequiredVars}}
+		"{{baseName}}": obj.{{name}},
+{{/vendorExtensions.assertRequiredVars}}
+	}
+	for name, el := range elements {
+		if isZero := IsZeroValue(el); isZero {
+			return &RequiredError{Field: name}
+		}
+	}
+
+{{/vendorExtensions.hasRequiredAssertVars}}
+{{/hasRequired}}
+{{#vendorExtensions.x-go-embed-parent-classname}}
+	if err := Assert{{vendorExtensions.x-go-embed-parent-classname}}Required(obj.{{vendorExtensions.x-go-embed-parent-classname}}); err != nil {
+		return err
+	}
+
+{{/vendorExtensions.x-go-embed-parent-classname}}
+{{#Vars}}
+{{^isReadOnly}}
+	{{#isNullable}}
+		{{#isModel}}
+	if obj.{{name}} != nil {
+		{{/isModel}}
+		{{#isArray}}
+			{{#items.isModel}}
+	if obj.{{name}} != nil {
+			{{/items.isModel}}
+			{{^items.isModel}}
+				{{#mostInnerItems.isModel}}
+					{{^mostInnerItems.isPrimitiveType}}
+	if obj.{{name}} != nil {
+					{{/mostInnerItems.isPrimitiveType}}
+				{{/mostInnerItems.isModel}}
+			{{/items.isModel}}
+		{{/isArray}}
+	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}
+		{{#isModel}}
+	if obj.{{name}} != nil {
+		{{/isModel}}
+		{{#isArray}}
+			{{#items.isModel}}
+	if obj.{{name}} != nil {
+			{{/items.isModel}}
+			{{^items.isModel}}
+				{{#mostInnerItems.isModel}}
+					{{^mostInnerItems.isPrimitiveType}}
+	if obj.{{name}} != nil {
+					{{/mostInnerItems.isPrimitiveType}}
+				{{/mostInnerItems.isModel}}
+			{{/items.isModel}}
+		{{/isArray}}
+	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}
+		{{#isModel}}
+	if obj.{{name}} != nil {
+		{{/isModel}}
+		{{#isArray}}
+			{{#items.isModel}}
+	if obj.{{name}} != nil {
+			{{/items.isModel}}
+			{{^items.isModel}}
+				{{#mostInnerItems.isModel}}
+					{{^mostInnerItems.isPrimitiveType}}
+	if obj.{{name}} != nil {
+					{{/mostInnerItems.isPrimitiveType}}
+				{{/mostInnerItems.isModel}}
+			{{/items.isModel}}
+		{{/isArray}}
+	{{/required}}{{/isBoolean}}{{/isNullable}}
+	{{#isModel}}
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}	if err := Assert{{baseType}}Required({{#isNullable}}*{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}*{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}*{{/required}}{{/isBoolean}}{{/isNullable}}obj.{{name}}); err != nil {
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}		return err
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}	}
+	{{/isModel}}
+	{{#isArray}}
+		{{#items.isModel}}
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}	for _, el := range {{#isNullable}}*{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}*{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}*{{/required}}{{/isBoolean}}{{/isNullable}}obj.{{name}} {
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}		if err := Assert{{items.baseType}}Required(el); err != nil {
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}			return err
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}		}
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}	}
+		{{/items.isModel}}
+		{{^items.isModel}}
+			{{#mostInnerItems.isModel}}
+				{{^mostInnerItems.isPrimitiveType}}
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}	if err := AssertRecurseInterfaceRequired({{#isNullable}}*{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}*{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}*{{/required}}{{/isBoolean}}{{/isNullable}}obj.{{name}}, Assert{{mostInnerItems.dataType}}Required); err != nil {
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}		return err
+{{#isNullable}}	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}	{{/required}}{{/isBoolean}}{{/isNullable}}	}
+				{{/mostInnerItems.isPrimitiveType}}
+			{{/mostInnerItems.isModel}}
+		{{/items.isModel}}
+	{{/isArray}}
+	{{#isNullable}}
+		{{#isModel}}
+	}
+		{{/isModel}}
+		{{#isArray}}
+			{{#items.isModel}}
+	}
+			{{/items.isModel}}
+			{{^items.isModel}}
+				{{#mostInnerItems.isModel}}
+					{{^mostInnerItems.isPrimitiveType}}
+	}
+					{{/mostInnerItems.isPrimitiveType}}
+				{{/mostInnerItems.isModel}}
+			{{/items.isModel}}
+		{{/isArray}}
+	{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}
+		{{#isModel}}
+	}
+		{{/isModel}}
+		{{#isArray}}
+			{{#items.isModel}}
+	}
+			{{/items.isModel}}
+			{{^items.isModel}}
+				{{#mostInnerItems.isModel}}
+					{{^mostInnerItems.isPrimitiveType}}
+	}
+					{{/mostInnerItems.isPrimitiveType}}
+				{{/mostInnerItems.isModel}}
+			{{/items.isModel}}
+		{{/isArray}}
+	{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}
+		{{#isModel}}
+	}
+		{{/isModel}}
+		{{#isArray}}
+			{{#items.isModel}}
+	}
+			{{/items.isModel}}
+			{{^items.isModel}}
+				{{#mostInnerItems.isModel}}
+					{{^mostInnerItems.isPrimitiveType}}
+	}
+					{{/mostInnerItems.isPrimitiveType}}
+				{{/mostInnerItems.isModel}}
+			{{/items.isModel}}
+		{{/isArray}}
+	{{/required}}{{/isBoolean}}{{/isNullable}}
+{{/isReadOnly}}
+{{/Vars}}
+	return nil
+}
+
+// Assert{{classname}}Constraints checks if the values respects the defined constraints
+func Assert{{classname}}Constraints(obj {{classname}}) error {
+{{#Vars}}
+{{^isReadOnly}}
+{{#minimum}}
+	if {{#isNullable}}obj.{{name}} != nil && *{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}obj.{{name}} != nil && *{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}obj.{{name}} != nil && *{{/required}}{{/isBoolean}}{{/isNullable}}obj.{{name}} < {{minimum}} {
+		return &ParsingError{Param: "{{name}}", Err: errors.New(errMsgMinValueConstraint)}
+	}
+{{/minimum}}
+{{#maximum}}
+	if {{#isNullable}}obj.{{name}} != nil && *{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}obj.{{name}} != nil && *{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}obj.{{name}} != nil && *{{/required}}{{/isBoolean}}{{/isNullable}}obj.{{name}} > {{maximum}} {
+		return &ParsingError{Param: "{{name}}", Err: errors.New(errMsgMaxValueConstraint)}
+	}
+{{/maximum}}
+{{#isNullable}}
+{{#isModel}}
+    if obj.{{name}} != nil {
+{{/isModel}}
+{{#isArray}}
+{{#items.isModel}}
+    if obj.{{name}} != nil {
+{{/items.isModel}}
+{{/isArray}}
+{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}
+{{#isModel}}
+    if obj.{{name}} != nil {
+{{/isModel}}
+{{#isArray}}
+{{#items.isModel}}
+    if obj.{{name}} != nil {
+{{/items.isModel}}
+{{/isArray}}
+{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}
+{{#isModel}}
+    if obj.{{name}} != nil {
+{{/isModel}}
+{{#isArray}}
+{{#items.isModel}}
+    if obj.{{name}} != nil {
+{{/items.isModel}}
+{{/isArray}}
+{{/required}}{{/isBoolean}}{{/isNullable}}
+{{#isModel}}
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}	if err := Assert{{baseType}}Constraints({{#isNullable}}*{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}*{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}*{{/required}}{{/isBoolean}}{{/isNullable}}obj.{{name}}); err != nil {
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}		return err
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}	}
+{{/isModel}}
+{{#isArray}}
+{{#items.isModel}}
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}	for _, el := range {{#isNullable}}*{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}*{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}*{{/required}}{{/isBoolean}}{{/isNullable}}obj.{{name}} {
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}		if err := Assert{{items.baseType}}Constraints(el); err != nil {
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}			return err
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}		}
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}	}
+{{/items.isModel}}
+{{^items.isModel}}
+{{#mostInnerItems.isModel}}
+{{^mostInnerItems.isPrimitiveType}}
+{{#isNullable}}
+    if obj.{{name}} != nil {
+{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}
+    if obj.{{name}} != nil {
+{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}
+    if obj.{{name}} != nil {
+{{/required}}{{/isBoolean}}{{/isNullable}}
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}	if err := AssertRecurseInterfaceRequired({{#isNullable}}*{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}*{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}*{{/required}}{{/isBoolean}}{{/isNullable}}obj.{{name}}, Assert{{mostInnerItems.dataType}}Constraints); err != nil {
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}		return err
+{{#isNullable}}     {{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}     {{/required}}{{/isModel}}{{#isBoolean}}{{^required}}     {{/required}}{{/isBoolean}}{{/isNullable}}	}
+{{/mostInnerItems.isPrimitiveType}}
+{{/mostInnerItems.isModel}}
+{{/items.isModel}}
+{{/isArray}}
+{{#isNullable}}
+{{#isModel}}
+    }
+{{/isModel}}
+{{#isArray}}
+{{#items.isModel}}
+    }
+{{/items.isModel}}
+{{^items.isModel}}
+{{#mostInnerItems.isModel}}
+{{^mostInnerItems.isPrimitiveType}}
+{{#isNullable}}
+    }
+{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}
+    }
+{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}
+    }
+{{/required}}{{/isBoolean}}{{/isNullable}}
+{{/mostInnerItems.isPrimitiveType}}
+{{/mostInnerItems.isModel}}
+{{/items.isModel}}
+{{/isArray}}
+{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}
+{{#isModel}}
+    }
+{{/isModel}}
+{{#isArray}}
+{{#items.isModel}}
+    }
+{{/items.isModel}}
+{{^items.isModel}}
+{{#mostInnerItems.isModel}}
+{{^mostInnerItems.isPrimitiveType}}
+{{#isNullable}}
+    }
+{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}
+    }
+{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}
+    }
+{{/required}}{{/isBoolean}}{{/isNullable}}
+{{/mostInnerItems.isPrimitiveType}}
+{{/mostInnerItems.isModel}}
+{{/items.isModel}}
+{{/isArray}}
+{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}
+{{#isModel}}
+    }
+{{/isModel}}
+{{#isArray}}
+{{#items.isModel}}
+    }
+{{/items.isModel}}
+{{^items.isModel}}
+{{#mostInnerItems.isModel}}
+{{^mostInnerItems.isPrimitiveType}}
+{{#isNullable}}
+    }
+{{/isNullable}}{{^isNullable}}{{#isModel}}{{^required}}
+    }
+{{/required}}{{/isModel}}{{#isBoolean}}{{^required}}
+    }
+{{/required}}{{/isBoolean}}{{/isNullable}}
+{{/mostInnerItems.isPrimitiveType}}
+{{/mostInnerItems.isModel}}
+{{/items.isModel}}
+{{/isArray}}
+{{/required}}{{/isBoolean}}{{/isNullable}}
+{{/isReadOnly}}
+{{/Vars}}
+	return nil
+}{{/model}}{{/models}}

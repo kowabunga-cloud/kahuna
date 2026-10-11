@@ -13,12 +13,12 @@ import (
 )
 
 func NewStoragePoolRouter() sdk.Router {
-	return sdk.NewPoolAPIController(&StoragePoolService{})
+	return sdk.NewPoolAPIController(&StoragePoolService{}, sdk.WithPoolAPIErrorHandler(ApiErrorHandler))
 }
 
 type StoragePoolService struct{}
 
-func (s *StoragePoolService) CreateTemplate(ctx context.Context, poolId string, template sdk.Template) (sdk.ImplResponse, error) {
+func (s *StoragePoolService) CreateStoragePoolTemplate(ctx context.Context, poolId string, template sdk.Template) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("poolId", poolId), RA("template", template))
 
 	// ensure pool exists
@@ -134,13 +134,8 @@ func (s *StoragePoolService) SetStoragePoolDefaultTemplate(ctx context.Context, 
 	return HttpOK(nil)
 }
 
-func (s *StoragePoolService) UpdateStoragePool(ctx context.Context, poolId string, storagePool sdk.StoragePool) (sdk.ImplResponse, error) {
+func (s *StoragePoolService) UpdateStoragePool(ctx context.Context, poolId string, storagePool sdk.StoragePoolUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("poolId", poolId), RA("storagePool", storagePool))
-
-	// check for params
-	if storagePool.Name == "" && storagePool.Description == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure pool exists
 	p, err := FindStoragePoolByID(poolId)
@@ -148,9 +143,9 @@ func (s *StoragePoolService) UpdateStoragePool(ctx context.Context, poolId strin
 		return HttpNotFound(err)
 	}
 
-	var price float32
+	price := p.Cost.Price
 	currency := ""
-	if storagePool.Cost.Price != 0 {
+	if storagePool.Cost != nil && storagePool.Cost.Price != 0 {
 		price = storagePool.Cost.Price
 		currency = storagePool.Cost.Currency
 	}

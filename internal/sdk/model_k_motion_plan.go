@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // KMotionPlan - A virtual machine instance kMotion plan.
 type KMotionPlan struct {
 
-	// The kMotion plan ID (auto-generated).
+	// The kMotion plan ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The ID of the virtual machine instance this kMotion plan applies to.
@@ -123,10 +123,26 @@ func (o *KMotionPlan) UnmarshalJSON(data []byte) (err error) {
 // AssertKMotionPlanRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKMotionPlanRequired(obj KMotionPlan) error {
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertKMotionPlanConstraints checks if the values respects the defined constraints
 func AssertKMotionPlanConstraints(obj KMotionPlan) error {
+
+
+
+
+
+
+
+
 	return nil
 }

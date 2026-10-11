@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -194,10 +194,10 @@ func (c *TeamAPIController) UpdateTeam(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &RequiredError{"teamId"}, nil)
 		return
 	}
-	var teamParam Team
+	var teamUpdateParam TeamUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&teamParam); err != nil {
+	if err := d.Decode(&teamUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -206,15 +206,15 @@ func (c *TeamAPIController) UpdateTeam(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertTeamRequired(teamParam); err != nil {
+	if err := AssertTeamUpdateRequired(teamUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertTeamConstraints(teamParam); err != nil {
+	if err := AssertTeamUpdateConstraints(teamUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateTeam(r.Context(), teamIdParam, teamParam)
+	result, err := c.service.UpdateTeam(r.Context(), teamIdParam, teamUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

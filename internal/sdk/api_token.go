@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -150,10 +150,10 @@ func (c *TokenAPIController) UpdateApiToken(w http.ResponseWriter, r *http.Reque
 		c.errorHandler(w, r, &RequiredError{"tokenId"}, nil)
 		return
 	}
-	var apiTokenParam ApiToken
+	var apiTokenUpdateParam ApiTokenUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&apiTokenParam); err != nil {
+	if err := d.Decode(&apiTokenUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -162,15 +162,15 @@ func (c *TokenAPIController) UpdateApiToken(w http.ResponseWriter, r *http.Reque
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertApiTokenRequired(apiTokenParam); err != nil {
+	if err := AssertApiTokenUpdateRequired(apiTokenUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertApiTokenConstraints(apiTokenParam); err != nil {
+	if err := AssertApiTokenUpdateConstraints(apiTokenUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateApiToken(r.Context(), tokenIdParam, apiTokenParam)
+	result, err := c.service.UpdateApiToken(r.Context(), tokenIdParam, apiTokenUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

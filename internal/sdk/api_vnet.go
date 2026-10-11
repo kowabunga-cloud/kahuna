@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -77,11 +77,11 @@ func (c *VnetAPIController) Routes() Routes {
 			"/api/v1/vnet/{vnetId}",
 			c.DeleteVNet,
 		},
-		"CreateSubnet": Route{
-			"CreateSubnet",
+		"CreateVNetSubnet": Route{
+			"CreateVNetSubnet",
 			strings.ToUpper("Post"),
 			"/api/v1/vnet/{vnetId}/subnet",
-			c.CreateSubnet,
+			c.CreateVNetSubnet,
 		},
 		"SetVNetDefaultSubnet": Route{
 			"SetVNetDefaultSubnet",
@@ -126,10 +126,10 @@ func (c *VnetAPIController) OrderedRoutes() []Route {
 			c.DeleteVNet,
 		},
 		Route{
-			"CreateSubnet",
+			"CreateVNetSubnet",
 			strings.ToUpper("Post"),
 			"/api/v1/vnet/{vnetId}/subnet",
-			c.CreateSubnet,
+			c.CreateVNetSubnet,
 		},
 		Route{
 			"SetVNetDefaultSubnet",
@@ -186,10 +186,10 @@ func (c *VnetAPIController) UpdateVNet(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &RequiredError{"vnetId"}, nil)
 		return
 	}
-	var vNetParam VNet
+	var vNetUpdateParam VNetUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&vNetParam); err != nil {
+	if err := d.Decode(&vNetUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -198,15 +198,15 @@ func (c *VnetAPIController) UpdateVNet(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertVNetRequired(vNetParam); err != nil {
+	if err := AssertVNetUpdateRequired(vNetUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertVNetConstraints(vNetParam); err != nil {
+	if err := AssertVNetUpdateConstraints(vNetUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateVNet(r.Context(), vnetIdParam, vNetParam)
+	result, err := c.service.UpdateVNet(r.Context(), vnetIdParam, vNetUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -234,8 +234,8 @@ func (c *VnetAPIController) DeleteVNet(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateSubnet -
-func (c *VnetAPIController) CreateSubnet(w http.ResponseWriter, r *http.Request) {
+// CreateVNetSubnet -
+func (c *VnetAPIController) CreateVNetSubnet(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	vnetIdParam := params["vnetId"]
 	if vnetIdParam == "" {
@@ -262,7 +262,7 @@ func (c *VnetAPIController) CreateSubnet(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreateSubnet(r.Context(), vnetIdParam, subnetParam)
+	result, err := c.service.CreateVNetSubnet(r.Context(), vnetIdParam, subnetParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

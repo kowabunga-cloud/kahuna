@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -42,6 +42,9 @@ func (s *PoolAPIService) ListStoragePools(ctx context.Context) (ImplResponse, er
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	return Response(http.StatusNotImplemented, nil), errors.New("ListStoragePools method not implemented")
 }
 
@@ -59,6 +62,9 @@ func (s *PoolAPIService) ReadStoragePool(ctx context.Context, poolId string) (Im
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -66,7 +72,7 @@ func (s *PoolAPIService) ReadStoragePool(ctx context.Context, poolId string) (Im
 }
 
 // UpdateStoragePool -
-func (s *PoolAPIService) UpdateStoragePool(ctx context.Context, poolId string, storagePool StoragePool) (ImplResponse, error) {
+func (s *PoolAPIService) UpdateStoragePool(ctx context.Context, poolId string, storagePoolUpdate StoragePoolUpdate) (ImplResponse, error) {
 	// TODO - update UpdateStoragePool with the required logic for this service method.
 	// Add api_pool_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -81,6 +87,9 @@ func (s *PoolAPIService) UpdateStoragePool(ctx context.Context, poolId string, s
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -108,6 +117,9 @@ func (s *PoolAPIService) DeleteStoragePool(ctx context.Context, poolId string) (
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -134,15 +146,18 @@ func (s *PoolAPIService) ListStoragePoolVolumes(ctx context.Context, poolId stri
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("ListStoragePoolVolumes method not implemented")
 }
 
-// CreateTemplate -
-func (s *PoolAPIService) CreateTemplate(ctx context.Context, poolId string, template Template) (ImplResponse, error) {
-	// TODO - update CreateTemplate with the required logic for this service method.
+// CreateStoragePoolTemplate -
+func (s *PoolAPIService) CreateStoragePoolTemplate(ctx context.Context, poolId string, template Template) (ImplResponse, error) {
+	// TODO - update CreateStoragePoolTemplate with the required logic for this service method.
 	// Add api_pool_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Template{}) or use other options such as http.Ok ...
@@ -157,6 +172,9 @@ func (s *PoolAPIService) CreateTemplate(ctx context.Context, poolId string, temp
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -169,7 +187,7 @@ func (s *PoolAPIService) CreateTemplate(ctx context.Context, poolId string, temp
 	// TODO: Uncomment the next line to return response Response(507, ApiErrorInsufficientResource{}) or use other options such as http.Ok ...
 	// return Response(507, ApiErrorInsufficientResource{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("CreateTemplate method not implemented")
+	return Response(http.StatusNotImplemented, nil), errors.New("CreateStoragePoolTemplate method not implemented")
 }
 
 // SetStoragePoolDefaultTemplate -
@@ -185,6 +203,9 @@ func (s *PoolAPIService) SetStoragePoolDefaultTemplate(ctx context.Context, pool
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -208,6 +229,9 @@ func (s *PoolAPIService) ListStoragePoolTemplates(ctx context.Context, poolId st
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil

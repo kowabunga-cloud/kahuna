@@ -352,7 +352,7 @@ func (p *Project) NotifiableUsers() []*User {
 	return users
 }
 
-func (p *Project) Update(name, desc, pwd, user, pubkey string, teams, regions, tags []string, meta map[string]string, quotas sdk.ProjectResources) error {
+func (p *Project) Update(name, desc, pwd, user, pubkey string, teams, regions, tags []string, meta map[string]string, quotas *sdk.ProjectResources) error {
 	err := verifyBootstrapSettings(user, pubkey)
 	if err != nil {
 		return err
@@ -368,10 +368,14 @@ func (p *Project) Update(name, desc, pwd, user, pubkey string, teams, regions, t
 	if meta != nil {
 		p.Meta = getMetadatas(meta)
 	}
-	p.Quotas.Update(quotas)
-	p.TeamIDs = teams
+	if quotas != nil {
+		p.Quotas.Update(*quotas)
+	}
+	if teams != nil {
+		p.TeamIDs = teams
+	}
 
-	if !sameElements(regions, p.RegionIDs) {
+	if regions != nil && !sameElements(regions, p.RegionIDs) {
 		err = p.updateRegions(regions)
 		if err != nil {
 			klog.Error(err)
@@ -739,7 +743,6 @@ func (p *Project) Model() sdk.Project {
 		Id:              p.String(),
 		Name:            p.Name,
 		Description:     p.Description,
-		RootPassword:    p.RootPassword,
 		BootstrapUser:   p.BootstrapUser,
 		BootstrapPubkey: p.BootstrapPubkey,
 		Domain:          p.Domain,
@@ -748,7 +751,7 @@ func (p *Project) Model() sdk.Project {
 		ReservedVrrpIds: vrrp_ids,
 		Tags:            p.Tags,
 		Metadatas:       metas,
-		Quotas:          quotas,
+		Quotas:          &quotas,
 		PrivateSubnets:  privateSubnets,
 	}
 }

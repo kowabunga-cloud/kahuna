@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -150,10 +150,10 @@ func (c *KiwiAPIController) UpdateKiwi(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &RequiredError{"kiwiId"}, nil)
 		return
 	}
-	var kiwiParam Kiwi
+	var kiwiUpdateParam KiwiUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&kiwiParam); err != nil {
+	if err := d.Decode(&kiwiUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -162,15 +162,15 @@ func (c *KiwiAPIController) UpdateKiwi(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertKiwiRequired(kiwiParam); err != nil {
+	if err := AssertKiwiUpdateRequired(kiwiUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertKiwiConstraints(kiwiParam); err != nil {
+	if err := AssertKiwiUpdateConstraints(kiwiUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateKiwi(r.Context(), kiwiIdParam, kiwiParam)
+	result, err := c.service.UpdateKiwi(r.Context(), kiwiIdParam, kiwiUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -22,7 +22,7 @@ import (
 // Adapter - A network adapter.
 type Adapter struct {
 
-	// The network adapter ID (auto-generated).
+	// The network adapter ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The network adapter name.
@@ -38,7 +38,7 @@ type Adapter struct {
 	Addresses []string `json:"addresses,omitempty"`
 
 	// The network adapter is a reserved adapter (e.g. router), where the same hardware address can be reused over several subnets.
-	Reserved bool `json:"reserved,omitempty"`
+	Reserved *bool `json:"reserved,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into Adapter
 func (o *Adapter) UnmarshalJSON(data []byte) (err error) {
@@ -126,10 +126,34 @@ func (o *Adapter) UnmarshalJSON(data []byte) (err error) {
 // AssertAdapterRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertAdapterRequired(obj Adapter) error {
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertAdapterConstraints checks if the values respects the defined constraints
 func AssertAdapterConstraints(obj Adapter) error {
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }

@@ -13,7 +13,7 @@ import (
 )
 
 func NewNfsRouter() sdk.Router {
-	return sdk.NewNfsAPIController(&NfsService{})
+	return sdk.NewNfsAPIController(&NfsService{}, sdk.WithNfsAPIErrorHandler(ApiErrorHandler))
 }
 
 type NfsService struct{}
@@ -49,7 +49,7 @@ func (s *NfsService) ListStorageNFSKylos(ctx context.Context, nfsId string) (sdk
 	return HttpOK(payload)
 }
 
-func (s *NfsService) ListStorageNFSs(ctx context.Context) (sdk.ImplResponse, error) {
+func (s *NfsService) ListStorageNFSes(ctx context.Context) (sdk.ImplResponse, error) {
 	return HttpOK(FindResourceIDs(MongoCollectionNfsName))
 }
 
@@ -64,13 +64,8 @@ func (s *NfsService) ReadStorageNFS(ctx context.Context, nfsId string) (sdk.Impl
 	return HttpOK(payload)
 }
 
-func (s *NfsService) UpdateStorageNFS(ctx context.Context, nfsId string, storageNfs sdk.StorageNfs) (sdk.ImplResponse, error) {
+func (s *NfsService) UpdateStorageNFS(ctx context.Context, nfsId string, storageNfs sdk.StorageNfsUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("nfsId", nfsId), RA("storageNfs", storageNfs))
-
-	// check for params
-	if storageNfs.Name == "" && storageNfs.Description == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure NFS storage exists
 	n, err := FindNfsByID(nfsId)

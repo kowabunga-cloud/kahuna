@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -13,6 +13,7 @@ package sdk
 
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 )
@@ -22,7 +23,7 @@ import (
 // Kompute - A Kompute is a wrapper object for bare virtual machines. It consists of an instance, one to several attached volumes and 2 network adapters (a private one, a public one). This is the prefered way for creating virtual machines. IP addresses will be automatically assigned.
 type Kompute struct {
 
-	// The Kompute ID (auto-generated).
+	// The Kompute ID (auto-generated) (read-only).
 	Id string `json:"id,omitempty"`
 
 	// The Kompute name.
@@ -35,7 +36,7 @@ type Kompute struct {
 	Memory int64 `json:"memory"`
 
 	// The Kompute number of vCPUs.
-	Vcpus int64 `json:"vcpus"`
+	Vcpus int32 `json:"vcpus"`
 
 	// The Kompute OS disk size (in bytes).
 	Disk int64 `json:"disk"`
@@ -46,14 +47,14 @@ type Kompute struct {
 	// The Kompute assigned private IPv4 address (read-only).
 	Ip string `json:"ip,omitempty"`
 
-	// An optional list of existing Kwarantine anti-affinity group IDs. Only considered at Kompute creation time, to elect an initial host consistent with the referenced groups policies and register the Kompute as one of their members. Read-only afterwards, always reflecting current membership, which should be managed going forward via the Kwarantine webservices.
+	// An optional list of existing Kwarantine anti-affinity group IDs. Only considered at Kompute creation time, to elect an initial host consistent with the referenced groups policies and register the Kompute as one of their members. Read-only afterwards, always reflecting current membership, which should be managed going forward via the Kwarantine webservices. Can only be set at creation time, ignored on updates.
 	Kwarantines []string `json:"kwarantines,omitempty"`
 
-	// enable UEFI secure firmware (vs. legacy BIOS).
-	Uefi bool `json:"uefi,omitempty"`
+	// Enable UEFI secure firmware (vs. legacy BIOS). Can only be set at creation time, ignored on updates.
+	Uefi *bool `json:"uefi,omitempty"`
 
 	// Whether kMotion (live/cold host migration) is enabled for the Kompute. When disabled, the instance remains bound to its original hosting node.
-	KmotionEnabled bool `json:"kmotion_enabled,omitempty"`
+	KmotionEnabled *bool `json:"kmotion_enabled,omitempty"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into Kompute
 func (o *Kompute) UnmarshalJSON(data []byte) (err error) {
@@ -177,10 +178,66 @@ func (o *Kompute) UnmarshalJSON(data []byte) (err error) {
 // AssertKomputeRequired checks complex required fields (models, arrays, maps) and embedded parents.
 // Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
 func AssertKomputeRequired(obj Kompute) error {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }
 
 // AssertKomputeConstraints checks if the values respects the defined constraints
 func AssertKomputeConstraints(obj Kompute) error {
+
+
+
+
+	if obj.Memory < 1 {
+		return &ParsingError{Param: "Memory", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
+	if obj.Vcpus < 1 {
+		return &ParsingError{Param: "Vcpus", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
+	if obj.Disk < 1 {
+		return &ParsingError{Param: "Disk", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
+	if obj.DataDisk < 0 {
+		return &ParsingError{Param: "DataDisk", Err: errors.New(errMsgMinValueConstraint)}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 	return nil
 }

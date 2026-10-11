@@ -14,7 +14,7 @@ import (
 )
 
 func NewAgentRouter() sdk.Router {
-	return sdk.NewAgentAPIController(&AgentService{})
+	return sdk.NewAgentAPIController(&AgentService{}, sdk.WithAgentAPIErrorHandler(ApiErrorHandler))
 }
 
 type AgentService struct{}
@@ -115,13 +115,8 @@ func (s *AgentService) SetAgentApiToken(ctx context.Context, agentId string, exp
 	return HttpOK(payload)
 }
 
-func (s *AgentService) UpdateAgent(ctx context.Context, agentId string, agent sdk.Agent) (sdk.ImplResponse, error) {
+func (s *AgentService) UpdateAgent(ctx context.Context, agentId string, agent sdk.AgentUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("agentId", agentId), RA("agent", agent))
-
-	// check for params
-	if agent.Name == "" && agent.Description == "" {
-		return HttpBadParams(nil)
-	}
 
 	// ensure token exists
 	a, err := FindAgentByID(agentId)

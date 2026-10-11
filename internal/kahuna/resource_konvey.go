@@ -59,14 +59,14 @@ type KonveyBackend struct {
 func (ke *KonveyEndpoint) Model() sdk.KonveyEndpoint {
 	ep := sdk.KonveyEndpoint{
 		Name:     ke.Name,
-		Port:     ke.Port,
+		Port:     toInt32(ke.Port),
 		Protocol: ke.Protocol,
 		Backends: sdk.KonveyBackends{},
 	}
 
 	for _, backend := range ke.Backends {
 		ep.Backends.Hosts = append(ep.Backends.Hosts, backend.Host)
-		ep.Backends.Port = backend.Port
+		ep.Backends.Port = toInt32(backend.Port)
 	}
 
 	return ep
@@ -202,7 +202,7 @@ func (k *Konvey) HAR() (*HighlyAvailableResource, error) {
 }
 
 func (k *Konvey) Update(desc string, endpoints []KonveyEndpoint) error {
-	k.Description = desc
+	SetFieldStr(&k.Description, desc)
 	k.Endpoints = endpoints
 
 	err := k.Save()
@@ -275,7 +275,7 @@ func (k *Konvey) Model() sdk.Konvey {
 		Id:          k.String(),
 		Name:        strings.TrimPrefix(k.Name, fmt.Sprintf("%s-", KonveyDefaultNamePrefix)),
 		Description: k.Description,
-		Failover:    k.Failover,
+		Failover:    ptr(k.Failover),
 	}
 
 	har, err := k.HAR()

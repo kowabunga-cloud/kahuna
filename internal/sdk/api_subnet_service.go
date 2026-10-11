@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -42,6 +42,9 @@ func (s *SubnetAPIService) ListSubnets(ctx context.Context) (ImplResponse, error
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	return Response(http.StatusNotImplemented, nil), errors.New("ListSubnets method not implemented")
 }
 
@@ -59,6 +62,9 @@ func (s *SubnetAPIService) ReadSubnet(ctx context.Context, subnetId string) (Imp
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -66,7 +72,7 @@ func (s *SubnetAPIService) ReadSubnet(ctx context.Context, subnetId string) (Imp
 }
 
 // UpdateSubnet -
-func (s *SubnetAPIService) UpdateSubnet(ctx context.Context, subnetId string, subnet Subnet) (ImplResponse, error) {
+func (s *SubnetAPIService) UpdateSubnet(ctx context.Context, subnetId string, subnetUpdate SubnetUpdate) (ImplResponse, error) {
 	// TODO - update UpdateSubnet with the required logic for this service method.
 	// Add api_subnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
@@ -81,6 +87,9 @@ func (s *SubnetAPIService) UpdateSubnet(ctx context.Context, subnetId string, su
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
@@ -108,6 +117,9 @@ func (s *SubnetAPIService) DeleteSubnet(ctx context.Context, subnetId string) (I
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -120,9 +132,9 @@ func (s *SubnetAPIService) DeleteSubnet(ctx context.Context, subnetId string) (I
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteSubnet method not implemented")
 }
 
-// CreateAdapter -
-func (s *SubnetAPIService) CreateAdapter(ctx context.Context, subnetId string, adapter Adapter, assignIP bool) (ImplResponse, error) {
-	// TODO - update CreateAdapter with the required logic for this service method.
+// CreateSubnetAdapter -
+func (s *SubnetAPIService) CreateSubnetAdapter(ctx context.Context, subnetId string, adapter Adapter, assignIP bool) (ImplResponse, error) {
+	// TODO - update CreateSubnetAdapter with the required logic for this service method.
 	// Add api_subnet_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
 	// TODO: Uncomment the next line to return response Response(201, Adapter{}) or use other options such as http.Ok ...
@@ -137,6 +149,9 @@ func (s *SubnetAPIService) CreateAdapter(ctx context.Context, subnetId string, a
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
 
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
+
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil
 
@@ -149,7 +164,7 @@ func (s *SubnetAPIService) CreateAdapter(ctx context.Context, subnetId string, a
 	// TODO: Uncomment the next line to return response Response(507, ApiErrorInsufficientResource{}) or use other options such as http.Ok ...
 	// return Response(507, ApiErrorInsufficientResource{}), nil
 
-	return Response(http.StatusNotImplemented, nil), errors.New("CreateAdapter method not implemented")
+	return Response(http.StatusNotImplemented, nil), errors.New("CreateSubnetAdapter method not implemented")
 }
 
 // ListSubnetAdapters -
@@ -165,6 +180,9 @@ func (s *SubnetAPIService) ListSubnetAdapters(ctx context.Context, subnetId stri
 
 	// TODO: Uncomment the next line to return response Response(403, ApiErrorForbidden{}) or use other options such as http.Ok ...
 	// return Response(403, ApiErrorForbidden{}), nil
+
+	// TODO: Uncomment the next line to return response Response(500, ApiErrorInternalServerError{}) or use other options such as http.Ok ...
+	// return Response(500, ApiErrorInternalServerError{}), nil
 
 	// TODO: Uncomment the next line to return response Response(404, ApiErrorNotFound{}) or use other options such as http.Ok ...
 	// return Response(404, ApiErrorNotFound{}), nil

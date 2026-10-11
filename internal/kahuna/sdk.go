@@ -7,6 +7,7 @@
 package kahuna
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime"
@@ -81,46 +82,106 @@ func LogHttpResponse(body interface{}) {
 	klog.Debug(msg)
 }
 
+// ApiError is the JSON body of any API error response, as defined by the
+// OpenAPI specification ApiError* schemas.
+type ApiError struct {
+	Status int32  `json:"status"`
+	Error  string `json:"error"`
+	Reason string `json:"reason"`
+}
+
+// NewApiError returns the API error body for an HTTP status code. Server-side
+// failures details are logged, not disclosed.
+func NewApiError(code int, err error) ApiError {
+	e := ApiError{
+		Status: int32(code), // #nosec G115 -- HTTP status codes fit
+		Error:  http.StatusText(code),
+	}
+	if err != nil {
+		if code >= http.StatusInternalServerError && code != http.StatusInsufficientStorage {
+			klog.Errorf("%s: %v", e.Error, err)
+		} else {
+			e.Reason = err.Error()
+		}
+	}
+	return e
+}
+
+// ApiErrorHandler encodes request errors as JSON ApiError bodies, used by all
+// API controllers in place of the SDK default one, which returns plain strings.
+func ApiErrorHandler(w http.ResponseWriter, r *http.Request, err error, result *sdk.ImplResponse) {
+	code := http.StatusInternalServerError
+	var parsingErr *sdk.ParsingError
+	var requiredErr *sdk.RequiredError
+	switch {
+	case errors.As(err, &parsingErr), errors.As(err, &requiredErr):
+		code = http.StatusBadRequest
+	case result != nil && result.Code != 0:
+		code = result.Code
+	}
+	body := NewApiError(code, err)
+	klog.Debugf("%s %s: %d %s", r.Method, r.URL.Path, code, body.Reason)
+	_ = sdk.EncodeJSONResponse(body, &code, w)
+}
+
+// WriteApiError writes a JSON ApiError response, for requests rejected before
+// reaching API controllers (e.g. by authentication middlewares).
+func WriteApiError(w http.ResponseWriter, code int, err error) {
+	_ = sdk.EncodeJSONResponse(NewApiError(code, err), &code, w)
+}
+
+func httpError(code int, err error) (sdk.ImplResponse, error) {
+	return sdk.Response(code, NewApiError(code, err)), err
+}
+
 func HttpOK(body interface{}) (sdk.ImplResponse, error) {
 	return sdk.Response(http.StatusOK, body), nil
 }
 
 func HttpUnauthorized(err error) (sdk.ImplResponse, error) {
-	return sdk.Response(http.StatusUnauthorized, sdk.ApiErrorUnauthorized{}), err
+	return httpError(http.StatusUnauthorized, err)
 }
 
 func HttpForbidden(err error) (sdk.ImplResponse, error) {
-	return sdk.Response(http.StatusForbidden, sdk.ApiErrorForbidden{}), err
+	return httpError(http.StatusForbidden, err)
 }
 
 func HttpCreated(body interface{}) (sdk.ImplResponse, error) {
 	return sdk.Response(http.StatusCreated, body), nil
 }
 
-func HttpCreatedNoContent() (sdk.ImplResponse, error) {
+func HttpNoContent() (sdk.ImplResponse, error) {
 	return sdk.Response(http.StatusNoContent, nil), nil
 }
 
 func HttpBadParams(err error) (sdk.ImplResponse, error) {
-	return sdk.Response(http.StatusBadRequest, sdk.ApiErrorBadRequest{}), err
+	return httpError(http.StatusBadRequest, err)
 }
 
 func HttpNotFound(err error) (sdk.ImplResponse, error) {
-	return sdk.Response(http.StatusNotFound, sdk.ApiErrorNotFound{}), err
+	return httpError(http.StatusNotFound, err)
 }
 
 func HttpConflict(err error) (sdk.ImplResponse, error) {
-	return sdk.Response(http.StatusConflict, sdk.ApiErrorConflict{}), err
+	return httpError(http.StatusConflict, err)
 }
 
+// HttpServerError reports a request the server can't process (e.g. a
+// resource operation that failed, with its reason).
 func HttpServerError(err error) (sdk.ImplResponse, error) {
-	return sdk.Response(http.StatusUnprocessableEntity, sdk.ApiErrorConflict{}), err
+	return httpError(http.StatusUnprocessableEntity, err)
+}
+
+// HttpInternalError reports an unexpected server-side failure, whose details
+// are logged but not disclosed.
+func HttpInternalError(err error) (sdk.ImplResponse, error) {
+	return httpError(http.StatusInternalServerError, err)
 }
 
 func HttpQuota(err error) (sdk.ImplResponse, error) {
-	return sdk.Response(http.StatusInsufficientStorage, sdk.ApiErrorInsufficientResource{}), err
+	return httpError(http.StatusInsufficientStorage, err)
 }
 
 func HttpNotImplemented(err error) (sdk.ImplResponse, error) {
-	return sdk.Response(http.StatusNotImplemented, nil), err
+	return httpError(http.StatusNotImplemented, err)
 }

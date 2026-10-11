@@ -14,7 +14,7 @@ import (
 )
 
 func NewKawaiiRouter() sdk.Router {
-	return sdk.NewKawaiiAPIController(&KawaiiService{})
+	return sdk.NewKawaiiAPIController(&KawaiiService{}, sdk.WithKawaiiAPIErrorHandler(ApiErrorHandler))
 }
 
 type KawaiiService struct{}
@@ -53,7 +53,7 @@ func (s *KawaiiService) ReadKawaii(ctx context.Context, kawaiiId string) (sdk.Im
 	return HttpOK(payload)
 }
 
-func (s *KawaiiService) UpdateKawaii(ctx context.Context, kawaiiId string, kawaii sdk.Kawaii) (sdk.ImplResponse, error) {
+func (s *KawaiiService) UpdateKawaii(ctx context.Context, kawaiiId string, kawaii sdk.KawaiiUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("kawaiiId", kawaiiId), RA("kawaii", kawaii))
 
 	// Get our kawaii
@@ -62,14 +62,20 @@ func (s *KawaiiService) UpdateKawaii(ctx context.Context, kawaiiId string, kawai
 		return HttpNotFound(err)
 	}
 
-	// converts kawaii from model to object
-	fw, err := kawaiiFirewallFromModel(kawaii.Firewall)
-	if err != nil {
-		return HttpBadParams(err)
+	// converts kawaii from model to object, unspecified settings are left unchanged
+	fw := gw.Firewall
+	if kawaii.Firewall != nil {
+		fw, err = kawaiiFirewallFromModel(*kawaii.Firewall)
+		if err != nil {
+			return HttpBadParams(err)
+		}
 	}
-	natRules, err := kawaiiDNatRulesFromModel(kawaii.Dnat)
-	if err != nil {
-		return HttpBadParams(err)
+	natRules := gw.DNatRules
+	if kawaii.Dnat != nil {
+		natRules, err = kawaiiDNatRulesFromModel(kawaii.Dnat)
+		if err != nil {
+			return HttpBadParams(err)
+		}
 	}
 
 	// update Kawaii
@@ -101,22 +107,24 @@ func (s *KawaiiService) CreateKawaiiIpSec(ctx context.Context, kawaiiId string, 
 			return HttpConflict(fmt.Errorf("IP Sec connection (name and remotePeer) must be unique : %s/%s", existingIpsec.Name, existingIpsec.RemotePeer))
 		}
 	}
-	ingress, err := kawaiiIngressRulesFromModel(ipsec.Firewall.Ingress)
-	if err != nil {
-		return HttpBadParams(err)
+	fw := KawaiiFirewall{Ingress: []KawaiiFirewallIngressRule{}}
+	if ipsec.Firewall != nil {
+		fw.Ingress, err = kawaiiIngressRulesFromModel(ipsec.Firewall.Ingress)
+		if err != nil {
+			return HttpBadParams(err)
+		}
 	}
-	fw := KawaiiFirewall{Ingress: ingress}
 	ipsecConn, err := NewKawaiiIPsecConnection(kawaiiId, ipsec.Name, ipsec.Description, ipsec.RemoteIp,
 		ipsec.RemoteSubnet, ipsec.PreSharedKey,
 		ipsec.DpdTimeout, ipsec.DpdTimeoutAction, ipsec.StartAction, ipsec.RekeyTime,
-		ipsec.Phase1Lifetime, ipsec.Phase1DhGroupNumber, ipsec.Phase1IntegrityAlgorithm, ipsec.Phase1EncryptionAlgorithm,
-		ipsec.Phase2Lifetime, ipsec.Phase2DhGroupNumber, ipsec.Phase2IntegrityAlgorithm, ipsec.Phase2EncryptionAlgorithm,
+		ipsec.Phase1Lifetime, int64(ipsec.Phase1DhGroupNumber), ipsec.Phase1IntegrityAlgorithm, ipsec.Phase1EncryptionAlgorithm,
+		ipsec.Phase2Lifetime, int64(ipsec.Phase2DhGroupNumber), ipsec.Phase2IntegrityAlgorithm, ipsec.Phase2EncryptionAlgorithm,
 		fw)
 	if err != nil {
 		return HttpServerError(err)
 	}
 	payload := ipsecConn.Model()
-	LogHttpResponse(hideSecretsPayload(payload))
+	LogHttpResponse(payload)
 	return HttpCreated(payload)
 }
 
@@ -244,7 +252,7 @@ func (s *KawaiiService) ListKawaiiIpSecs(ctx context.Context, kawaiiId string) (
 	if err != nil {
 		return HttpNotFound(err)
 	}
-	var payload []string
+	payload := []string{}
 	for _, k := range ipsecs {
 		payload = append(payload, k.String())
 	}
@@ -259,11 +267,11 @@ func (s *KawaiiService) ReadKawaiiIpSec(ctx context.Context, kawaiiId, ipsecId s
 		return HttpNotFound(err)
 	}
 	payload := ipsec.Model()
-	LogHttpResponse(hideSecretsPayload(payload))
+	LogHttpResponse(payload)
 	return HttpOK(payload)
 }
 
-func (s *KawaiiService) UpdateKawaiiIpSec(ctx context.Context, kawaiiId, ipsecId string, ipsecSpec sdk.KawaiiIpSec) (sdk.ImplResponse, error) {
+func (s *KawaiiService) UpdateKawaiiIpSec(ctx context.Context, kawaiiId, ipsecId string, ipsecSpec sdk.KawaiiIpSecUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("kawaiiId", kawaiiId), RA("ipsec", ipsecId))
 
 	// Ensure Ip Sec Conn exists
@@ -271,26 +279,25 @@ func (s *KawaiiService) UpdateKawaiiIpSec(ctx context.Context, kawaiiId, ipsecId
 	if err != nil {
 		return HttpNotFound(err)
 	}
-	ingress, err := kawaiiIngressRulesFromModel(ipsecSpec.Firewall.Ingress)
-	if err != nil {
-		return HttpBadParams(err)
+	// unspecified firewall is left unchanged
+	var fw *KawaiiFirewall
+	if ipsecSpec.Firewall != nil {
+		ingress, err := kawaiiIngressRulesFromModel(ipsecSpec.Firewall.Ingress)
+		if err != nil {
+			return HttpBadParams(err)
+		}
+		fw = &KawaiiFirewall{Ingress: ingress}
 	}
-	fw := KawaiiFirewall{Ingress: ingress}
 	err = ipsecConn.Update(ipsecSpec.Name, ipsecSpec.Description, ipsecSpec.RemoteIp,
 		ipsecSpec.RemoteSubnet, ipsecSpec.PreSharedKey,
 		ipsecSpec.DpdTimeout, ipsecSpec.DpdTimeoutAction, ipsecSpec.StartAction, ipsecSpec.RekeyTime,
-		ipsecSpec.Phase1Lifetime, ipsecSpec.Phase1DhGroupNumber, ipsecSpec.Phase1IntegrityAlgorithm, ipsecSpec.Phase1EncryptionAlgorithm,
-		ipsecSpec.Phase2Lifetime, ipsecSpec.Phase2DhGroupNumber, ipsecSpec.Phase2IntegrityAlgorithm, ipsecSpec.Phase2EncryptionAlgorithm,
+		ipsecSpec.Phase1Lifetime, int64(ipsecSpec.Phase1DhGroupNumber), ipsecSpec.Phase1IntegrityAlgorithm, ipsecSpec.Phase1EncryptionAlgorithm,
+		ipsecSpec.Phase2Lifetime, int64(ipsecSpec.Phase2DhGroupNumber), ipsecSpec.Phase2IntegrityAlgorithm, ipsecSpec.Phase2EncryptionAlgorithm,
 		fw)
 	if err != nil {
 		return HttpServerError(err)
 	}
 	payload := ipsecConn.Model()
-	LogHttpResponse(hideSecretsPayload(payload))
+	LogHttpResponse(payload)
 	return HttpOK(payload)
-}
-
-func hideSecretsPayload(payload sdk.KawaiiIpSec) sdk.KawaiiIpSec {
-	payload.PreSharedKey = "<redacted>"
-	return payload
 }

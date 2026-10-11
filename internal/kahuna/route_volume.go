@@ -13,7 +13,7 @@ import (
 )
 
 func NewVolumeRouter() sdk.Router {
-	return sdk.NewVolumeAPIController(&VolumeService{})
+	return sdk.NewVolumeAPIController(&VolumeService{}, sdk.WithVolumeAPIErrorHandler(ApiErrorHandler))
 }
 
 type VolumeService struct{}
@@ -50,13 +50,10 @@ func (s *VolumeService) ReadVolume(ctx context.Context, volumeId string) (sdk.Im
 }
 
 // UpdateVolume -
-func (s *VolumeService) UpdateVolume(ctx context.Context, volumeId string, volume sdk.Volume) (sdk.ImplResponse, error) {
+func (s *VolumeService) UpdateVolume(ctx context.Context, volumeId string, volume sdk.VolumeUpdate) (sdk.ImplResponse, error) {
 	LogHttpRequest(RA("volumeId", volumeId), RA("volume", volume))
 
 	// check for params
-	if volume.Name == "" && volume.Description == "" && volume.Size == 0 {
-		return HttpBadParams(nil)
-	}
 	if volume.Size < 0 {
 		return HttpBadParams(nil)
 	}

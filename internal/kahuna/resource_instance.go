@@ -1040,13 +1040,13 @@ func (i *Instance) Model() sdk.Instance {
 		Id:             i.String(),
 		Name:           i.Name,
 		Description:    i.Description,
-		Vcpus:          i.CPU,
+		Vcpus:          toInt32(i.CPU),
 		Memory:         i.Memory,
 		Adapters:       i.Adapters(),
 		Volumes:        i.Volumes(),
 		Kwarantines:    i.KwarantineIDs(),
-		Uefi:           i.Uefi,
-		KmotionEnabled: i.KMotionEnabled,
+		Uefi:           ptr(i.Uefi),
+		KmotionEnabled: ptr(i.KMotionEnabled),
 	}
 }
 

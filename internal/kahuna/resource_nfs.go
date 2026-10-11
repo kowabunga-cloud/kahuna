@@ -183,10 +183,11 @@ func (n *NFS) Update(name, desc, endpoint, fs string, backends []string, port in
 
 	SetFieldStr(&n.Endpoint, endpoint)
 	SetFieldStr(&n.FS, fs)
-	n.Ganesha.Backends = backends
-	n.Ganesha.Port = port
-	if port == 0 {
-		n.Ganesha.Port = NfsBackendApiPort
+	if backends != nil {
+		n.Ganesha.Backends = backends
+	}
+	if port != 0 {
+		n.Ganesha.Port = port
 	}
 
 	return n.Save()
@@ -218,7 +219,6 @@ func (n *NFS) Delete() error {
 }
 
 func (n *NFS) Model() sdk.StorageNfs {
-	port := int64(n.Ganesha.Port)
 	return sdk.StorageNfs{
 		Id:          n.String(),
 		Name:        n.Name,
@@ -226,7 +226,7 @@ func (n *NFS) Model() sdk.StorageNfs {
 		Endpoint:    n.Endpoint,
 		Fs:          n.FS,
 		Backends:    n.Ganesha.Backends,
-		Port:        port,
+		Port:        toInt32(int64(n.Ganesha.Port)),
 	}
 }
 

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -13,6 +13,7 @@ package sdk
 
 
 import (
+	"errors"
 	"encoding/json"
 	"fmt"
 )
@@ -26,7 +27,7 @@ type KonveyBackends struct {
 	Hosts []string `json:"hosts"`
 
 	// The Konvey (Kowabunga Network Load-Balancer) endpoint backend service port.
-	Port int64 `json:"port"`
+	Port int32 `json:"port"`
 }
 // UnmarshalJSON validates required property keys then unmarshals into KonveyBackends
 func (o *KonveyBackends) UnmarshalJSON(data []byte) (err error) {
@@ -101,10 +102,24 @@ func AssertKonveyBackendsRequired(obj KonveyBackends) error {
 		}
 	}
 
+
+
+
+
 	return nil
 }
 
 // AssertKonveyBackendsConstraints checks if the values respects the defined constraints
 func AssertKonveyBackendsConstraints(obj KonveyBackends) error {
+
+
+	if obj.Port < 1 {
+		return &ParsingError{Param: "Port", Err: errors.New(errMsgMinValueConstraint)}
+	}
+	if obj.Port > 65535 {
+		return &ParsingError{Param: "Port", Err: errors.New(errMsgMaxValueConstraint)}
+	}
+
+
 	return nil
 }

@@ -5,7 +5,7 @@
  *
  * Kvm Orchestrator With A BUNch of Goods Added
  *
- * API version: 0.57.0
+ * API version: 0.58.0
  * Contact: maintainers@kowabunga.cloud
  */
 
@@ -83,11 +83,11 @@ func (c *PoolAPIController) Routes() Routes {
 			"/api/v1/pool/{poolId}/volumes",
 			c.ListStoragePoolVolumes,
 		},
-		"CreateTemplate": Route{
-			"CreateTemplate",
+		"CreateStoragePoolTemplate": Route{
+			"CreateStoragePoolTemplate",
 			strings.ToUpper("Post"),
 			"/api/v1/pool/{poolId}/template",
-			c.CreateTemplate,
+			c.CreateStoragePoolTemplate,
 		},
 		"SetStoragePoolDefaultTemplate": Route{
 			"SetStoragePoolDefaultTemplate",
@@ -138,10 +138,10 @@ func (c *PoolAPIController) OrderedRoutes() []Route {
 			c.ListStoragePoolVolumes,
 		},
 		Route{
-			"CreateTemplate",
+			"CreateStoragePoolTemplate",
 			strings.ToUpper("Post"),
 			"/api/v1/pool/{poolId}/template",
-			c.CreateTemplate,
+			c.CreateStoragePoolTemplate,
 		},
 		Route{
 			"SetStoragePoolDefaultTemplate",
@@ -198,10 +198,10 @@ func (c *PoolAPIController) UpdateStoragePool(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, &RequiredError{"poolId"}, nil)
 		return
 	}
-	var storagePoolParam StoragePool
+	var storagePoolUpdateParam StoragePoolUpdate
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&storagePoolParam); err != nil {
+	if err := d.Decode(&storagePoolUpdateParam); err != nil {
 		var requiredErr *RequiredError
 		if errors.As(err, &requiredErr) {
 			c.errorHandler(w, r, err, nil)
@@ -210,15 +210,15 @@ func (c *PoolAPIController) UpdateStoragePool(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertStoragePoolRequired(storagePoolParam); err != nil {
+	if err := AssertStoragePoolUpdateRequired(storagePoolUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertStoragePoolConstraints(storagePoolParam); err != nil {
+	if err := AssertStoragePoolUpdateConstraints(storagePoolUpdateParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.UpdateStoragePool(r.Context(), poolIdParam, storagePoolParam)
+	result, err := c.service.UpdateStoragePool(r.Context(), poolIdParam, storagePoolUpdateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -264,8 +264,8 @@ func (c *PoolAPIController) ListStoragePoolVolumes(w http.ResponseWriter, r *htt
 	_ = EncodeJSONResponse(result.Body, &result.Code, w)
 }
 
-// CreateTemplate -
-func (c *PoolAPIController) CreateTemplate(w http.ResponseWriter, r *http.Request) {
+// CreateStoragePoolTemplate -
+func (c *PoolAPIController) CreateStoragePoolTemplate(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	poolIdParam := params["poolId"]
 	if poolIdParam == "" {
@@ -292,7 +292,7 @@ func (c *PoolAPIController) CreateTemplate(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreateTemplate(r.Context(), poolIdParam, templateParam)
+	result, err := c.service.CreateStoragePoolTemplate(r.Context(), poolIdParam, templateParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
