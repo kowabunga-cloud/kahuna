@@ -9,6 +9,9 @@ on:
       - 'go.mod'
       - 'go.sum'
       - 'Makefile'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'config/templates/**'
       - '.github/workflows/**'
   pull_request:
     branches: master
@@ -20,3 +23,9 @@ jobs:
     secrets: inherit
     with:
       mongodb: true
+
+  # container image build and vulnerability scan (published on release)
+  image:
+    uses: kowabunga-cloud/workflows/.github/workflows/container.yml@v1
+    with:
+      image: kahuna

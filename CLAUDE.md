@@ -76,6 +76,14 @@ The REST API surface is defined by an OpenAPI spec (version set by `SDK_VERSION`
 
 API errors are always JSON `ApiError` bodies (`{status, error, reason}`), see `sdk.go` (`HttpX()` helpers and `ApiErrorHandler`, wired into every controller).
 
+## Container Image
+
+`Dockerfile` builds a minimal `scratch` image: static binary (`/usr/bin/kahuna`, cross-compiled, version injected), CA certificates, writable `/tmp` (cloud-init ISO generation) and default cloud-init templates (`/etc/kowabunga/templates`), running as UID 65532. The configuration file is expected at `/etc/kowabunga/kahuna.yml`, with `global.http.address: 0.0.0.0`.
+
+CI builds and scans (Trivy) the image on every change; releases publish it to `ghcr.io/kowabunga-cloud/kahuna` (signed, with SBOM and provenance attestations), through the shared `kowabunga-cloud/workflows` workflows.
+
+Health endpoints (no authentication): `GET /healthz` (liveness) and `GET /readyz` (readiness, MongoDB reachable). `kahuna --version` prints the version, set at build time (`make build VERSION=x.y.z`).
+
 ## Configuration
 
 Default config path: `/etc/config/kahuna.yml` (production) or `./config/kahuna.yml` (local).

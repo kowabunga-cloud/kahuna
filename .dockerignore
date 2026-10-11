@@ -1,0 +1,7 @@
+# only sources, Go modules and cloud-init templates are needed
+*
+!cmd/
+!internal/
+!go.mod
+!go.sum
+!config/templates/

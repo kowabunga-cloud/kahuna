@@ -22,3 +22,15 @@ updates:
     groups:
       go-modules:
         patterns: ["*"]
+
+  # container base images (Dockerfile), pinned by digest
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      docker:
+        patterns: ["*"]
