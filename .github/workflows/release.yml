@@ -1,6 +1,9 @@
 name: Trigger Release
 
 on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:
@@ -10,5 +13,5 @@ permissions:
 
 jobs:
   release:
-    uses: kowabunga-cloud/workflows/.github/workflows/go-release.yml@master
+    uses: kowabunga-cloud/workflows/.github/workflows/go-release.yml@v1
     secrets: inherit
