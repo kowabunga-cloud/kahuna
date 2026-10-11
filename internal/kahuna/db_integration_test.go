@@ -19,13 +19,13 @@ import (
 )
 
 // requireTestDB connects to the MongoDB instance pointed to by the
-// KAHUNA_TEST_MONGO_URI environment variable, on a scratch database dropped
+// TEST_MONGODB_URI environment variable, on a scratch database dropped
 // once the test is over. Tests requiring it are skipped otherwise.
 func requireTestDB(t *testing.T) *KowabungaDB {
 	t.Helper()
-	uri := os.Getenv("KAHUNA_TEST_MONGO_URI")
+	uri := os.Getenv("TEST_MONGODB_URI")
 	if uri == "" {
-		t.Skip("KAHUNA_TEST_MONGO_URI not set, skipping MongoDB integration test")
+		t.Skip("TEST_MONGODB_URI not set, skipping MongoDB integration test")
 	}
 
 	db := GetDB()
