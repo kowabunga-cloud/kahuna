@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.67.0](https://github.com/kowabunga-cloud/kahuna/compare/v0.66.0...v0.67.0) (2026-10-11)
+
+### Features
+
+* add health endpoints and version information ([0023a32](https://github.com/kowabunga-cloud/kahuna/commit/0023a3246297bac7d83540b4fda09934362627e2))
+
 ## [0.66.0](https://github.com/kowabunga-cloud/kahuna/compare/v0.65.0...v0.66.0) (2026-10-11)
 
 ### Features
