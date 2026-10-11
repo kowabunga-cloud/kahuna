@@ -6,11 +6,17 @@ on:
     paths:
       - 'cmd/kahuna/**'
       - 'internal/kahuna/**'
+      - 'go.mod'
+      - 'go.sum'
+      - 'Makefile'
+      - '.github/workflows/**'
   pull_request:
     branches: master
   workflow_dispatch:
 
 jobs:
   ci:
-    uses: kowabunga-cloud/workflows/.github/workflows/go-ci.yml@master
+    uses: kowabunga-cloud/workflows/.github/workflows/go-ci.yml@v1
     secrets: inherit
+    with:
+      mongodb: true
