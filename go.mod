@@ -4,7 +4,7 @@ go 1.27.1
 
 require (
 	github.com/AfterShip/email-verifier v1.5.0
-	github.com/agnivade/levenshtein v1.2.1
+	github.com/agnivade/levenshtein v1.2.2
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/apparentlymart/go-cidr v1.1.1
 	github.com/coocood/freecache v1.2.7
@@ -13,7 +13,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
-	github.com/huandu/xstrings v1.6.2
+	github.com/huandu/xstrings v1.6.3
 	github.com/inhies/go-bytesize v0.0.0-20220417184213-4913239db9cf
 	github.com/kdomanski/iso9660 v0.4.0
 	github.com/kowabunga-cloud/common v0.66.0
