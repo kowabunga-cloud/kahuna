@@ -13,7 +13,7 @@
 # shipped in /etc/kowabunga/templates (or mounted ones).
 
 # cross-compiled on the build platform: no emulation for multi-platform builds
-FROM --platform=$BUILDPLATFORM golang:1.27-alpine@sha256:f92b6ef800e499660581efdabdf25d9d817a9d124eaf900924f0504e7e27e12d AS build
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine@sha256:eb61c3873c97416fff0116553fff65d67a3549f72e11d9758849a689cdd8b523 AS build
 
 ARG TARGETOS
 ARG TARGETARCH
